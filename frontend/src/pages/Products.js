@@ -21,12 +21,6 @@ export default function Products() {
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(category_id || '');
 
-  // Keep selectedCategory in sync with URL query (menu clicks)
-  useEffect(() => {
-    setSelectedCategory(category_id || '');
-    setPage(1);
-  }, [category_id]);
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -34,7 +28,7 @@ export default function Products() {
         const [prodRes, catRes] = await Promise.all([
           productAPI.getAll({
             city: city !== 'all' ? city : undefined,
-            category_id: selectedCategory || undefined,
+            category_id: selectedCategory || category_id || undefined,
             min_price: minPrice || undefined,
             max_price: maxPrice || undefined,
             search: search || undefined,
@@ -42,9 +36,7 @@ export default function Products() {
             page,
             limit: 12
           }),
-          categoryAPI.getAll({
-            city: city !== 'all' ? city : undefined
-          })
+          categoryAPI.getAll()
         ]);
         setProducts(prodRes.data.products);
         setTotal(prodRes.data.total);
@@ -56,7 +48,7 @@ export default function Products() {
       }
     };
     fetchData();
-  }, [city, selectedCategory, minPrice, maxPrice, search, featured, page]);
+  }, [city, selectedCategory, category_id, minPrice, maxPrice, search, featured, page]);
 
   const totalPages = Math.ceil(total / 12);
 
@@ -74,30 +66,12 @@ export default function Products() {
               <h4>Categories</h4>
               <div className="filter-options">
                 <label>
-                  <input
-                    type="radio"
-                    name="category"
-                    value=""
-                    checked={selectedCategory === ''}
-                    onChange={() => {
-                      setSelectedCategory('');
-                      setPage(1);
-                    }}
-                  />
+                  <input type="radio" name="category" value="" checked={!selectedCategory && !category_id} onChange={() => { setSelectedCategory(''); setPage(1); }} />
                   <span>All Categories</span>
                 </label>
                 {categories.map(cat => (
                   <label key={cat.id}>
-                    <input
-                      type="radio"
-                      name="category"
-                      value={cat.id}
-                      checked={selectedCategory === cat.id.toString()}
-                      onChange={() => {
-                        setSelectedCategory(cat.id.toString());
-                        setPage(1);
-                      }}
-                    />
+                    <input type="radio" name="category" value={cat.id} checked={selectedCategory === cat.id.toString() || category_id === cat.id.toString()} onChange={() => { setSelectedCategory(cat.id.toString()); setPage(1); }} />
                     <span>{cat.name}</span>
                   </label>
                 ))}

@@ -78,14 +78,11 @@ export default function Navbar() {
       <div className="navbar-bottom">
         <div className="container">
           <nav className="navbar-categories">
-            <Link to="/products?category_id=1" className="cat-link">⛺ Camping Rental</Link>
-            <Link to="/products?category_id=2" className="cat-link">🏠 Home Appliances</Link>
-            <Link to="/products?category_id=3" className="cat-link">🎉 Event Rental</Link>
-            <Link to="/products?category_id=4" className="cat-link">🖼️ Backdrop Rental</Link>
-            <Link to="/products?category_id=5" className="cat-link">🎂 Birthday Rental</Link>
-            <Link to="/products?category_id=6" className="cat-link">👶 Baby Props</Link>
-            <Link to="/products?category_id=7" className="cat-link">🧸 Kids Toys</Link>
-            <Link to="/products?category_id=8" className="cat-link">🎯 Games Rental</Link>
+            <Link to="/products?category_id=1" className="cat-link">🏠 Appliances</Link>
+            <Link to="/products?category_id=2" className="cat-link">🎉 Event Rentals</Link>
+            <Link to="/products?category_id=3" className="cat-link">👶 Kids & Baby</Link>
+            <Link to="/products?category_id=4" className="cat-link">🛋️ Furniture</Link>
+            <Link to="/products?featured=true" className="cat-link featured">⭐ Featured</Link>
           </nav>
         </div>
       </div>
@@ -104,14 +101,10 @@ export default function Navbar() {
           <form className="mobile-search" onSubmit={handleSearch}>
             <input type="text" placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
           </form>
-          <Link to="/products?category_id=1" onClick={() => setMenuOpen(false)}>⛺ Camping Rental</Link>
-          <Link to="/products?category_id=2" onClick={() => setMenuOpen(false)}>🏠 Home Appliances Rental</Link>
-          <Link to="/products?category_id=3" onClick={() => setMenuOpen(false)}>🎉 Event Rental</Link>
-          <Link to="/products?category_id=4" onClick={() => setMenuOpen(false)}>🖼️ Backdrop Rental</Link>
-          <Link to="/products?category_id=5" onClick={() => setMenuOpen(false)}>🎂 Birthday Rental</Link>
-          <Link to="/products?category_id=6" onClick={() => setMenuOpen(false)}>👶 Baby Props Rental</Link>
-          <Link to="/products?category_id=7" onClick={() => setMenuOpen(false)}>🧸 Kids Toys on Rent</Link>
-          <Link to="/products?category_id=8" onClick={() => setMenuOpen(false)}>🎯 Games Rental</Link>
+          <Link to="/products?category_id=1" onClick={() => setMenuOpen(false)}>🏠 Appliances</Link>
+          <Link to="/products?category_id=2" onClick={() => setMenuOpen(false)}>🎉 Event Rentals</Link>
+          <Link to="/products?category_id=3" onClick={() => setMenuOpen(false)}>👶 Kids & Baby</Link>
+          <Link to="/products?category_id=4" onClick={() => setMenuOpen(false)}>🛋️ Furniture</Link>
           <Link to="/cart" onClick={() => setMenuOpen(false)}>🛒 Cart ({cartCount})</Link>
           {user ? (
             <>
