@@ -1,0 +1,41 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --primary: #FF5722;
+  --primary-dark: #E64A19;
+  --primary-light: #FF8A65;
+  --dark: #1a1a2e;
+  --dark-2: #16213e;
+  --gray: #6b7280;
+  --gray-light: #f3f4f6;
+  --gray-border: #e5e7eb;
+  --white: #ffffff;
+  --green: #4CAF50;
+  --yellow: #FFC107;
+  --red: #f44336;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+body { font-family: 'Inter', sans-serif; background: #f8f9fa; color: var(--dark); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: inherit; }
+img { max-width: 100%; }
+input, select, textarea { font-family: inherit; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); border: none; font-weight: 600; font-size: 14px; transition: all 0.2s; cursor: pointer; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+.btn-outline:hover { background: var(--primary); color: white; }
+.btn-dark { background: var(--dark); color: white; }
+.btn-dark:hover { background: var(--dark-2); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-green { background: #e8f5e9; color: var(--green); }
+.badge-orange { background: #fff3e0; color: var(--primary); }
+.badge-red { background: #ffebee; color: var(--red); }
+.section-title { font-size: 24px; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+.section-subtitle { font-size: 14px; color: var(--gray); margin-bottom: 24px; }
+.loading { display: flex; align-items: center; justify-content: center; min-height: 200px; font-size: 16px; color: var(--gray); }
+.error-msg { color: var(--red); font-size: 13px; margin-top: 4px; }
+@media (max-width: 768px) { .section-title { font-size: 20px; } }
