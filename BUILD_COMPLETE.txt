@@ -3,7 +3,7 @@
 ================================================================================
 
 PROJECT: Full-Stack Rental Platform
-LOCATION: /sessions/eager-peaceful-pascal/mnt/ClaudeCode/pakkarent/
+LOCATION: /Users/prasannakumar/Documents/pakkarent/
 DATE: February 28, 2026
 STATUS: Production Ready
 
@@ -298,7 +298,7 @@ DEPLOYMENT:
 ================================================================================
 
 All files have been successfully created in:
-/sessions/eager-peaceful-pascal/mnt/ClaudeCode/pakkarent/
+/Users/prasannakumar/Documents/pakkarent/
 
 Ready to setup and run!
 
