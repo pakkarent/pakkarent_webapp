@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: pakkarent-db
+    environment:
+      POSTGRES_DB: pakkarent
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: pakkarent-backend
+    environment:
+      PORT: 5000
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/pakkarent
+      JWT_SECRET: changeme_in_production
+      CLIENT_URL: http://localhost:3000
+      NODE_ENV: development
+    depends_on:
+      - db
+    ports:
+      - "5001:5000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: pakkarent-frontend
+    environment:
+      BROWSER: "none"
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
+

@@ -4,7 +4,22 @@ const pool = require('../models/db');
 const { authenticate, adminOnly } = require('../middleware/auth');
 
 router.get('/', async (req, res) => {
+  const { city } = req.query;
   try {
+    if (city) {
+      const result = await pool.query(
+        `SELECT DISTINCT c.*
+         FROM categories c
+         JOIN products p ON p.category_id = c.id
+         WHERE c.is_active = true
+           AND p.is_active = true
+           AND (p.city = $1 OR p.city = 'all')
+         ORDER BY c.sort_order`,
+        [city]
+      );
+      return res.json({ success: true, categories: result.rows });
+    }
+
     const result = await pool.query('SELECT * FROM categories WHERE is_active=true ORDER BY sort_order');
     res.json({ success: true, categories: result.rows });
   } catch (err) {
