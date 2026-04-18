@@ -65,46 +65,48 @@ export default function AdminOrders() {
           <p className="total-info">Total: {total} orders</p>
         </div>
 
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Items</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(order => (
-              <tr key={order.id}>
-                <td>#{order.id}</td>
-                <td>
-                  <div>{order.user_name}</div>
-                  <small>{order.user_email}</small>
-                </td>
-                <td>{order.items ? order.items.length : 0} item{order.items && order.items.length > 1 ? 's' : ''}</td>
-                <td>₹{parseFloat(order.total_amount).toFixed(2)}</td>
-                <td>
-                  <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="status-select">
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </td>
-                <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                <td className="actions">
-                  <button className="btn-small btn-edit">View</button>
-                </td>
+        <div className="table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {orders.map(order => (
+                <tr key={order.id}>
+                  <td>#{order.id}</td>
+                  <td>
+                    <div>{order.user_name}</div>
+                    <small>{order.user_email}</small>
+                  </td>
+                  <td>{order.items ? order.items.length : 0} item{order.items && order.items.length > 1 ? 's' : ''}</td>
+                  <td>₹{parseFloat(order.total_amount).toFixed(2)}</td>
+                  <td>
+                    <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="status-select">
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="active">Active</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </td>
+                  <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                  <td className="actions">
+                    <button className="btn-small btn-edit">View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {Math.ceil(total / 20) > 1 && (
           <div className="pagination">

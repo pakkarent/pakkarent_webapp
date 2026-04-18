@@ -9,6 +9,8 @@ const categoryRoutes = require('./src/routes/categories');
 const orderRoutes = require('./src/routes/orders');
 const userRoutes = require('./src/routes/users');
 const adminRoutes = require('./src/routes/admin');
+const pricingAdminRoutes = require('./src/routes/pricingAdmin');
+const uploadRoutes = require('./src/routes/uploads');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,6 +26,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/pricing', pricingAdminRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK', message: 'PakkaRent API running' }));
 

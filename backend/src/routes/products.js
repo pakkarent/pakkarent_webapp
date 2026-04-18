@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../models/db');
 const { authenticate, adminOnly } = require('../middleware/auth');
+const { loadActivePricingRules, enrichProduct } = require('../utils/pricing');
 
 // Get all products with filters
 router.get('/', async (req, res) => {
@@ -31,7 +32,9 @@ router.get('/', async (req, res) => {
        ${where} ORDER BY p.created_at DESC LIMIT $${idx} OFFSET $${idx+1}`,
       [...params, limit, offset]
     );
-    res.json({ success: true, products: result.rows, total: parseInt(countResult.rows[0].count), page: parseInt(page), limit: parseInt(limit) });
+    const rules = await loadActivePricingRules(pool);
+    const products = result.rows.map((row) => enrichProduct(row, rules));
+    res.json({ success: true, products, total: parseInt(countResult.rows[0].count), page: parseInt(page), limit: parseInt(limit) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -46,7 +49,9 @@ router.get('/:id', async (req, res) => {
       [req.params.id]
     );
     if (!result.rows.length) return res.status(404).json({ success: false, message: 'Product not found' });
-    res.json({ success: true, product: result.rows[0] });
+    const rules = await loadActivePricingRules(pool);
+    const product = enrichProduct(result.rows[0], rules);
+    res.json({ success: true, product });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -72,7 +77,7 @@ router.put('/:id', authenticate, adminOnly, async (req, res) => {
   const { name, description, category_id, city, monthly_price, price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured, is_active } = req.body;
   try {
     const result = await pool.query(
-      `UPDATE products SET name=$1, description=$2, category_id=$3, city=$4, monthly_price=$5, price_3month=$6, price_6month=$7, price_12month=$8, security_deposit=$9, images=$10, specs=$11, stock=$12, is_featured=$13, is_active=$14, updated_at=NOW()
+      `UPDATE products SET name=$1, description=$2, category_id=$3, city=$4, monthly_price=$5, price_3month=$6, price_6month=$7, price_12month=$8, security_deposit=$9, images=$10, specs=$11, stock=$12, is_featured=$13, is_active=COALESCE($14, is_active), updated_at=NOW()
        WHERE id=$15 RETURNING *`,
       [name, description, category_id, city, monthly_price, price_3month, price_6month, price_12month, security_deposit, JSON.stringify(images), JSON.stringify(specs), stock, is_featured, is_active, req.params.id]
     );

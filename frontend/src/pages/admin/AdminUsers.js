@@ -47,39 +47,41 @@ export default function AdminUsers() {
           <p className="total-info">Total: {total} users</p>
         </div>
 
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>City</th>
-              <th>Role</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => (
-              <tr key={user.id}>
-                <td className="product-name">{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.phone || '-'}</td>
-                <td>{user.city || '-'}</td>
-                <td>
-                  <select value={user.role} onChange={(e) => handleRoleChange(user.id, e.target.value)} className="role-select">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </td>
-                <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                <td className="actions">
-                  <button className="btn-small btn-edit">View</button>
-                </td>
+        <div className="table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user.id}>
+                  <td className="product-name">{user.name}</td>
+                  <td>{user.email}</td>
+                  <td>{user.phone || '-'}</td>
+                  <td>{user.city || '-'}</td>
+                  <td>
+                    <select value={user.role} onChange={(e) => handleRoleChange(user.id, e.target.value)} className="role-select">
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </td>
+                  <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                  <td className="actions">
+                    <button className="btn-small btn-edit">View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {Math.ceil(total / 20) > 1 && (
           <div className="pagination">

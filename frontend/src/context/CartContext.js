@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { effectivePriceForTenure } from '../utils/pricingDisplay';
 
 const CartContext = createContext(null);
 
@@ -29,12 +30,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => setCart([]);
 
-  const getItemPrice = (product) => {
-    if (tenure === 3) return product.price_3month || product.monthly_price * 3;
-    if (tenure === 6) return product.price_6month || product.monthly_price * 6;
-    if (tenure === 12) return product.price_12month || product.monthly_price * 12;
-    return product.monthly_price * tenure;
-  };
+  const getItemPrice = (product) => effectivePriceForTenure(product, tenure);
 
   const cartTotal = cart.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);
   const depositTotal = cart.reduce((sum, item) => sum + (item.security_deposit || 0) * item.quantity, 0);

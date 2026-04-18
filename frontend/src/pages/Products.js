@@ -59,6 +59,17 @@ export default function Products() {
   }, [city, selectedCategory, minPrice, maxPrice, search, featured, page]);
 
   const totalPages = Math.ceil(total / 12);
+  const visiblePages = (() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages = [1];
+    const start = Math.max(2, page - 1);
+    const end = Math.min(totalPages - 1, page + 1);
+    if (start > 2) pages.push('left-ellipsis');
+    for (let p = start; p <= end; p++) pages.push(p);
+    if (end < totalPages - 1) pages.push('right-ellipsis');
+    pages.push(totalPages);
+    return pages;
+  })();
 
   return (
     <div className="products-page">
@@ -131,8 +142,12 @@ export default function Products() {
                   <div className="pagination">
                     <button disabled={page === 1} onClick={() => setPage(1)}>First</button>
                     <button disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                      <button key={p} className={p === page ? 'active' : ''} onClick={() => setPage(p)}>{p}</button>
+                    {visiblePages.map((p) => (
+                      typeof p === 'number' ? (
+                        <button key={p} className={p === page ? 'active' : ''} onClick={() => setPage(p)}>{p}</button>
+                      ) : (
+                        <span key={p} className="pagination-ellipsis">…</span>
+                      )
                     ))}
                     <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>Next</button>
                     <button disabled={page === totalPages} onClick={() => setPage(totalPages)}>Last</button>

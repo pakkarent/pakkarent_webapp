@@ -49,38 +49,40 @@ export default function AdminProducts() {
           <p className="total-info">Total: {total} products</p>
         </div>
 
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Category</th>
-              <th>City</th>
-              <th>Monthly Price</th>
-              <th>Stock</th>
-              <th>Featured</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map(prod => (
-              <tr key={prod.id}>
-                <td className="product-name">
-                  <div>{prod.name}</div>
-                  <small>ID: {prod.id}</small>
-                </td>
-                <td>{prod.category_name}</td>
-                <td>{prod.city === 'all' ? 'All Cities' : prod.city}</td>
-                <td>₹{prod.monthly_price}</td>
-                <td><span className={`badge ${prod.stock > 5 ? 'badge-green' : 'badge-orange'}`}>{prod.stock}</span></td>
-                <td>{prod.is_featured ? '⭐ Yes' : 'No'}</td>
-                <td className="actions">
-                  <Link to={`/admin/products/${prod.id}/edit`} className="btn-small btn-edit">Edit</Link>
-                  <button className="btn-small btn-delete" onClick={() => handleDelete(prod.id)}>Delete</button>
-                </td>
+        <div className="table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>City</th>
+                <th>Monthly Price</th>
+                <th>Stock</th>
+                <th>Featured</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {products.map(prod => (
+                <tr key={prod.id}>
+                  <td className="product-name">
+                    <div>{prod.name}</div>
+                    <small>ID: {prod.id}</small>
+                  </td>
+                  <td>{prod.category_name}</td>
+                  <td>{prod.city === 'all' ? 'All Cities' : prod.city}</td>
+                  <td>₹{prod.monthly_price}</td>
+                  <td><span className={`badge ${prod.stock > 5 ? 'badge-green' : 'badge-orange'}`}>{prod.stock}</span></td>
+                  <td>{prod.is_featured ? '⭐ Yes' : 'No'}</td>
+                  <td className="actions">
+                    <Link to={`/admin/products/${prod.id}/edit`} className="btn-small btn-edit">Edit</Link>
+                    <button className="btn-small btn-delete" onClick={() => handleDelete(prod.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {Math.ceil(total / 20) > 1 && (
           <div className="pagination">

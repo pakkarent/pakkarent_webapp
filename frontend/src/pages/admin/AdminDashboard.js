@@ -98,6 +98,12 @@ export default function AdminDashboard() {
               <p>View user list and permissions</p>
             </Link>
 
+            <Link to="/admin/pricing" className="action-card">
+              <span className="action-icon">🏷️</span>
+              <h3>Pricing &amp; offers</h3>
+              <p>Store-wide and category percentage discounts</p>
+            </Link>
+
             <Link to="/admin/products/new" className="action-card">
               <span className="action-icon">➕</span>
               <h3>Add New Product</h3>

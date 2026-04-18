@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -18,6 +18,10 @@ export default function Checkout() {
     startDate: ''
   });
 
+  useEffect(() => {
+    if (!cart.length) navigate('/cart');
+  }, [cart.length, navigate]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -25,6 +29,10 @@ export default function Checkout() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!cart.length) {
+      setError('Your cart is empty. Add products before checkout.');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
@@ -89,7 +97,7 @@ export default function Checkout() {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading}>
+            <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading || !cart.length}>
               {loading ? 'Placing Order...' : 'Place Order'}
             </button>
           </form>

@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../utils/pricingDisplay';
+import { resolveImageUrl, safeJsonArray } from '../utils/media';
 import './Cart.css';
 
 export default function Cart() {
@@ -45,15 +47,22 @@ export default function Cart() {
                 <div key={item.id} className="cart-item">
                   <div className="item-image">
                     {(() => {
-                      const images = Array.isArray(item.images) ? item.images : JSON.parse(item.images || '[]');
-                      return <img src={images[0] || 'https://via.placeholder.com/100x100?text=Item'} alt={item.name} />;
+                      const images = safeJsonArray(item.images);
+                      return <img src={resolveImageUrl(images[0]) || 'https://via.placeholder.com/100x100?text=Item'} alt={item.name} />;
                     })()}
                   </div>
                   <div className="item-details">
                     <h3>{item.name}</h3>
                     <p className="item-category">{item.category_name}</p>
                     <div className="item-price">
-                      <span>₹{getItemPrice(item)}</span>
+                      {hasOffer(item) && offerPriceForTenure(item, tenure) != null ? (
+                        <>
+                          <span className="cart-price-original">₹{originalPriceForTenure(item, tenure)}</span>
+                          <span className="cart-price-offer">₹{getItemPrice(item)}</span>
+                        </>
+                      ) : (
+                        <span>₹{getItemPrice(item)}</span>
+                      )}
                       <span className="tenure-label">per {tenure}m</span>
                     </div>
                   </div>

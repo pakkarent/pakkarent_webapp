@@ -5,146 +5,187 @@ import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
 import './Home.css';
 
-const TESTIMONIALS = [
+/* ── Category → Unsplash image map (keyword-based) ── */
+const CAT_IMGS = {
+  camping:    'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=220&h=180&fit=crop&q=75',
+  appliance:  'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=220&h=180&fit=crop&q=75',
+  home:       'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=220&h=180&fit=crop&q=75',
+  event:      'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
+  backdrop:   'https://images.unsplash.com/photo-1478147427282-58a87a433049?w=220&h=180&fit=crop&q=75',
+  birthday:   'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
+  baby:       'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
+  kids:       'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=220&h=180&fit=crop&q=75',
+  toy:        'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=220&h=180&fit=crop&q=75',
+  game:       'https://images.unsplash.com/photo-1612404730960-5c71577fca11?w=220&h=180&fit=crop&q=75',
+};
+const FALLBACK_IMGS = [
+  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=220&h=180&fit=crop&q=75',
+  'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
+  'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=220&h=180&fit=crop&q=75',
+  'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
+];
+
+function getCategoryImage(catName, idx) {
+  const name = (catName || '').toLowerCase();
+  for (const [key, url] of Object.entries(CAT_IMGS)) {
+    if (name.includes(key)) return url;
+  }
+  return FALLBACK_IMGS[idx % FALLBACK_IMGS.length];
+}
+
+/* ── Static promo banners ── */
+const PROMO_BANNERS = [
   {
-    name: 'Priya Singh',
-    location: 'Chennai',
-    initials: 'PS',
-    color: '#E91E63',
-    text: 'Amazing service! Rented a washing machine and it was delivered the same day. Highly recommend!',
+    tag: 'Most Popular',
+    heading: 'Birthday &',
+    headingAccent: 'Party Rentals',
+    sub: 'Decorations, props, backdrops & more',
+    cta: 'Explore now',
+    link: '/products?category_id=5',
+    img: 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=600&h=340&fit=crop&q=80',
+    bg: '#FFF3E0',
   },
   {
-    name: 'Rahul Verma',
-    location: 'Bangalore',
-    initials: 'RV',
-    color: '#2196F3',
-    text: 'Best place to rent baby items. Quality products and great customer support throughout.',
-  },
-  {
-    name: 'Anjali Patel',
-    location: 'Hyderabad',
-    initials: 'AP',
-    color: '#4CAF50',
-    text: 'Rented party decorations for my wedding. Everything was perfect. Worth every rupee!',
+    tag: 'Top Rated',
+    heading: 'Baby &',
+    headingAccent: 'Kids Essentials',
+    sub: 'Strollers, cribs, toys & gear on rent',
+    cta: 'Rent now',
+    link: '/products?category_id=6',
+    img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=340&fit=crop&q=80',
+    bg: '#E8F5E9',
   },
 ];
 
-const REASONS = [
-  { icon: '🏆', bg: '#E3F2FD', title: 'Trusted by 50,000+ Customers', desc: "India's fastest-growing rental platform with excellent ratings" },
-  { icon: '🌍', bg: '#F3E5F5', title: 'Available in 3 Major Cities', desc: 'Chennai, Bangalore, and Hyderabad with plans to expand' },
-  { icon: '✅', bg: '#E8F5E9', title: 'Verified & Sanitized', desc: 'All items undergo quality checks and sanitization before delivery' },
-  { icon: '📱', bg: '#FFF8E1', title: 'Easy Management', desc: 'Track orders, manage deliveries and returns with ease' },
-  { icon: '💳', bg: '#FBE9E7', title: 'Flexible Payments', desc: 'Multiple payment options with EMI facility for long-term rentals' },
-  { icon: '🎯', bg: '#E0F7FA', title: 'Best Prices Guaranteed', desc: 'We offer the most competitive prices in the market' },
+/* ── Testimonials ── */
+const TESTIMONIALS = [
+  { name: 'Priya S.', loc: 'Chennai', init: 'P', color: '#E64A19',
+    text: 'Rented party decorations and they were delivered on time. Everything was perfect — saved us so much money!' },
+  { name: 'Rahul V.', loc: 'Bangalore', init: 'R', color: '#1565C0',
+    text: 'The baby crib and stroller were in great condition. Exactly what we needed for 3 months. Highly recommend.' },
+  { name: 'Anjali P.', loc: 'Hyderabad', init: 'A', color: '#2E7D32',
+    text: 'Camping gear was clean and well-maintained. Setup was quick. Will definitely rent from PakkaRent again!' },
+];
+
+/* ── HOW IT WORKS ── */
+const STEPS = [
+  { n: '1', emoji: '🔍', title: 'Browse & Select', desc: 'Choose from thousands of verified rental items in your city' },
+  { n: '2', emoji: '🛒', title: 'Book Online',     desc: 'Select your rental period and complete secure checkout' },
+  { n: '3', emoji: '🚚', title: 'Get Delivered',   desc: 'Items arrive at your doorstep on your chosen date'     },
 ];
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAllCats, setShowAllCats] = useState(false);
   const { city } = useCity();
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
         const [prodRes, catRes] = await Promise.all([
-          productAPI.getAll({ featured: true, limit: 8, city }),
+          productAPI.getAll({ featured: true, limit: 12, city }),
           categoryAPI.getAll({ city }),
         ]);
-        setFeatured(prodRes.data.products);
-        setCategories(catRes.data.categories);
-      } catch (err) {
-        console.error('Error loading home data:', err);
+        setFeatured(prodRes.data.products || []);
+        setCategories(catRes.data.categories || []);
+      } catch (e) {
+        console.error('Home fetch error:', e);
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
+    })();
   }, [city]);
+
+  const visibleCats = showAllCats ? categories : categories.slice(0, 12);
 
   return (
     <div className="home">
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="hero">
-        <div className="hero-blob hero-blob-1" />
-        <div className="hero-blob hero-blob-2" />
-        <div className="hero-blob hero-blob-3" />
-        <div className="container">
-          <div className="hero-content">
-            <div className="hero-badge">
-              <span>🇮🇳</span>
-              <span>India's Trusted Rental Platform</span>
+      {/* ════════════════════════════════════════════════
+          HERO — split layout: lifestyle image | category grid
+      ════════════════════════════════════════════════ */}
+      <section className="hero-split">
+        <div className="container hero-split-inner">
+
+          {/* LEFT — featured image panel */}
+          <div className="hero-panel">
+            <div className="hero-panel-img">
+              <img
+                src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=560&h=600&fit=crop&q=80"
+                alt="Rent for events"
+              />
+              <div className="hero-panel-overlay">
+                <p className="hero-panel-tag">✨ New arrivals</p>
+                <h2>Rent for every<br />celebration</h2>
+                <Link to="/products" className="hero-panel-btn">
+                  Explore all items <span>↗</span>
+                </Link>
+              </div>
             </div>
-            <h1 className="hero-title">
-              Rent Smarter,<br />
-              <span className="hero-highlight">Live Better</span>
-            </h1>
-            <p className="hero-subtitle">
-              Affordable rentals for appliances, baby gear &amp; event items —
-              delivered right to your doorstep.
-            </p>
-            <div className="hero-cta">
-              <Link to="/products" className="btn btn-cta btn-lg">
-                🛍️ Start Renting
-              </Link>
-              <Link to="/products" className="btn btn-hero-outline">
-                Browse All Items
-              </Link>
+          </div>
+
+          {/* RIGHT — category grid */}
+          <div className="hero-categories">
+            <h2 className="rm-heading">
+              Explore <span className="accent">our Top Categories</span>
+              <span className="dash" />
+            </h2>
+
+            <div className="cat-tiles-grid">
+              {visibleCats.map((cat, idx) => (
+                <Link
+                  key={cat.id}
+                  to={`/products?category_id=${cat.id}`}
+                  className="cat-tile"
+                >
+                  <div className="cat-tile-img">
+                    <img
+                      src={getCategoryImage(cat.name, idx)}
+                      alt={cat.name}
+                      loading="lazy"
+                      onError={e => { e.target.src = FALLBACK_IMGS[idx % FALLBACK_IMGS.length]; }}
+                    />
+                  </div>
+                  <p className="cat-tile-label">{cat.name}</p>
+                </Link>
+              ))}
             </div>
-            <div className="hero-trust">
-              <span>⭐ 4.8/5 Rating</span>
-              <span className="trust-divider">•</span>
-              <span>🏆 50,000+ Customers</span>
-              <span className="trust-divider">•</span>
-              <span>🚚 Same Day Delivery</span>
-            </div>
+
+            {categories.length > 12 && (
+              <button
+                className="view-more-btn"
+                onClick={() => setShowAllCats(v => !v)}
+              >
+                {showAllCats ? 'Show less ↑' : `View More categories ↓`}
+              </button>
+            )}
           </div>
         </div>
       </section>
 
-      {/* ── STATS BAR ─────────────────────────────────────────── */}
-      <section className="stats-bar">
+      {/* ════════════════════════════════════════════════
+          PROMO BANNERS
+      ════════════════════════════════════════════════ */}
+      <section className="promos-section">
         <div className="container">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-number">50K+</span>
-              <span className="stat-label">Happy Customers</span>
-            </div>
-            <div className="stat-divider" />
-            <div className="stat-item">
-              <span className="stat-number">3</span>
-              <span className="stat-label">Major Cities</span>
-            </div>
-            <div className="stat-divider" />
-            <div className="stat-item">
-              <span className="stat-number">1,200+</span>
-              <span className="stat-label">Products Available</span>
-            </div>
-            <div className="stat-divider" />
-            <div className="stat-item">
-              <span className="stat-number">70%</span>
-              <span className="stat-label">Savings vs Buying</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FEATURES STRIP ────────────────────────────────────── */}
-      <section className="features-strip">
-        <div className="container">
-          <div className="features-grid">
-            {[
-              { icon: '🚚', title: 'Free Delivery', sub: 'Same day in select areas' },
-              { icon: '🔒', title: '100% Safe', sub: 'Verified & sanitized items' },
-              { icon: '💰', title: 'Save 70%', sub: 'vs buying new' },
-              { icon: '📞', title: '24/7 Support', sub: 'Always here to help' },
-            ].map((f, i) => (
-              <div key={i} className="feature-chip">
-                <span className="feature-chip-icon">{f.icon}</span>
-                <div>
-                  <strong>{f.title}</strong>
-                  <span>{f.sub}</span>
+          <div className="promos-grid">
+            {PROMO_BANNERS.map((b, i) => (
+              <div key={i} className="promo-card" style={{ background: b.bg }}>
+                <div className="promo-text">
+                  <span className="promo-tag">{b.tag}</span>
+                  <h3>
+                    {b.heading}<br />
+                    <span className="promo-accent">{b.headingAccent}</span>
+                  </h3>
+                  <p>{b.sub}</p>
+                  <Link to={b.link} className="promo-btn">
+                    {b.cta} <span>↗</span>
+                  </Link>
+                </div>
+                <div className="promo-img-wrap">
+                  <img src={b.img} alt={b.headingAccent} loading="lazy" />
                 </div>
               </div>
             ))}
@@ -152,140 +193,106 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── CATEGORIES ────────────────────────────────────────── */}
-      <section className="categories-section">
+      {/* ════════════════════════════════════════════════
+          LATEST & TRENDING — horizontal carousel
+      ════════════════════════════════════════════════ */}
+      <section className="trending-section">
         <div className="container">
-          <div className="section-header">
-            <span className="section-chip">Categories</span>
-            <h2 className="section-title">Shop by Category</h2>
-            <p className="section-subtitle">Browse our wide range of rental items</p>
+          <div className="trending-header">
+            <h2 className="rm-heading">
+              Latest &amp;<span className="accent">Trending</span>
+              <span className="dash" />
+            </h2>
+            <Link to="/products" className="see-all-link">See all →</Link>
           </div>
-          <div className="categories-grid">
-            {categories.map((cat, idx) => (
-              <Link
-                key={cat.id}
-                to={`/products?category_id=${cat.id}`}
-                className="category-card"
-              >
-                <div className={`cat-icon-wrap cat-color-${idx % 6}`}>
-                  <span className="cat-icon">{cat.icon}</span>
-                </div>
-                <h3>{cat.name}</h3>
-                <p>{cat.description}</p>
-                <span className="cat-arrow">→</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ── FEATURED PRODUCTS ─────────────────────────────────── */}
-      <section className="featured-section">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-chip">Trending</span>
-            <h2 className="section-title">Featured Products</h2>
-            <p className="section-subtitle">Most popular items this month</p>
-          </div>
           {loading ? (
-            <div className="loading-skeleton">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="skeleton-card" />
-              ))}
+            <div className="skeleton-row">
+              {[...Array(5)].map((_, i) => <div key={i} className="skeleton-tile" />)}
             </div>
           ) : (
-            <div className="products-grid">
+            <div className="products-carousel">
               {featured.map(prod => (
-                <ProductCard key={prod.id} product={prod} />
+                <div key={prod.id} className="carousel-item">
+                  <ProductCard product={prod} />
+                </div>
               ))}
             </div>
           )}
-          <div className="view-all-wrap">
-            <Link to="/products" className="btn btn-outline-primary">
-              View All Products →
-            </Link>
-          </div>
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ──────────────────────────────────────── */}
-      <section className="how-it-works">
+      {/* ════════════════════════════════════════════════
+          HOW IT WORKS
+      ════════════════════════════════════════════════ */}
+      <section className="how-section">
         <div className="container">
-          <div className="section-header">
-            <span className="section-chip">Simple Process</span>
-            <h2 className="section-title">How It Works</h2>
-            <p className="section-subtitle">3 simple steps to get your rental</p>
-          </div>
-          <div className="steps-grid">
-            <div className="step">
-              <div className="step-num">1</div>
-              <span className="step-emoji">🔍</span>
-              <h3>Browse &amp; Select</h3>
-              <p>Choose from thousands of verified rental items in your city</p>
-            </div>
-            <div className="step">
-              <div className="step-num">2</div>
-              <span className="step-emoji">🛒</span>
-              <h3>Checkout Easily</h3>
-              <p>Select your rental period and proceed to secure checkout</p>
-            </div>
-            <div className="step">
-              <div className="step-num">3</div>
-              <span className="step-emoji">📦</span>
-              <h3>Get Delivered</h3>
-              <p>Your items arrive at your doorstep on the scheduled date</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHY PAKKARENT ─────────────────────────────────────── */}
-      <section className="why-pakkarent">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-chip">Why Us</span>
-            <h2 className="section-title">Why PakkaRent?</h2>
-            <p className="section-subtitle">What makes us different</p>
-          </div>
-          <div className="reasons-grid">
-            {REASONS.map((r, i) => (
-              <div key={i} className="reason-card">
-                <div className="reason-icon-wrap" style={{ background: r.bg }}>
-                  <span className="reason-icon">{r.icon}</span>
+          <h2 className="rm-heading center-heading">
+            How It<span className="accent"> Works</span>
+            <span className="dash" />
+          </h2>
+          <div className="how-grid">
+            {STEPS.map((s, i) => (
+              <div key={i} className="how-step">
+                <div className="how-step-top">
+                  <div className="how-num">{s.n}</div>
+                  {i < STEPS.length - 1 && <div className="how-connector" />}
                 </div>
-                <h4>{r.title}</h4>
-                <p>{r.desc}</p>
+                <span className="how-emoji">{s.emoji}</span>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ──────────────────────────────────────── */}
-      <section className="testimonials">
+      {/* ════════════════════════════════════════════════
+          WHY PAKKARENT — clean 3-column trust strip
+      ════════════════════════════════════════════════ */}
+      <section className="why-section">
         <div className="container">
-          <div className="section-header">
-            <span className="section-chip">Reviews</span>
-            <h2 className="section-title">What Our Customers Say</h2>
-            <p className="section-subtitle">Real stories from real customers</p>
+          <h2 className="rm-heading center-heading">
+            Why Choose<span className="accent"> PakkaRent</span>
+            <span className="dash" />
+          </h2>
+          <div className="why-grid">
+            {[
+              { icon: '✅', title: 'Verified & Sanitized',   desc: 'Every item goes through quality checks and deep cleaning before delivery' },
+              { icon: '🚚', title: 'Doorstep Delivery',      desc: 'Free delivery and pickup in Chennai, Bangalore & Hyderabad' },
+              { icon: '💰', title: 'Save up to 70%',         desc: 'Renting beats buying — get premium items at a fraction of the cost' },
+              { icon: '🔄', title: 'Hassle-free Returns',    desc: 'Simply call us, we pick up your items at the end of your rental period' },
+            ].map((w, i) => (
+              <div key={i} className="why-card">
+                <span className="why-icon">{w.icon}</span>
+                <h4>{w.title}</h4>
+                <p>{w.desc}</p>
+              </div>
+            ))}
           </div>
-          <div className="testimonials-grid">
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════
+          TESTIMONIALS
+      ════════════════════════════════════════════════ */}
+      <section className="reviews-section">
+        <div className="container">
+          <h2 className="rm-heading center-heading">
+            Customer<span className="accent"> Reviews</span>
+            <span className="dash" />
+          </h2>
+          <div className="reviews-grid">
             {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="testimonial">
-                <div className="testimonial-quote">"</div>
-                <p className="testimonial-text">{t.text}</p>
-                <div className="testimonial-footer">
-                  <div
-                    className="testimonial-avatar"
-                    style={{ background: t.color }}
-                  >
-                    {t.initials}
-                  </div>
-                  <div className="testimonial-info">
+              <div key={i} className="review-card">
+                <div className="review-stars">★★★★★</div>
+                <p className="review-text">"{t.text}"</p>
+                <div className="review-author">
+                  <span className="review-avatar" style={{ background: t.color }}>{t.init}</span>
+                  <div>
                     <strong>{t.name}</strong>
-                    <span>{t.location}</span>
+                    <span>{t.loc}</span>
                   </div>
-                  <div className="stars">⭐⭐⭐⭐⭐</div>
                 </div>
               </div>
             ))}
@@ -293,15 +300,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── FINAL CTA ─────────────────────────────────────────── */}
-      <section className="cta-final">
+      {/* ════════════════════════════════════════════════
+          FINAL CTA
+      ════════════════════════════════════════════════ */}
+      <section className="cta-strip">
         <div className="container">
-          <div className="cta-content">
-            <span className="cta-emoji">🎉</span>
-            <h2>Ready to Start Renting?</h2>
-            <p>Join thousands of happy customers in {city}</p>
-            <Link to="/products" className="btn btn-cta btn-cta-large">
-              Browse Products Now →
+          <div className="cta-strip-inner">
+            <div className="cta-strip-text">
+              <h2>Ready to rent smarter in <span>{city}</span>?</h2>
+              <p>Join 50,000+ happy customers. Browse, book, and get it delivered.</p>
+            </div>
+            <Link to="/products" className="btn btn-primary cta-strip-btn">
+              Browse All Products →
             </Link>
           </div>
         </div>
