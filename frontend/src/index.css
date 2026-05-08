@@ -82,4 +82,15 @@ input, select, textarea { font-family: inherit; }
 .loading { display: flex; align-items: center; justify-content: center; min-height: 200px; font-size: 16px; color: var(--gray); }
 .error-msg { color: var(--red); font-size: 13px; margin-top: 4px; }
 
-@media (max-width: 768px) { .section-title { font-size: 20px; } .rm-heading { font-size: 20px; } }
+@media (max-width: 768px) {
+  .container { padding: 0 14px; }
+  .section-title { font-size: 20px; }
+  .rm-heading { font-size: 20px; margin-bottom: 18px; gap: 6px; }
+  .rm-heading .dash { width: 28px; }
+  .btn { padding: 10px 18px; font-size: 13px; }
+}
+
+@media (max-width: 380px) {
+  .container { padding: 0 12px; }
+  .rm-heading { font-size: 18px; }
+}

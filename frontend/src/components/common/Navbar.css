@@ -391,11 +391,100 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 900px) {
+  .navbar-actions .nav-link,
+  .navbar-actions .btn-primary { display: none; }
+  .hamburger { display: inline-flex; align-items: center; justify-content: center; }
+}
+
 @media (max-width: 768px) {
-  .city-selector  { display: none; }
-  .navbar-search  { display: none; }
-  .navbar-actions { display: none; }
-  .hamburger      { display: block; margin-left: auto; }
-  .mobile-menu    { display: flex; }
-  .navbar-bottom  { display: none; }
+  .navbar-top { padding: 10px 0 12px; }
+  .navbar-top-inner {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    row-gap: 10px;
+  }
+
+  .navbar-logo { font-size: 19px; }
+
+  .city-selector { display: none; }
+
+  /* Search bar stays visible on mobile and wraps onto its own row */
+  .search-wrap {
+    order: 10;
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .navbar-search { display: flex; }
+  .navbar-search input {
+    padding: 10px 14px;
+    font-size: 14px;
+    min-width: 0;
+  }
+  .navbar-search button { padding: 10px 14px; font-size: 16px; }
+
+  /* Keep cart visible on mobile, hide other action links */
+  .navbar-actions {
+    display: inline-flex;
+    margin-left: auto;
+    gap: 4px;
+  }
+  .navbar-actions .nav-link,
+  .navbar-actions .btn,
+  .navbar-actions .btn-primary { display: none; }
+  .cart-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+  }
+  .cart-count {
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    font-size: 10px;
+  }
+
+  .hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+  }
+  .hamburger:hover { background: var(--gray-light); }
+
+  .mobile-menu { display: flex; }
+  .mobile-menu .mobile-search { display: none; } /* navbar search is always visible now */
+
+  /* Bottom category strip — keep as a horizontal scroll bar */
+  .navbar-bottom { display: block; }
+  .navbar-bottom .container { padding: 0; }
+  .navbar-categories { padding: 0 12px; }
+  .cat-link { padding: 9px 12px; font-size: 12px; }
+
+  /* Make the autocomplete dropdown viewport-friendly */
+  .ac-dropdown { max-height: 70vh; overflow-y: auto; }
+  .ac-item { padding: 10px 12px; gap: 10px; }
+  .ac-thumb { width: 44px; height: 44px; }
+  .ac-name { font-size: 13px; }
+  .ac-meta { font-size: 11px; }
+  .ac-price-amt { font-size: 14px; }
+}
+
+@media (max-width: 380px) {
+  .navbar-logo { font-size: 17px; }
+  .cart-btn,
+  .hamburger { width: 36px; height: 36px; font-size: 20px; }
+  .navbar-search input { padding: 9px 12px; }
+  .navbar-search button { padding: 9px 12px; }
 }

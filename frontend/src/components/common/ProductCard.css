@@ -217,3 +217,36 @@
   font-weight: 700;
   letter-spacing: 0.2px;
 }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .card-body { padding: 10px 12px 12px; gap: 3px; }
+  .card-title { font-size: 13px; }
+  .card-category { font-size: 10px; }
+  .card-city { font-size: 10px; }
+  .price-amt { font-size: 17px; }
+  .price-original { font-size: 12px; }
+  .price-unit { font-size: 11px; }
+  .price-monthly-label { font-size: 10px; }
+  .price-deposit { font-size: 10px; }
+  .plan-badge { font-size: 10px; padding: 2px 6px; }
+  .card-btn { padding: 10px; font-size: 13px; }
+
+  /* Bigger, easier-to-tap arrows & dots on touch screens */
+  .img-arrow {
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
+  }
+  .img-arrow-left  { left: 6px; }
+  .img-arrow-right { right: 6px; }
+  .img-dot { width: 8px; height: 8px; }
+  .img-count-badge { font-size: 10px; padding: 2px 7px; }
+  .featured-tag, .offer-tag { font-size: 10px; padding: 2px 8px; }
+}
+
+@media (max-width: 380px) {
+  .card-title { font-size: 12px; -webkit-line-clamp: 2; }
+  .price-amt { font-size: 15px; }
+  .card-pricing { padding-top: 8px; }
+}

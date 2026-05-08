@@ -22,7 +22,33 @@
 .amount-row span:last-child { color: var(--dark); font-weight: 600; }
 .amount-row.total { border-bottom: none; font-size: 16px; font-weight: 700; color: var(--primary); }
 @media (max-width: 768px) {
-  .order-header { flex-direction: column; }
-  .order-details { grid-template-columns: 1fr; }
+  .myorders-page { padding: 20px 0 32px; }
+  .myorders-page h1 { font-size: 24px; margin-bottom: 20px; }
+  .orders-list { gap: 14px; }
+  .order-card { padding: 18px; }
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+  }
+  .order-header h3 { font-size: 16px; }
+  .order-status { padding: 5px 10px; font-size: 11px; }
+  .order-details {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+    padding: 14px 0;
+  }
+  .detail-label { font-size: 11px; }
+  .detail-value { font-size: 13px; }
   .order-footer { justify-content: flex-start; }
+  .order-amounts { min-width: 0; width: 100%; }
+  .amount-row { font-size: 13px; padding: 6px 0; }
+  .amount-row.total { font-size: 15px; }
+}
+
+@media (max-width: 380px) {
+  .order-details { grid-template-columns: 1fr; }
 }

@@ -25,5 +25,16 @@
 .info-card a { font-size: 14px; color: var(--primary); font-weight: 500; transition: color 0.2s; }
 .info-card a:hover { color: var(--primary-dark); }
 @media (max-width: 768px) {
-  .profile-grid { grid-template-columns: 1fr; }
+  .profile-page { padding: 20px 0 32px; }
+  .profile-page h1 { font-size: 24px; margin-bottom: 18px; }
+  .profile-grid { grid-template-columns: 1fr; gap: 18px; }
+  .profile-form { padding: 20px; }
+  .profile-form h2 { font-size: 17px; margin-bottom: 16px; }
+  .form-group { margin-bottom: 14px; }
+  .form-group input,
+  .form-group select,
+  .form-group textarea { padding: 11px 12px; font-size: 14px; }
+  .info-card { padding: 18px; }
+  .info-card h3 { font-size: 15px; }
+  .info-row { padding: 10px 0; }
 }

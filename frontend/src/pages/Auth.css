@@ -19,3 +19,20 @@
 .demo-credentials { background: var(--gray-light); border-left: 4px solid var(--primary); padding: 16px; border-radius: var(--radius-sm); margin-top: 24px; font-size: 12px; }
 .demo-credentials p { margin: 4px 0; }
 .demo-credentials strong { display: block; margin-bottom: 8px; color: var(--dark); }
+
+@media (max-width: 768px) {
+  .auth-page { padding: 24px 0; min-height: calc(100vh - 120px); }
+  .auth-form { padding: 32px 22px; }
+  .auth-header { margin-bottom: 24px; }
+  .auth-header h1 { font-size: 26px; }
+  .auth-header p { font-size: 13px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group input,
+  .form-group select { padding: 11px 12px; font-size: 14px; }
+}
+
+@media (max-width: 380px) {
+  .auth-form { padding: 24px 18px; }
+  .auth-header h1 { font-size: 22px; }
+  .demo-credentials { padding: 12px; font-size: 11px; }
+}

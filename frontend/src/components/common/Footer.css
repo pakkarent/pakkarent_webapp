@@ -12,7 +12,17 @@
 .more-cities { color: var(--primary) !important; font-style: italic; }
 .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: rgba(255,255,255,0.4); }
 @media (max-width: 768px) {
-  .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .footer { padding: 36px 0 0; margin-top: 40px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 22px; padding-bottom: 24px; }
   .footer-brand { grid-column: 1 / -1; }
-  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .footer-logo { font-size: 22px; margin-bottom: 8px; }
+  .footer-brand p { font-size: 13px; }
+  .footer-col h4 { font-size: 14px; margin-bottom: 12px; }
+  .footer-col a, .footer-col p { font-size: 13px; margin-bottom: 8px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; padding: 16px 0; font-size: 12px; }
+  .footer-social { flex-wrap: wrap; }
+}
+
+@media (max-width: 380px) {
+  .footer-grid { grid-template-columns: 1fr; }
 }
