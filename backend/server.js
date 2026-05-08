@@ -30,6 +30,7 @@ app.use('/api/admin/pricing', pricingAdminRoutes);
 app.use('/api/uploads', uploadRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK', message: 'PakkaRent API running' }));
+app.get('/', (req, res) => res.json({ status: 'OK', message: 'PakkaRent API running' }));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
