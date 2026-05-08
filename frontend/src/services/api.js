@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: '/api' });
+const API_BASE = process.env.REACT_APP_API_URL || '';
+const baseURL = `${API_BASE.replace(/\/$/, '')}/api`;
+
+const API = axios.create({ baseURL });
 
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('pakkarent_token');
