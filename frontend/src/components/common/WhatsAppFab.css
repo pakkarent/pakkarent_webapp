@@ -1,0 +1,79 @@
+.wa-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px 12px 14px;
+  background: #25D366;
+  color: #fff;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  box-shadow: 0 8px 22px rgba(37, 211, 102, 0.45),
+              0 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wa-fab:hover,
+.wa-fab:focus-visible {
+  background: #1ebe5a;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.55),
+              0 4px 10px rgba(0, 0, 0, 0.22);
+  outline: none;
+}
+
+.wa-fab:active { transform: translateY(0); }
+
+.wa-fab-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15));
+}
+
+.wa-fab-label {
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Subtle continuous pulse to draw attention on first paint */
+.wa-fab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+  animation: wa-pulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes wa-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
+  70%  { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wa-fab::before { animation: none; }
+  .wa-fab { transition: none; }
+}
+
+/* Compact icon-only button on phones to save room */
+@media (max-width: 600px) {
+  .wa-fab {
+    right: 14px;
+    bottom: 14px;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    justify-content: center;
+  }
+  .wa-fab-label { display: none; }
+  .wa-fab-icon { width: 28px; height: 28px; }
+}

@@ -1,4 +1,21 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+img, video, iframe { max-width: 100%; height: auto; }
+
+p, h1, h2, h3, h4, h5, h6, span, a, li, td, th, button, label {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+input, textarea, select { max-width: 100%; }
+
 :root {
   /* ── PakkaRent Palette — warm coral-orange, RentoMojo-inspired clean style ── */
   --primary: #E64A19;          /* Deep Orange 700 — brand accent */

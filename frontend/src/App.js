@@ -6,6 +6,7 @@ import { CityProvider } from './context/CityContext';
 
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+import WhatsAppFab from './components/common/WhatsAppFab';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -59,6 +60,7 @@ function AppContent() {
         <Route path="/admin/pricing" element={<AdminRoute><AdminPricing /></AdminRoute>} />
       </Routes>
       <Footer />
+      <WhatsAppFab />
     </BrowserRouter>
   );
 }

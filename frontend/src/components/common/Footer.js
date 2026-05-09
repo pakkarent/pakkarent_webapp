@@ -11,8 +11,8 @@ export default function Footer() {
             <div className="footer-logo"><span>Pakka</span><span style={{color:'var(--primary)'}}>Rent</span></div>
             <p>Chennai's most trusted rental platform for appliances, baby gear, and event items. Rent smarter, live better.</p>
             <div className="footer-social">
-              <a href="https://wa.me/919999999999" target="_blank" rel="noreferrer" className="social-btn whatsapp">💬 WhatsApp</a>
-              <a href="tel:+919999999999" className="social-btn phone">📞 Call Us</a>
+              <a href="https://wa.me/919361432697" target="_blank" rel="noreferrer" className="social-btn whatsapp">💬 WhatsApp</a>
+              <a href="tel:+919403890901" className="social-btn phone">📞 +91 94038 90901</a>
             </div>
           </div>
 
