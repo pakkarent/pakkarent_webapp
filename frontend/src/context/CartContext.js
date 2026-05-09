@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { effectivePriceForTenure } from '../utils/pricingDisplay';
+import { useToast } from './ToastContext';
 
 const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
+  const { showToast } = useToast();
   const [cart, setCart] = useState(() => {
     try { return JSON.parse(localStorage.getItem('pakkarent_cart')) || []; } catch { return []; }
   });
@@ -13,12 +15,21 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('pakkarent_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product) => {
+  const addToCart = (product, qty = 1) => {
+    const quantity = Math.max(1, Number(qty) || 1);
     setCart(prev => {
       const exists = prev.find(i => i.id === product.id);
-      if (exists) return prev.map(i => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
-      return [...prev, { ...product, quantity: 1 }];
+      if (exists) {
+        return prev.map(i =>
+          i.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
+        );
+      }
+      return [...prev, { ...product, quantity }];
     });
+    if (showToast) {
+      const label = product?.name ? `${product.name} added to cart` : 'Added to cart';
+      showToast(label, { type: 'success' });
+    }
   };
 
   const removeFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id));

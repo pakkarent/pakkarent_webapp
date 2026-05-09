@@ -20,6 +20,10 @@ export default function Products() {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(category_id || '');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const activeFilterCount =
+    (selectedCategory ? 1 : 0) + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0);
 
   // Keep selectedCategory in sync with URL query (menu clicks)
   useEffect(() => {
@@ -79,8 +83,20 @@ export default function Products() {
           <p>{total} items found</p>
         </div>
 
-        <div className="products-content">
-          <aside className="sidebar">
+        <button
+          type="button"
+          className="filters-toggle"
+          aria-expanded={filtersOpen}
+          aria-controls="products-sidebar"
+          onClick={() => setFiltersOpen(o => !o)}
+        >
+          <span className="filters-toggle-icon" aria-hidden="true">⚙</span>
+          <span>Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}</span>
+          <span className={`filters-toggle-chevron${filtersOpen ? ' open' : ''}`} aria-hidden="true">▾</span>
+        </button>
+
+        <div className={`products-content${filtersOpen ? ' filters-open' : ''}`}>
+          <aside id="products-sidebar" className="sidebar">
             <div className="filter-group">
               <h4>Categories</h4>
               <div className="filter-options">

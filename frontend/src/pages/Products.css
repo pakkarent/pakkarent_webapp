@@ -4,6 +4,32 @@
 .products-header p { color: var(--gray); }
 .products-content { display: grid; grid-template-columns: 280px 1fr; gap: 32px; }
 .sidebar { height: fit-content; position: sticky; top: 100px; }
+
+.filters-toggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  margin-bottom: 14px;
+  background: #fff;
+  border: 1px solid var(--gray-border);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+.filters-toggle:hover { border-color: var(--primary); color: var(--primary); }
+.filters-toggle-icon { font-size: 16px; line-height: 1; }
+.filters-toggle-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  font-size: 12px;
+  color: var(--gray);
+}
+.filters-toggle-chevron.open { transform: rotate(180deg); color: var(--primary); }
 .filter-group { background: white; border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
 .filter-group h4 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: var(--dark); }
 .filter-options { display: flex; flex-direction: column; gap: 12px; }
@@ -24,13 +50,22 @@
 .pagination-ellipsis { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; color: var(--gray); }
 @media (max-width: 768px) {
   .products-page { padding: 20px 0 32px; }
-  .products-header { margin-bottom: 18px; }
+  .products-header { margin-bottom: 14px; }
   .products-header h1 { font-size: 22px; }
   .products-header p { font-size: 13px; }
-  .products-content { grid-template-columns: 1fr; gap: 16px; }
-  .sidebar { position: relative; top: auto; }
-  .filter-group { padding: 16px; margin-bottom: 12px; }
-  .filter-group h4 { font-size: 14px; margin-bottom: 12px; }
+
+  /* Collapsible filter sidebar */
+  .filters-toggle { display: inline-flex; }
+  .products-content { grid-template-columns: 1fr; gap: 0; }
+  .sidebar {
+    position: relative;
+    top: auto;
+    display: none;
+    margin-bottom: 16px;
+  }
+  .products-content.filters-open .sidebar { display: block; }
+  .filter-group { padding: 14px 14px 12px; margin-bottom: 10px; }
+  .filter-group h4 { font-size: 14px; margin-bottom: 10px; }
   .filter-options { gap: 8px; }
   .filter-options label { font-size: 13px; }
 

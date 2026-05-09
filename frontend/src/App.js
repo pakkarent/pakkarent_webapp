@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { CityProvider } from './context/CityContext';
+import { ToastProvider } from './context/ToastContext';
 
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
@@ -67,12 +68,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <CityProvider>
-        <CartProvider>
-          <AppContent />
-        </CartProvider>
-      </CityProvider>
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <CityProvider>
+          <CartProvider>
+            <AppContent />
+          </CartProvider>
+        </CityProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
