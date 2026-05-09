@@ -2,13 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="PakkaRent - Rent appliances, baby gear, and event items in Chennai, Bangalore & Hyderabad" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#E64A19" />
+  <meta name="color-scheme" content="light" />
+
+  <!-- Primary SEO -->
+  <title>PakkaRent — Rent Appliances, Furniture & Event Items in Chennai, Bangalore, Hyderabad</title>
+  <meta name="description" content="PakkaRent makes it easy to rent home appliances, furniture, baby gear, camping kits and event rentals across Chennai, Bangalore and Hyderabad. Free delivery, flexible monthly tenures and 24x7 support." />
+  <meta name="keywords" content="rent appliances Chennai, washing machine on rent Bangalore, AC on rent Hyderabad, baby cradle rental, event rentals India, furniture on rent, refrigerator rental, camping gear rental, monthly rental, PakkaRent" />
+  <meta name="author" content="PakkaRent" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="application-name" content="PakkaRent" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="canonical" href="https://frontend-production-27c02.up.railway.app/" />
+
+  <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PakkaRent" />
+  <meta property="og:locale" content="en_IN" />
+  <meta property="og:title" content="PakkaRent — Rent Smarter, Live Better" />
+  <meta property="og:description" content="Rent appliances, furniture, baby gear, camping kits and event items in Chennai, Bangalore & Hyderabad. Free delivery, flexible tenures, 24x7 support." />
+  <meta property="og:url" content="https://frontend-production-27c02.up.railway.app/" />
+  <meta property="og:image" content="https://frontend-production-27c02.up.railway.app/og-image.svg" />
+  <meta property="og:image:type" content="image/svg+xml" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="PakkaRent — Rent Smarter, Live Better" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="PakkaRent — Rent Smarter, Live Better" />
+  <meta name="twitter:description" content="Rent appliances, furniture, baby gear, camping kits and event items in Chennai, Bangalore & Hyderabad." />
+  <meta name="twitter:image" content="https://frontend-production-27c02.up.railway.app/og-image.svg" />
+  <meta name="twitter:image:alt" content="PakkaRent — Rent Smarter, Live Better" />
+  <meta name="twitter:site" content="@pakkarent" />
+
+  <!-- Geo / Local SEO -->
+  <meta name="geo.region" content="IN" />
+  <meta name="geo.placename" content="Chennai, Bangalore, Hyderabad" />
+
+  <!-- Icons & PWA -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <title>PakkaRent - Rent Smarter, Live Better</title>
+
+  <!-- Structured data: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "PakkaRent",
+    "url": "https://frontend-production-27c02.up.railway.app/",
+    "logo": "https://frontend-production-27c02.up.railway.app/og-image.svg",
+    "description": "Rental marketplace for appliances, furniture, baby gear, camping kits and event items across Chennai, Bangalore and Hyderabad.",
+    "areaServed": [
+      { "@type": "City", "name": "Chennai" },
+      { "@type": "City", "name": "Bangalore" },
+      { "@type": "City", "name": "Hyderabad" }
+    ],
+    "contactPoint": [{
+      "@type": "ContactPoint",
+      "telephone": "+91-94038-90901",
+      "contactType": "customer service",
+      "areaServed": "IN",
+      "availableLanguage": ["English", "Tamil", "Hindi", "Telugu", "Kannada"]
+    }],
+    "sameAs": []
+  }
+  </script>
+
+  <!-- Structured data: WebSite + SearchAction -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "PakkaRent",
+    "url": "https://frontend-production-27c02.up.railway.app/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://frontend-production-27c02.up.railway.app/products?search={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 <body>
+  <noscript>You need to enable JavaScript to use PakkaRent. Visit us at pakkarent.com or call +91 94038 90901.</noscript>
   <div id="root"></div>
 </body>
 </html>

@@ -1,0 +1,36 @@
+{
+  "name": "PakkaRent — Rent Smarter, Live Better",
+  "short_name": "PakkaRent",
+  "description": "Rent appliances, furniture, baby gear, camping kits and event items in Chennai, Bangalore & Hyderabad.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#E64A19",
+  "lang": "en-IN",
+  "categories": ["shopping", "lifestyle", "business"],
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Products",
+      "short_name": "Products",
+      "url": "/products",
+      "description": "Browse all rentals"
+    },
+    {
+      "name": "My Cart",
+      "short_name": "Cart",
+      "url": "/cart",
+      "description": "View shopping cart"
+    },
+    {
+      "name": "My Orders",
+      "short_name": "Orders",
+      "url": "/my-orders",
+      "description": "Track your rental orders"
+    }
+  ]
+}

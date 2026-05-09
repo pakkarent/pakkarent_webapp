@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { orderAPI } from '../services/api';
+import useSEO from '../hooks/useSEO';
 import './MyOrders.css';
 
 const statusColors = {
@@ -14,6 +15,13 @@ const statusColors = {
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useSEO({
+    title: 'My Orders',
+    description: 'Track and manage all your PakkaRent rental orders in one place.',
+    canonical: '/my-orders',
+    noindex: true,
+  });
 
   useEffect(() => {
     const fetch = async () => {

@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Don't index transient / private routes
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /my-orders
+Disallow: /admin
+Disallow: /admin/
+
+# Crawl-delay friendly to small sites
+Crawl-delay: 1
+
+Sitemap: https://frontend-production-27c02.up.railway.app/sitemap.xml

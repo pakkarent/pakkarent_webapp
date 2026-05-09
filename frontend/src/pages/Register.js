@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCity } from '../context/CityContext';
+import useSEO from '../hooks/useSEO';
 import './Auth.css';
 
 export default function Register() {
@@ -11,6 +12,13 @@ export default function Register() {
   const { register } = useAuth();
   const { cities } = useCity();
   const navigate = useNavigate();
+
+  useSEO({
+    title: 'Create Account',
+    description: 'Sign up for free on PakkaRent to rent appliances, furniture and event items in Chennai, Bangalore and Hyderabad with free delivery.',
+    canonical: '/register',
+    noindex: true,
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;

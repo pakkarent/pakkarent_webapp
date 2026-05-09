@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { userAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
+import useSEO from '../hooks/useSEO';
 import './Profile.css';
 
 export default function Profile() {
@@ -11,6 +12,13 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+
+  useSEO({
+    title: 'My Profile',
+    description: 'Manage your PakkaRent profile, delivery address and account preferences.',
+    canonical: '/profile',
+    noindex: true,
+  });
 
   useEffect(() => {
     if (user) {

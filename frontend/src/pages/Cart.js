@@ -4,12 +4,20 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../utils/pricingDisplay';
 import { resolveImageUrl, safeJsonArray } from '../utils/media';
+import useSEO from '../hooks/useSEO';
 import './Cart.css';
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity, clearCart, cartTotal, depositTotal, tenure, setTenure, getItemPrice } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useSEO({
+    title: cart.length ? `Shopping Cart (${cart.length})` : 'Shopping Cart',
+    description: 'Review the items in your PakkaRent cart and proceed to a secure checkout.',
+    canonical: '/cart',
+    noindex: true,
+  });
 
   if (cart.length === 0) {
     return (

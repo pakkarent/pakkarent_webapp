@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
@@ -9,6 +9,8 @@ import {
   effectivePriceForTenure,
 } from '../utils/pricingDisplay';
 import { resolveImageUrl, safeJsonArray, safeJsonObject } from '../utils/media';
+import useSEO from '../hooks/useSEO';
+import JsonLd from '../components/common/JsonLd';
 import './ProductDetail.css';
 
 const PLACEHOLDER_IMG = 'https://via.placeholder.com/400x400?text=PakkaRent';
@@ -83,10 +85,83 @@ export default function ProductDetail() {
     fetch();
   }, [id]);
 
+  const safeImages = product ? safeJsonArray(product.images) : [];
+  const seoImage = product
+    ? (resolveImageUrl(safeImages[0]) || '/og-image.svg')
+    : '/og-image.svg';
+
+  useSEO({
+    title: product
+      ? `${product.name} on Rent in ${product.city === 'all' ? 'India' : product.city}`
+      : 'Product',
+    description: product
+      ? `Rent ${product.name} in ${product.city === 'all' ? 'India' : product.city} starting at ₹${product.monthly_price}/month on PakkaRent. ${product.description?.slice(0, 120) || 'Free delivery, flexible tenures, 24x7 support.'}`
+      : 'Browse rental products on PakkaRent.',
+    image: seoImage,
+    canonical: `/products/${id}`,
+    type: 'product',
+    noindex: !product,
+  });
+
+  const productLd = useMemo(() => {
+    if (!product) return null;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const price = effectivePriceForTenure(product, 1) || product.monthly_price;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      description: product.description || `${product.name} available on rent at PakkaRent.`,
+      sku: `PAKKA-${product.id}`,
+      brand: { '@type': 'Brand', name: 'PakkaRent' },
+      category: product.category_name || 'Rental',
+      image: safeImages
+        .map(img => resolveImageUrl(img))
+        .filter(Boolean)
+        .slice(0, 6),
+      offers: {
+        '@type': 'Offer',
+        url: `${origin}/products/${product.id}`,
+        priceCurrency: 'INR',
+        price: String(price),
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: String(price),
+          priceCurrency: 'INR',
+          unitText: 'MONTH',
+        },
+        availability: (product.stock ?? 1) > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        areaServed: product.city === 'all'
+          ? ['Chennai', 'Bangalore', 'Hyderabad']
+          : product.city,
+        seller: { '@type': 'Organization', name: 'PakkaRent' },
+      },
+    };
+  }, [product, safeImages]);
+
+  const breadcrumbLd = useMemo(() => {
+    if (!product) return null;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
+        { '@type': 'ListItem', position: 2, name: 'Products', item: `${origin}/products` },
+        { '@type': 'ListItem', position: 3, name: product.category_name || 'Category',
+          item: `${origin}/products?category_id=${product.category_id}` },
+        { '@type': 'ListItem', position: 4, name: product.name,
+          item: `${origin}/products/${product.id}` },
+      ],
+    };
+  }, [product]);
+
   if (loading) return <div className="loading">Loading product...</div>;
   if (!product)  return <div className="error-msg">Product not found</div>;
 
-  const images = safeJsonArray(product.images);
+  const images = safeImages;
   const specs = safeJsonObject(product.specs);
 
   const getPrice = () => effectivePriceForTenure(product, selectedTenure);
@@ -113,6 +188,8 @@ export default function ProductDetail() {
 
   return (
     <div className="product-detail">
+      {productLd && <JsonLd data={productLd} id="ld-product" />}
+      {breadcrumbLd && <JsonLd data={breadcrumbLd} id="ld-breadcrumb" />}
       <div className="container">
         <div className="detail-grid">
 

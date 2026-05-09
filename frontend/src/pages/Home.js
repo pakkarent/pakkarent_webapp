@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
+import useSEO from '../hooks/useSEO';
 import './Home.css';
 
 /* ── Category → Unsplash image map (keyword-based) ── */
@@ -80,6 +81,14 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showAllCats, setShowAllCats] = useState(false);
   const { city } = useCity();
+
+  useSEO({
+    title: `Rent Appliances, Furniture & Event Items in ${city}`,
+    titleSuffix: false,
+    description: `PakkaRent makes it easy to rent home appliances, furniture, baby gear, camping kits and event items in ${city}. Free delivery, flexible monthly tenures, 24x7 support.`,
+    keywords: `rent appliances ${city}, washing machine on rent ${city}, AC on rent ${city}, baby cradle rental, event rentals, furniture on rent ${city}, refrigerator rental, monthly rental, PakkaRent`,
+    canonical: '/',
+  });
 
   useEffect(() => {
     (async () => {

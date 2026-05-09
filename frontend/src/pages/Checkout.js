@@ -3,12 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { orderAPI } from '../services/api';
+import useSEO from '../hooks/useSEO';
 import './Checkout.css';
 
 export default function Checkout() {
   const { cart, cartTotal, depositTotal, tenure, clearCart, getItemPrice } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useSEO({
+    title: 'Checkout',
+    description: 'Complete your PakkaRent rental order with delivery details and secure payment.',
+    canonical: '/checkout',
+    noindex: true,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({

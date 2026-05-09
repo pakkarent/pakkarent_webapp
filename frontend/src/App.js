@@ -42,7 +42,7 @@ function AppContent() {
   return (
     <BrowserRouter>
       <Navbar />
-      <Routes>
+      <main id="main-content"><Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
@@ -59,7 +59,7 @@ function AppContent() {
         <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
         <Route path="/admin/pricing" element={<AdminRoute><AdminPricing /></AdminRoute>} />
-      </Routes>
+      </Routes></main>
       <Footer />
       <WhatsAppFab />
     </BrowserRouter>

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
+import useSEO from '../hooks/useSEO';
+import JsonLd from '../components/common/JsonLd';
 import './Products.css';
 
 export default function Products() {
@@ -24,6 +26,76 @@ export default function Products() {
 
   const activeFilterCount =
     (selectedCategory ? 1 : 0) + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0);
+
+  const activeCategoryName = selectedCategory
+    ? (categories.find(c => c.id.toString() === selectedCategory)?.name || '')
+    : '';
+
+  const seoTitle = (() => {
+    if (search) return `Search results for "${search}" in ${city}`;
+    if (activeCategoryName) return `${activeCategoryName} on Rent in ${city}`;
+    if (featured) return `Featured Rentals in ${city}`;
+    return `All Rentals in ${city}`;
+  })();
+
+  const seoDesc = (() => {
+    const base = `${total || 'Hundreds of'} rental products`;
+    if (activeCategoryName) {
+      return `${base} in ${activeCategoryName} available on rent in ${city}. Free delivery, flexible monthly tenures, 24x7 support — only on PakkaRent.`;
+    }
+    if (search) {
+      return `Find rentals matching "${search}" in ${city} on PakkaRent. Compare prices, plans and book in minutes.`;
+    }
+    return `${base} — appliances, furniture, baby gear, camping and event items in ${city}. Free delivery, flexible tenures, 24x7 support.`;
+  })();
+
+  useSEO({
+    title: seoTitle,
+    description: seoDesc,
+    keywords: `${activeCategoryName ? activeCategoryName + ' on rent, ' : ''}rentals ${city}, monthly rental ${city}, appliances on rent, furniture on rent, baby gear rental, event rentals, PakkaRent`,
+    canonical: typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/products',
+  });
+
+  const breadcrumbLd = useMemo(() => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const items = [
+      { name: 'Home', url: `${origin}/` },
+      { name: 'Products', url: `${origin}/products` },
+    ];
+    if (activeCategoryName) {
+      items.push({
+        name: activeCategoryName,
+        url: `${origin}/products?category_id=${selectedCategory}`,
+      });
+    }
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items.map((it, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        name: it.name,
+        item: it.url,
+      })),
+    };
+  }, [activeCategoryName, selectedCategory]);
+
+  const itemListLd = useMemo(() => {
+    if (!products.length) return null;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: seoTitle,
+      numberOfItems: products.length,
+      itemListElement: products.slice(0, 24).map((p, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        url: `${origin}/products/${p.id}`,
+        name: p.name,
+      })),
+    };
+  }, [products, seoTitle]);
 
   // Keep selectedCategory in sync with URL query (menu clicks)
   useEffect(() => {
@@ -77,6 +149,8 @@ export default function Products() {
 
   return (
     <div className="products-page">
+      <JsonLd data={breadcrumbLd} id="ld-breadcrumb" />
+      {itemListLd && <JsonLd data={itemListLd} id="ld-itemlist" />}
       <div className="container">
         <div className="products-header">
           <h1>Products</h1>
