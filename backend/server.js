@@ -11,6 +11,7 @@ const userRoutes = require('./src/routes/users');
 const adminRoutes = require('./src/routes/admin');
 const pricingAdminRoutes = require('./src/routes/pricingAdmin');
 const uploadRoutes = require('./src/routes/uploads');
+const { runMigrations } = require('./src/utils/migrations');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,4 +37,7 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
 });
 
-app.listen(PORT, () => console.log(`PakkaRent server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`PakkaRent server running on port ${PORT}`);
+  runMigrations().catch((err) => console.error('Migration runner error:', err.message));
+});

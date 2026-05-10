@@ -1,14 +1,18 @@
-const API_BASE = process.env.REACT_APP_API_URL || '';
+const API_BASE = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
 
 export function resolveImageUrl(src) {
   if (!src) return null;
   const normalized = String(src).replace(/\\/g, '/');
+
   if (normalized.startsWith('http')) return normalized;
+
   if (normalized.includes('/uploads/')) {
     const uploadPath = normalized.slice(normalized.indexOf('/uploads/'));
-    return `${API_BASE}${uploadPath}`;
+    return uploadPath;
   }
-  if (normalized.startsWith('/')) return `${API_BASE}${normalized}`;
+
+  if (normalized.startsWith('/')) return normalized;
+
   return `${API_BASE}/${normalized}`;
 }
 

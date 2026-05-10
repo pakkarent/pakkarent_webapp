@@ -140,7 +140,7 @@ VALUES
   'Camping Tents - Double Layer',
   'Double layer waterproof camping tent. High quality, extremely light weight. Comfortable for 3-5 persons with leisure space and room for rucksacks. Available for rent in Chennai.',
   1, 'Chennai', 600, NULL, NULL, NULL, 1500,
-  '["https://pakkarent.com/products/camping/camping_tent.html"]',
+  '["/uploads/products/camping/camping_tent/img_01.png","/uploads/products/camping/camping_tent/img_02.png","/uploads/products/camping/camping_tent/img_03.png","/uploads/products/camping/camping_tent/img_04.png"]',
   '{"pricing_type":"per_day","price_range":"600-700","layers":"Double layer","capacity":"3-5 persons","features":["Waterproof","Lightweight","Single or double layer available"]}',
   10, true
 ),
@@ -148,7 +148,7 @@ VALUES
   'Sleeping Bags',
   'Adult sleeping bag for camping in cold temperatures. Can be used as single person bag or spread as a bed. Saves luggage space during travel.',
   1, 'Chennai', 200, NULL, NULL, NULL, 500,
-  '["https://pakkarent.com/products/camping/sleeping_bag.html"]',
+  '["/uploads/products/camping/sleeping_bag/img_01.jpg","/uploads/products/camping/sleeping_bag/img_02.jpg","/uploads/products/camping/sleeping_bag/img_03.jpg","/uploads/products/camping/sleeping_bag/img_04.png"]',
   '{"pricing_type":"per_day","price_range":"200-300","type":"Adult sleeping bag","features":["Cold weather rated","Single or spread use","Space saving"]}',
   20, true
 ),
@@ -156,7 +156,7 @@ VALUES
   'Barbeque Grill',
   'Compact coal-based barbeque grill. Comes with 1 kg free coal and skewers. Quick to assemble with unique air damper. Portable and easy to carry for camping or trekking.',
   1, 'Chennai', 800, NULL, NULL, NULL, 1000,
-  '["https://pakkarent.com/products/camping/barbeque.html"]',
+  '["/uploads/products/camping/barbeque/img_01.png","/uploads/products/camping/barbeque/img_02.png","/uploads/products/camping/barbeque/img_03.jpg"]',
   '{"pricing_type":"per_day","price":800,"includes":"1 kg coal and skewers","extra_coal_per_kg":50,"features":["Coal based cooking","Quick assembly","Unique air damper","Portable"]}',
   12, true
 ),
@@ -164,7 +164,7 @@ VALUES
   'Outdoor Barbeque',
   'Large outdoor barbeque grill. Comes with 2 kg free coal and skewers. Quick to assemble with unique air damper. Perfect for parties and large gatherings.',
   1, 'Chennai', 1200, NULL, NULL, NULL, 2000,
-  '["https://pakkarent.com/products/camping/OutdoorBarbeque.html"]',
+  '["/uploads/products/camping/OutdoorBarbeque/img_01.jpg","/uploads/products/camping/OutdoorBarbeque/img_02.png","/uploads/products/camping/OutdoorBarbeque/img_03.jpg"]',
   '{"pricing_type":"per_day","price":1200,"includes":"2 kg coal and skewers","extra_coal_per_kg":50,"features":["Coal based cooking","Quick assembly","Unique air damper","Outdoor use"]}',
   8, false
 ),
@@ -172,7 +172,7 @@ VALUES
   'Life Jackets',
   'Adult life jackets for water activities. Can handle weight over 80 kg. Comes with a whistle. Safe and fun for kayaking, rafting or any water-based adventure.',
   1, 'Chennai', 300, NULL, NULL, NULL, 500,
-  '["https://pakkarent.com/products/camping/life_jacket.html"]',
+  '["/uploads/products/camping/life_jacket/img_01.jpg","/uploads/products/camping/life_jacket/img_02.jpg","/uploads/products/camping/life_jacket/img_03.jpg"]',
   '{"pricing_type":"per_day","price":300,"type":"Adult life jacket","max_weight_kg":"80+","features":["Whistle included","Safety certified","Water adventures"]}',
   15, false
 ),
@@ -180,7 +180,7 @@ VALUES
   'Party Speaker',
   'Zook brand trolley-type party speaker. Comes with one wireless microphone. Suitable for karaoke singing, corporate events and family parties.',
   1, 'Chennai', 1200, NULL, NULL, NULL, 2000,
-  '["https://pakkarent.com/products/camping/party_speaker.html"]',
+  '[]',
   '{"pricing_type":"per_day","price_1_day":1200,"price_2_3_days":800,"brand":"Zook","type":"Trolley speaker","includes":"1 wireless mic","features":["Karaoke ready","Corporate events","Family parties"]}',
   5, false
 ),
@@ -204,7 +204,7 @@ VALUES
   'Cooler Box',
   'High-insulation cooler box to keep food and drinks cold. Keeps ice cool for longer. Ideal for picnics, outdoors and adventure trips.',
   1, 'Chennai', 400, NULL, NULL, NULL, 500,
-  '["https://pakkarent.com/products/camping/cooler_box.html"]',
+  '[]',
   '{"pricing_type":"per_day","price_range":"400-500","features":["High insulation","Keeps ice longer","Picnic and outdoor use"]}',
   10, false
 ),
@@ -221,7 +221,7 @@ VALUES
   'Washing Machine',
   'Top load fully automatic washing machine (6.2 KG & 6.5 KG). Maintenance free. One-time transportation charges applicable. Cashless transaction and door delivery.',
   2, 'Chennai', 2500, 1500, 900, 800, 2000,
-  '["https://pakkarent.com/products/home_appliances/washing_machine.html"]',
+  '["/uploads/products/home_appliances/washing_machine/img_01.png"]',
   '{"pricing_type":"per_month","rate_0_3_months":2500,"rate_3_6_months":1500,"rate_6_plus_months":"800-900","type":"Top load fully automatic","capacity_kg":"6.2 and 6.5","features":["Maintenance free","Door delivery","Cashless transaction","One-time transport charges"]}',
   15, true
 ),
@@ -229,7 +229,7 @@ VALUES
   'Fridge',
   'Best star-rated refrigerator. Spacious with different cooling options. Maintenance free. Advance and transportation applicable.',
   2, 'Chennai', 2500, 1500, 800, 700, 2000,
-  '["https://pakkarent.com/products/home_appliances/fridge.html"]',
+  '["/uploads/products/home_appliances/fridge/img_01.png"]',
   '{"pricing_type":"per_month","rate_0_3_months":2500,"rate_3_6_months":1500,"rate_6_plus_months":"700-800","features":["Best star rated","Multiple cooling options","Maintenance free","Transportation applicable"]}',
   10, true
 ),
@@ -237,7 +237,7 @@ VALUES
   'Air Conditioner',
   'Branded AC with best cooling effect. Completely maintenance free. Installation charges applicable.',
   2, 'Chennai', 4000, 3000, 1800, 1600, 3000,
-  '["https://pakkarent.com/products/home_appliances/ac.html"]',
+  '["/uploads/products/home_appliances/AC/img_01.png"]',
   '{"pricing_type":"per_month","rate_0_3_months":4000,"rate_3_6_months":3000,"rate_6_plus_months":1800,"features":["Branded AC","Best cooling","Maintenance free","Installation charges applicable"]}',
   10, true
 ),
@@ -245,7 +245,7 @@ VALUES
   'LED TV',
   'Branded LED TV with best viewing experience. Only branded TVs provided. Maintenance free. Advance and transportation applicable.',
   2, 'Chennai', 2500, 1500, 900, 800, 2000,
-  '["https://pakkarent.com/products/home_appliances/tv.html"]',
+  '["/uploads/products/home_appliances/tv/img_01.png"]',
   '{"pricing_type":"per_month","rate_0_3_months":2500,"rate_3_6_months":1500,"rate_6_plus_months":"800-900","features":["Branded TV","Best viewing experience","Maintenance free","Transportation applicable"]}',
   10, true
 ),
@@ -259,7 +259,7 @@ VALUES
   'Silver Grand Cradle',
   'Pure German Silver cradle for naming ceremony. 4 Ft Height × 3.5 Ft Length. Designed by experts. Free transportation up to 10 km from Velachery. Spacious for the baby.',
   3, 'Chennai', 7000, NULL, NULL, NULL, 7000,
-  '["https://pakkarent.com/products/event/Silver_cradle.html"]',
+  '["/uploads/products/event/silver_cradle/img_01.jpg","/uploads/products/event/silver_cradle/img_02.jpg","/uploads/products/event/silver_cradle/img_03.jpg","/uploads/products/event/silver_cradle/img_05.jpg"]',
   '{"pricing_type":"per_event","material":"Pure German Silver","dimensions":"4 Ft Height x 3.5 Ft Length","transport":"Free upto 10 km from Velachery","occasions":["Naming ceremony","Baby shower"],"features":["Expert design","Spacious for baby"]}',
   2, true
 ),
@@ -267,7 +267,7 @@ VALUES
   'Silver Peacock Cradle',
   'Elegant peacock-motif silver cradle for naming ceremony. Beautiful peacock design in pure silver. Includes free transport within 10 km from Velachery.',
   3, 'Chennai', 7000, NULL, NULL, NULL, 7000,
-  '["https://pakkarent.com/store/event/"]',
+  '[]',
   '{"pricing_type":"per_event","material":"Silver","design":"Peacock motif","transport":"Free upto 10 km from Velachery","occasions":["Naming ceremony","Baby shower"],"features":["Peacock design","Premium silver"]}',
   2, true
 ),
@@ -275,7 +275,7 @@ VALUES
   'Grand Moon Cradle',
   'Grand moon cradle for naming ceremony. Total Height 7.5 Ft, Length 6 Ft, swing base diameter 2.5 Ft. Designed by experts for naming ceremony. Spacious for the baby. Available as combo with backdrop at ₹9500.',
   3, 'Chennai', 6500, NULL, NULL, NULL, 6500,
-  '["https://pakkarent.com/products/event/Grand_Moon_cradle_Rental.html"]',
+  '["/uploads/products/event/Grand_Moon_cradle_Rental/img_01.jpg"]',
   '{"pricing_type":"per_event","dimensions":"7.5 Ft Height x 6 Ft Length x 2.5 Ft base diameter","transport":"Free upto 10 km from Velachery","combo_with_backdrop_price":9500,"occasions":["Naming ceremony","Baby shower"],"features":["Expert design","Grand size","Spacious for baby"]}',
   3, true
 ),
@@ -283,7 +283,7 @@ VALUES
   'Traditional Teak Cradle',
   'Traditional teak wood cradle for baby naming and cradle ceremonies. Classic handcrafted design for traditional functions.',
   3, 'Chennai', 3800, NULL, NULL, NULL, 3800,
-  '["https://pakkarent.com/products/event/cradle.html"]',
+  '[]',
   '{"pricing_type":"per_event","material":"Teak wood","style":"Traditional","occasions":["Naming ceremony","Cradle ceremony"],"features":["Handcrafted","Traditional design"]}',
   4, false
 ),
@@ -291,7 +291,7 @@ VALUES
   'Crown Baby Cradle',
   'Classic crown-style baby cradle for naming ceremony and traditional functions. Elegant crown design.',
   3, 'Chennai', 3500, NULL, NULL, NULL, 3500,
-  '["https://pakkarent.com/products/event/crown.html"]',
+  '["/uploads/products/event/crown/img_01.jpg","/uploads/products/event/crown/img_02.jpg","/uploads/products/event/crown/img_03.jpg","/uploads/products/event/crown/img_04.jpg","/uploads/products/event/crown/img_05.jpg"]',
   '{"pricing_type":"per_event","style":"Crown design","occasions":["Naming ceremony","Traditional functions"],"features":["Crown motif","Elegant design"]}',
   4, false
 ),
@@ -299,7 +299,7 @@ VALUES
   'Royal Chain Cradle',
   'Royal chain-suspension cradle for premium naming ceremony setups. Premium design with royal chain suspension.',
   3, 'Chennai', 3500, NULL, NULL, NULL, 3500,
-  '["https://pakkarent.com/products/event/cradle.html"]',
+  '[]',
   '{"pricing_type":"per_event","style":"Royal chain","occasions":["Naming ceremony"],"features":["Chain suspension","Premium design"]}',
   3, false
 ),
@@ -307,7 +307,7 @@ VALUES
   'Golden Baby Cradle',
   'Gold-themed cradle for baby naming ceremonies and photo shoots. Elegant golden design that adds a royal touch.',
   3, 'Chennai', 3200, NULL, NULL, NULL, 3200,
-  '["https://pakkarent.com/products/event/Golden_Babycradle_Rent.html"]',
+  '[]',
   '{"pricing_type":"per_event","style":"Golden","occasions":["Naming ceremony","Photo shoots"],"features":["Golden finish","Royal touch"]}',
   3, false
 ),
@@ -333,7 +333,7 @@ VALUES
   'Ivory Oonjal / Royal Swing',
   'Ivory royal swing for weddings, baby showers and receptions. Dimensions: 6.5 Ft Height × 5 Ft Length × 4 Ft Breadth. 10 km free delivery from Velachery.',
   3, 'Chennai', 5000, NULL, NULL, NULL, 5000,
-  '["https://pakkarent.com/products/event/royal_swing.html"]',
+  '[]',
   '{"pricing_type":"per_event","dimensions":"6.5 Ft Height x 5 Ft Length x 4 Ft Breadth","transport":"Free upto 10 km from Velachery","occasions":["Wedding","Baby shower","Reception","Engagement"],"features":["Royal ivory design","Center of attraction","No decorations included"]}',
   2, true
 ),
@@ -341,7 +341,7 @@ VALUES
   'Golden Oonjal / Jhula',
   'Golden oonjal / jhula for baby showers, weddings and naming ceremonies. Premium golden swing with royal finish.',
   3, 'Chennai', 5200, NULL, NULL, NULL, 5200,
-  '["https://pakkarent.com/products/event/golden_oonjal.html"]',
+  '["/uploads/products/event/golden_oonjal/img_01.png"]',
   '{"pricing_type":"per_event","style":"Golden","occasions":["Wedding","Baby shower","Naming ceremony","Reception"],"features":["Golden finish","Premium design"]}',
   2, true
 ),
@@ -375,7 +375,7 @@ VALUES
   'Armless Chairs',
   'Premium cream-coloured armless chairs for functions. Available for haldi, puberty and wedding functions. Sturdy and premium feel. Hassle-free transportation and delivery.',
   3, 'Chennai', 500, NULL, NULL, NULL, 0,
-  '["https://pakkarent.com/products/event/Chair_rent.html"]',
+  '[]',
   '{"pricing_type":"per_event","price_10_chairs":500,"price_20_chairs":800,"colour":"Cream","occasions":["Haldi","Puberty","Wedding"],"features":["Premium feel","Sturdy","Armless design","Transport included"]}',
   200, false
 ),
@@ -835,7 +835,7 @@ VALUES
   'Irish Cake Table Combo',
   'Irish cake table combo set for birthday and celebration events. Combo of 4 unique cake stands: Cake Stand, Cup Cake Stand, Serving Tray and Baroque Tray.',
   5, 'Chennai', 1200, NULL, NULL, NULL, 0,
-  '["https://pakkarent.com/products/prop/Cake_Stand_Combo.html"]',
+  '[]',
   '{"pricing_type":"per_event","includes":["Cake stand","Cup cake stand","Serving tray","Baroque tray"],"combo_count":4,"occasions":["Birthday","Anniversary","Celebrations"],"features":["Budget friendly","Complete combo"]}',
   5, true
 ),
@@ -843,7 +843,7 @@ VALUES
   'Golden Cake Stand Combo',
   'Premium golden cake stand combo for birthday displays. Combo of 3-6 unique gold cake stands including Cake Stand, Cup Cake Stand, Serving Tray and Baroque Tray.',
   5, 'Chennai', 1200, NULL, NULL, NULL, 0,
-  '["https://pakkarent.com/products/prop/Pakka_Cake_Stand_Combo.html"]',
+  '[]',
   '{"pricing_type":"per_event","price_range":"1200-1800","includes":["3-6 Gold cake stands","Cup cake stand","Serving tray","Baroque tray"],"occasions":["Birthday","Anniversary"],"features":["Golden finish","Premium combo"]}',
   5, false
 ),
@@ -867,7 +867,7 @@ VALUES
   'Baby Car for Birthday',
   'Stylish kids / baby car rental for birthday events and baby entries. Simple remote operation with in-car controls. 30-40 mins run time. Transportation cost applicable.',
   5, 'Chennai', 2000, NULL, NULL, NULL, 2000,
-  '["https://pakkarent.com/products/baby/Kids_Car_Rental.html"]',
+  '[]',
   '{"pricing_type":"per_event","features":["Remote control","In-car controls","30-40 min runtime","Stylish design"],"occasions":["Birthday","Baby naming ceremony"],"note":"Transportation cost applicable"}',
   3, true
 ),
@@ -925,7 +925,7 @@ VALUES
   'Kids Car Rental',
   'Stylish remote-controlled kids car rental for birthday parties and events. Simple remote operation with in-car controls. 30-40 mins run time. Transportation cost applicable.',
   7, 'Chennai', 2000, NULL, NULL, NULL, 2000,
-  '["https://pakkarent.com/products/baby/Kids_Car_Rental.html"]',
+  '[]',
   '{"pricing_type":"per_event","features":["Remote control","In-car controls","30-40 min runtime","Stylish design"],"occasions":["Birthday party","Events"],"note":"Transportation cost applicable"}',
   3, true
 ),

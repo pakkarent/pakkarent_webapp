@@ -207,9 +207,21 @@ export default function Navbar() {
   const { city, changeCity, cities } = useCity();
   const [menuOpen, setMenuOpen]   = useState(false);
   const [cityOpen, setCityOpen]   = useState(false);
+  const cityRef                   = useRef(null);
   const navigate                  = useNavigate();
 
   const handleLogout = () => { logout(); navigate('/'); setMenuOpen(false); };
+
+  useEffect(() => {
+    if (!cityOpen) return undefined;
+    const handler = (e) => {
+      if (cityRef.current && !cityRef.current.contains(e.target)) {
+        setCityOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [cityOpen]);
 
   return (
     <header className="navbar">
@@ -219,18 +231,28 @@ export default function Navbar() {
             <span className="logo-pakka">Pakka</span><span className="logo-rent">Rent</span>
           </Link>
 
-          {/* City selector */}
-          <div className="city-selector" onClick={() => setCityOpen(!cityOpen)}>
-            <span className="city-icon">📍</span>
+          {/* City selector — visible on desktop AND mobile main view */}
+          <div
+            className="city-selector"
+            onClick={() => setCityOpen(!cityOpen)}
+            ref={cityRef}
+            role="button"
+            aria-haspopup="listbox"
+            aria-expanded={cityOpen}
+            aria-label={`Change city, current city ${city}`}
+          >
+            <span className="city-icon" aria-hidden="true">📍</span>
             <span className="city-name">{city}</span>
-            <span className="city-arrow">▼</span>
+            <span className="city-arrow" aria-hidden="true">▼</span>
             {cityOpen && (
-              <div className="city-dropdown">
+              <div className="city-dropdown" role="listbox">
                 {cities.map(c => (
                   <button
                     key={c}
                     className={`city-option ${c === city ? 'active' : ''}`}
-                    onClick={() => { changeCity(c); setCityOpen(false); }}
+                    onClick={(e) => { e.stopPropagation(); changeCity(c); setCityOpen(false); }}
+                    role="option"
+                    aria-selected={c === city}
                   >
                     {c}
                   </button>
@@ -288,18 +310,6 @@ export default function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="mobile-menu">
-          <div className="mobile-city">
-            <span>📍 City:</span>
-            {cities.map(c => (
-              <button
-                key={c}
-                className={`city-btn ${c === city ? 'active' : ''}`}
-                onClick={() => changeCity(c)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
           <MobileSearch city={city} onClose={() => setMenuOpen(false)} />
           <Link to="/products?category_id=1" onClick={() => setMenuOpen(false)}>⛺ Camping Rental</Link>
           <Link to="/products?category_id=2" onClick={() => setMenuOpen(false)}>🏠 Home Appliances</Link>

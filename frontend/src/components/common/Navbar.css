@@ -353,28 +353,6 @@
   transition: background 0.15s;
 }
 .mobile-menu a:hover, .mobile-menu button:hover { background: var(--gray-light); }
-.mobile-city {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 0 12px;
-  flex-wrap: wrap;
-  font-size: 13px;
-  color: var(--gray);
-  border-bottom: 1px solid var(--gray-border);
-  margin-bottom: 4px;
-}
-.city-btn {
-  padding: 5px 12px;
-  border: 1.5px solid var(--gray-border);
-  border-radius: var(--radius-pill);
-  background: none;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.15s;
-}
-.city-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 .mobile-search {
   display: flex;
   border: 1.5px solid var(--gray-border);
@@ -405,9 +383,31 @@
     row-gap: 10px;
   }
 
-  .navbar-logo { font-size: 19px; }
+  .navbar-logo { font-size: 18px; flex-shrink: 0; }
 
-  .city-selector { display: none; }
+  /* Compact city pill stays visible on mobile, next to the logo */
+  .city-selector {
+    display: inline-flex;
+    padding: 6px 10px;
+    font-size: 12px;
+    gap: 3px;
+    max-width: 140px;
+    margin-right: auto;
+  }
+  .city-selector .city-icon { font-size: 12px; }
+  .city-selector .city-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 90px;
+  }
+  .city-selector .city-arrow { font-size: 9px; }
+  .city-dropdown {
+    min-width: 160px;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 1500;
+  }
 
   /* Search bar stays visible on mobile and wraps onto its own row */
   .search-wrap {
@@ -426,8 +426,8 @@
   /* Keep cart visible on mobile, hide other action links */
   .navbar-actions {
     display: inline-flex;
-    margin-left: auto;
     gap: 4px;
+    flex-shrink: 0;
   }
   .navbar-actions .nav-link,
   .navbar-actions .btn,
@@ -482,7 +482,13 @@
 }
 
 @media (max-width: 380px) {
-  .navbar-logo { font-size: 17px; }
+  .navbar-logo { font-size: 16px; }
+  .city-selector {
+    padding: 5px 8px;
+    font-size: 11px;
+    max-width: 110px;
+  }
+  .city-selector .city-name { max-width: 70px; }
   .cart-btn,
   .hamburger { width: 36px; height: 36px; font-size: 20px; }
   .navbar-search input { padding: 9px 12px; }
