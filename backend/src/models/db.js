@@ -1,44 +1,57 @@
 /**
- * Database connection — tries real PostgreSQL first, falls back to pg-mem
- * (in-memory database) if the connection fails.
+ * Database connection — Supabase PostgreSQL (or any Postgres URL).
+ * Falls back to pg-mem if the connection fails (local demo mode).
  */
 const { Pool } = require('pg');
 const { seedMemoryDB } = require('./seed-memory');
 
-let _pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  connectionTimeoutMillis: 3000,
-});
+function poolConfig() {
+  const connectionString = process.env.DATABASE_URL;
+  const isSupabase = connectionString?.includes('supabase.co');
+
+  return {
+    connectionString,
+    ssl: isSupabase || process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
+    connectionTimeoutMillis: isSupabase ? 10000 : 3000,
+  };
+}
+
+let _pool = new Pool(poolConfig());
 
 let initPromise = null;
 
 async function init() {
-  // ── Try real PostgreSQL ──────────────────────────────────────────────────
+  if (!process.env.DATABASE_URL) {
+    console.warn('⚠️  DATABASE_URL not set — using in-memory database (demo mode)...');
+    return useMemoryDB();
+  }
+
   try {
     const client = await _pool.connect();
     await client.query('SELECT 1');
     client.release();
     _pool.on('error', (err) => console.error('PostgreSQL error:', err));
-    console.log('✅  Connected to PostgreSQL');
+    const label = process.env.DATABASE_URL.includes('supabase.co') ? 'Supabase PostgreSQL' : 'PostgreSQL';
+    console.log(`✅  Connected to ${label}`);
     return;
   } catch (err) {
     console.warn(`⚠️  PostgreSQL unavailable: ${err.message}`);
     console.warn('    Starting in-memory database (demo mode)...');
+    return useMemoryDB();
   }
+}
 
-  // ── Fall back to pg-mem ──────────────────────────────────────────────────
+function useMemoryDB() {
   const { newDb } = require('pg-mem');
   const db = newDb();
-
-  seedMemoryDB(db);   // synchronous
-
+  seedMemoryDB(db);
   const { Pool: MemPool } = db.adapters.createPg();
   _pool = new MemPool();
   console.log('✅  In-memory database ready (data resets on server restart)');
 }
 
-// Lazy-init proxy — first query triggers setup
 const pool = {
   query: async (...args) => {
     if (!initPromise) initPromise = init();

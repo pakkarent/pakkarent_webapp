@@ -17,6 +17,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import MyOrders from './pages/MyOrders';
 import Profile from './pages/Profile';
+import InfoPage from './pages/InfoPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
@@ -47,6 +48,14 @@ function AppContent() {
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/about" element={<InfoPage pageKey="about" />} />
+        <Route path="/how-it-works" element={<InfoPage pageKey="how-it-works" />} />
+        <Route path="/blog" element={<InfoPage pageKey="blog" />} />
+        <Route path="/contact" element={<InfoPage pageKey="contact" />} />
+        <Route path="/faq" element={<InfoPage pageKey="faq" />} />
+        <Route path="/delivery-info" element={<InfoPage pageKey="delivery" />} />
+        <Route path="/terms" element={<InfoPage pageKey="terms" />} />
+        <Route path="/privacy" element={<InfoPage pageKey="privacy" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />

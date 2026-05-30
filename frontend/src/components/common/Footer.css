@@ -1,11 +1,42 @@
 .footer { background: var(--dark); color: rgba(255,255,255,0.8); padding: 60px 0 0; margin-top: 80px; }
 .footer-logo { font-size: 28px; font-weight: 800; color: white; margin-bottom: 12px; }
+.footer-trust-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: rgba(255, 107, 0, 0.12);
+  border: 1px solid rgba(255, 107, 0, 0.35);
+  padding: 5px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 40px; }
 .footer-brand p { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.6); }
-.footer-social { display: flex; gap: 10px; margin-top: 20px; }
+.footer-social { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
 .social-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: white; }
 .whatsapp { background: #25D366; }
 .phone { background: var(--primary); }
+.footer-follow { margin-top: 24px; }
+.footer-follow h4 { color: white; font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.footer-follow-text { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.55); margin-bottom: 12px; }
+.footer-follow-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.follow-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  transition: opacity 0.2s;
+}
+.follow-btn:hover { opacity: 0.88; color: white; }
+.follow-btn.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+.follow-btn.facebook { background: #1877F2; }
+.follow-btn.twitter { background: #1DA1F2; }
 .footer-col h4 { color: white; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
 .footer-col a, .footer-col p { display: block; color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 10px; transition: color 0.2s; }
 .footer-col a:hover { color: var(--primary); }

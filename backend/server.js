@@ -11,6 +11,7 @@ const userRoutes = require('./src/routes/users');
 const adminRoutes = require('./src/routes/admin');
 const pricingAdminRoutes = require('./src/routes/pricingAdmin');
 const uploadRoutes = require('./src/routes/uploads');
+const inquiryRoutes = require('./src/routes/inquiries');
 const { runMigrations } = require('./src/utils/migrations');
 
 const app = express();
@@ -29,8 +30,24 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/pricing', pricingAdminRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/inquiries', inquiryRoutes);
 
-app.get('/api/health', (req, res) => res.json({ status: 'OK', message: 'PakkaRent API running' }));
+app.get('/api/health', async (req, res) => {
+  const pool = require('./src/models/db');
+  let db = 'unknown';
+  try {
+    await pool.query('SELECT 1');
+    db = process.env.DATABASE_URL?.includes('supabase.co') ? 'supabase' : 'postgres';
+  } catch {
+    db = 'unavailable';
+  }
+  res.json({
+    status: 'OK',
+    message: 'PakkaRent API running',
+    database: db,
+    supabase: Boolean(process.env.SUPABASE_URL),
+  });
+});
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

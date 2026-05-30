@@ -1,4 +1,6 @@
 const API_BASE = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
+const SUPABASE_URL = (process.env.REACT_APP_SUPABASE_URL || '').replace(/\/$/, '');
+const STORAGE_BUCKET = process.env.REACT_APP_SUPABASE_STORAGE_BUCKET || 'pakkarent_images';
 
 export function resolveImageUrl(src) {
   if (!src) return null;
@@ -6,9 +8,13 @@ export function resolveImageUrl(src) {
 
   if (normalized.startsWith('http')) return normalized;
 
+  if (normalized.includes('/uploads/') && SUPABASE_URL) {
+    const storageKey = normalized.slice(normalized.indexOf('/uploads/') + '/uploads/'.length);
+    return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${storageKey}`;
+  }
+
   if (normalized.includes('/uploads/')) {
-    const uploadPath = normalized.slice(normalized.indexOf('/uploads/'));
-    return uploadPath;
+    return normalized.slice(normalized.indexOf('/uploads/'));
   }
 
   if (normalized.startsWith('/')) return normalized;

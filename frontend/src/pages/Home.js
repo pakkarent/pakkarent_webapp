@@ -4,6 +4,7 @@ import { productAPI, categoryAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
 import useSEO from '../hooks/useSEO';
+import { trustedServiceLabel } from '../utils/company';
 import './Home.css';
 
 /* ── Category → Unsplash image map (keyword-based) ── */
@@ -108,6 +109,7 @@ export default function Home() {
   }, [city]);
 
   const visibleCats = showAllCats ? categories : categories.slice(0, 12);
+  const yearsLabel = trustedServiceLabel();
 
   return (
     <div className="home">
@@ -126,7 +128,7 @@ export default function Home() {
                 alt="Rent for events"
               />
               <div className="hero-panel-overlay">
-                <p className="hero-panel-tag">✨ New arrivals</p>
+                <p className="hero-panel-tag">{yearsLabel}</p>
                 <h2>Rent for every<br />celebration</h2>
                 <Link to="/products" className="hero-panel-btn">
                   Explore all items <span>↗</span>

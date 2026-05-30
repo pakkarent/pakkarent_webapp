@@ -15,9 +15,12 @@ API.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
+      const isPublicInquiry = err.config?.url?.includes('/inquiries');
       localStorage.removeItem('pakkarent_token');
       localStorage.removeItem('pakkarent_user');
-      window.location.href = '/login';
+      if (!isPublicInquiry) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   }
@@ -48,6 +51,10 @@ export const orderAPI = {
   getMyOrders: () => API.get('/orders/my'),
   getAll: (params) => API.get('/orders', { params }),
   updateStatus: (id, status) => API.patch(`/orders/${id}/status`, { status }),
+};
+
+export const inquiryAPI = {
+  submit: (data) => API.post('/inquiries', data, { timeout: 15000 }),
 };
 
 export const userAPI = {
