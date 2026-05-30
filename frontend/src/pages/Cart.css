@@ -35,6 +35,10 @@
 .tenure-opt { background: var(--gray-light); border: 2px solid transparent; padding: 10px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
 .tenure-opt:hover { border-color: var(--primary); }
 .tenure-opt.active { background: var(--primary); color: white; border-color: var(--primary); }
+.cart-date-fields { display: flex; flex-direction: column; gap: 12px; }
+.cart-date-fields label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 600; }
+.cart-date-fields input[type="date"] { padding: 8px; border-radius: var(--radius-sm); border: 1px solid var(--gray-border); font-size: 14px; }
+.cart-rental-days { font-size: 13px; color: var(--gray); margin-top: 4px; }
 .summary-rows { margin-bottom: 24px; }
 .summary-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--gray-border); font-size: 14px; }
 .summary-row.discount { color: var(--green); }

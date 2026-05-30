@@ -9,8 +9,18 @@ const statusColors = {
   delivered: '#8BC34A',
   active: '#4CAF50',
   completed: '#4CAF50',
-  cancelled: '#f44336'
+  cancelled: '#f44336',
 };
+
+function formatRentalDuration(order) {
+  const tenure = Number(order.tenure_months);
+  if (tenure === 0 && order.start_date && order.end_date) {
+    const s = new Date(order.start_date).toLocaleDateString();
+    const e = new Date(order.end_date).toLocaleDateString();
+    return `${s} – ${e}`;
+  }
+  return `${tenure} Month${tenure !== 1 ? 's' : ''}`;
+}
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -76,7 +86,7 @@ export default function MyOrders() {
                 <div className="order-details">
                   <div className="detail-col">
                     <span className="detail-label">Rental Duration:</span>
-                    <span className="detail-value">{order.tenure_months} Month{order.tenure_months > 1 ? 's' : ''}</span>
+                    <span className="detail-value">{formatRentalDuration(order)}</span>
                   </div>
                   <div className="detail-col">
                     <span className="detail-label">Start Date:</span>

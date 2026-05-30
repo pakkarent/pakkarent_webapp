@@ -108,18 +108,48 @@
 
 .lightbox-content {
   position: relative;
+  width: min(90vw, 1200px);
+  height: min(85vh, 900px);
   max-width: 90vw;
-  max-height: 90vh;
+  max-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .lightbox-content img {
-  max-width: 90vw;
-  max-height: 85vh;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   border-radius: var(--radius);
   box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+
+/* Date-based rental on product detail */
+.rental-dates h4 { margin-bottom: 10px; }
+.rental-date-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+.rental-date-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+.rental-date-row input[type="date"] {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-border);
+  font-size: 14px;
+}
+.rental-days-hint {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #555;
 }
 .lightbox-close {
   position: fixed;
@@ -280,7 +310,12 @@
   .lightbox-arrow-left { left: 8px; }
   .lightbox-arrow-right { right: 8px; }
   .lightbox-close { top: 12px; right: 12px; width: 38px; height: 38px; font-size: 19px; }
-  .lightbox-content img { max-width: 94vw; max-height: 78vh; }
+  .lightbox-content {
+    width: 94vw;
+    height: 78vh;
+    max-height: 78vh;
+  }
+  .lightbox-content img { width: 100%; height: 100%; object-fit: contain; }
 
   .thumbnail { flex: 0 0 56px; height: 56px; }
 

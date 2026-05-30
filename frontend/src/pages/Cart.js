@@ -2,15 +2,34 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../utils/pricingDisplay';
 import { resolveImageUrl, safeJsonArray } from '../utils/media';
+import { cartUsesMonthlyPricing, rentalDaysInclusive } from '../utils/rentalModel';
 import useSEO from '../hooks/useSEO';
 import './Cart.css';
 
 export default function Cart() {
-  const { cart, removeFromCart, updateQuantity, clearCart, cartTotal, depositTotal, tenure, setTenure, getItemPrice } = useCart();
+  const {
+    cart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    cartTotal,
+    depositTotal,
+    tenure,
+    setTenure,
+    rentStart,
+    setRentStart,
+    rentEnd,
+    setRentEnd,
+    getItemPrice,
+  } = useCart();
   const { user } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
+  const monthlyCart = cartUsesMonthlyPricing(cart);
+  const rentalDays = rentalDaysInclusive(rentStart, rentEnd);
 
   useSEO({
     title: cart.length ? `Shopping Cart (${cart.length})` : 'Shopping Cart',
@@ -39,6 +58,10 @@ export default function Cart() {
       navigate('/login');
       return;
     }
+    if (!monthlyCart && rentalDays < 1) {
+      showToast('Please choose valid rental from and to dates.', { type: 'error' });
+      return;
+    }
     navigate('/checkout');
   };
 
@@ -63,7 +86,7 @@ export default function Cart() {
                     <h3>{item.name}</h3>
                     <p className="item-category">{item.category_name}</p>
                     <div className="item-price">
-                      {hasOffer(item) && offerPriceForTenure(item, tenure) != null ? (
+                      {monthlyCart && hasOffer(item) && offerPriceForTenure(item, tenure) != null ? (
                         <>
                           <span className="cart-price-original">₹{originalPriceForTenure(item, tenure)}</span>
                           <span className="cart-price-offer">₹{getItemPrice(item)}</span>
@@ -71,7 +94,13 @@ export default function Cart() {
                       ) : (
                         <span>₹{getItemPrice(item)}</span>
                       )}
-                      <span className="tenure-label">per {tenure}m</span>
+                      <span className="tenure-label">
+                        {monthlyCart
+                          ? `per ${tenure} mo`
+                          : rentalDays > 0
+                            ? `for ${rentalDays} day${rentalDays !== 1 ? 's' : ''}`
+                            : 'set dates'}
+                      </span>
                     </div>
                   </div>
                   <div className="item-controls">
@@ -95,15 +124,34 @@ export default function Cart() {
             <div className="summary-card">
               <h3>Order Summary</h3>
 
-              <div className="tenure-selector">
-                <h4>Rental Duration</h4>
-                <div className="tenure-options">
-                  <button className={`tenure-opt ${tenure === 1 ? 'active' : ''}`} onClick={() => setTenure(1)}>1 Month</button>
-                  <button className={`tenure-opt ${tenure === 3 ? 'active' : ''}`} onClick={() => setTenure(3)}>3 Months</button>
-                  <button className={`tenure-opt ${tenure === 6 ? 'active' : ''}`} onClick={() => setTenure(6)}>6 Months</button>
-                  <button className={`tenure-opt ${tenure === 12 ? 'active' : ''}`} onClick={() => setTenure(12)}>12 Months</button>
+              {monthlyCart ? (
+                <div className="tenure-selector">
+                  <h4>Rental Duration</h4>
+                  <div className="tenure-options">
+                    <button className={`tenure-opt ${tenure === 1 ? 'active' : ''}`} onClick={() => setTenure(1)}>1 Month</button>
+                    <button className={`tenure-opt ${tenure === 3 ? 'active' : ''}`} onClick={() => setTenure(3)}>3 Months</button>
+                    <button className={`tenure-opt ${tenure === 6 ? 'active' : ''}`} onClick={() => setTenure(6)}>6 Months</button>
+                    <button className={`tenure-opt ${tenure === 12 ? 'active' : ''}`} onClick={() => setTenure(12)}>12 Months</button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="tenure-selector rental-dates-summary">
+                  <h4>Rental dates</h4>
+                  <div className="cart-date-fields">
+                    <label>
+                      From
+                      <input type="date" value={rentStart} onChange={(e) => setRentStart(e.target.value)} />
+                    </label>
+                    <label>
+                      To
+                      <input type="date" value={rentEnd} min={rentStart || undefined} onChange={(e) => setRentEnd(e.target.value)} />
+                    </label>
+                  </div>
+                  {rentalDays > 0 && (
+                    <p className="cart-rental-days">{rentalDays} day{rentalDays !== 1 ? 's' : ''} total</p>
+                  )}
+                </div>
+              )}
 
               <div className="summary-rows">
                 <div className="summary-row">

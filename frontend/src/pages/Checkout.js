@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import { orderAPI } from '../services/api';
+import { cartUsesMonthlyPricing, rentalDaysInclusive } from '../utils/rentalModel';
 import useSEO from '../hooks/useSEO';
 import './Checkout.css';
 
 export default function Checkout() {
-  const { cart, cartTotal, depositTotal, tenure, clearCart, getItemPrice } = useCart();
-  const { user } = useAuth();
+  const {
+    cart,
+    cartTotal,
+    depositTotal,
+    tenure,
+    clearCart,
+    getItemPrice,
+    rentStart,
+    setRentStart,
+    rentEnd,
+    setRentEnd,
+  } = useCart();
   const navigate = useNavigate();
+  const monthlyCart = cartUsesMonthlyPricing(cart);
 
   useSEO({
     title: 'Checkout',
@@ -23,7 +34,7 @@ export default function Checkout() {
     address: '',
     city: '',
     pincode: '',
-    startDate: ''
+    startDate: '',
   });
 
   useEffect(() => {
@@ -32,7 +43,7 @@ export default function Checkout() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -41,24 +52,48 @@ export default function Checkout() {
       setError('Your cart is empty. Add products before checkout.');
       return;
     }
+    if (monthlyCart) {
+      if (!formData.startDate) {
+        setError('Please select a rental start date.');
+        return;
+      }
+    } else {
+      const days = rentalDaysInclusive(rentStart, rentEnd);
+      if (days < 1) {
+        setError('Please select valid rental from and to dates.');
+        return;
+      }
+    }
     setError('');
     setLoading(true);
     try {
-      const orderData = {
-        items: cart.map(item => ({ product_id: item.id, quantity: item.quantity })),
-        delivery_address: formData,
-        tenure_months: tenure,
-        start_date: formData.startDate
+      const delivery_address = {
+        address: formData.address,
+        city: formData.city,
+        pincode: formData.pincode,
       };
-      const res = await orderAPI.create(orderData);
+      if (monthlyCart) {
+        delivery_address.startDate = formData.startDate;
+      }
+
+      const orderData = {
+        items: cart.map((item) => ({ product_id: item.id, quantity: item.quantity })),
+        delivery_address,
+        tenure_months: monthlyCart ? tenure : 0,
+        start_date: monthlyCart ? formData.startDate : rentStart,
+        end_date: monthlyCart ? undefined : rentEnd,
+      };
+      await orderAPI.create(orderData);
       clearCart();
-      navigate(`/my-orders`);
+      navigate('/my-orders');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to place order. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  const rentalDays = rentalDaysInclusive(rentStart, rentEnd);
 
   return (
     <div className="checkout-page">
@@ -70,10 +105,10 @@ export default function Checkout() {
             <div className="form-section">
               <h2>Delivery Address</h2>
               {error && <div className="alert alert-error">{error}</div>}
-              
+
               <div className="form-group">
                 <label>Full Address</label>
-                <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Enter your delivery address" required rows="3"></textarea>
+                <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Enter your delivery address" required rows="3" />
               </div>
 
               <div className="form-row">
@@ -87,25 +122,44 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Rental Start Date</label>
-                <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} required />
-              </div>
+              {monthlyCart ? (
+                <div className="form-group">
+                  <label>Rental Start Date</label>
+                  <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} required />
+                </div>
+              ) : (
+                <div className="form-row checkout-rental-dates">
+                  <div className="form-group">
+                    <label>Rental from</label>
+                    <input type="date" value={rentStart} onChange={(e) => setRentStart(e.target.value)} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Rental to</label>
+                    <input type="date" value={rentEnd} min={rentStart || undefined} onChange={(e) => setRentEnd(e.target.value)} required />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="form-section">
               <h2>Order Items</h2>
               <div className="items-list">
-                {cart.map(item => (
+                {cart.map((item) => (
                   <div key={item.id} className="order-item">
-                    <span>{item.name} x {item.quantity}</span>
+                    <span>
+                      {item.name} x {item.quantity}
+                    </span>
                     <span>₹{(getItemPrice(item) * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading || !cart.length}>
+            <button
+              type="submit"
+              className="btn btn-primary btn-full btn-lg"
+              disabled={loading || !cart.length || (!monthlyCart && rentalDays < 1)}
+            >
               {loading ? 'Placing Order...' : 'Place Order'}
             </button>
           </form>
@@ -113,15 +167,23 @@ export default function Checkout() {
           <aside className="order-summary">
             <div className="summary-card">
               <h3>Order Summary</h3>
-              
+
               <div className="summary-section">
                 <p className="summary-label">Rental Duration:</p>
-                <p className="summary-value">{tenure} Month{tenure > 1 ? 's' : ''}</p>
+                <p className="summary-value">
+                  {monthlyCart
+                    ? `${tenure} Month${tenure > 1 ? 's' : ''}`
+                    : rentalDays > 0
+                      ? `${rentalDays} day${rentalDays !== 1 ? 's' : ''} (${rentStart} → ${rentEnd})`
+                      : 'Set dates in form'}
+                </p>
               </div>
 
               <div className="summary-section">
                 <p className="summary-label">Total Items:</p>
-                <p className="summary-value">{cart.length} item{cart.length > 1 ? 's' : ''}</p>
+                <p className="summary-value">
+                  {cart.length} item{cart.length > 1 ? 's' : ''}
+                </p>
               </div>
 
               <div className="summary-rows">
