@@ -48,17 +48,15 @@ services:
           type: web
           envVarKey: RENDER_EXTERNAL_URL
 
-  # ── Frontend (CRA static site) ────────────────────────────────────────────
+  # ── Frontend (CRA via Node + serve — reliable SPA + static assets) ────────
   - type: web
     name: pakkarent-web
-    runtime: static
+    runtime: node
+    region: singapore
+    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: build
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    startCommand: npm run start:prod
     envVars:
       - key: REACT_APP_SUPABASE_URL
         value: https://rxfgnbshfhbvngmtezhs.supabase.co
