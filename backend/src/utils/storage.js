@@ -25,7 +25,12 @@ function localPathToStorageKey(localPath) {
   if (normalized.includes('/storage/v1/object/public/')) {
     const marker = `/public/${BUCKET}/`;
     const idx = normalized.indexOf(marker);
-    if (idx !== -1) return normalized.slice(idx + marker.length);
+    if (idx !== -1) return normalized.slice(idx + marker.length).split('?')[0];
+  }
+  if (normalized.includes('/storage/v1/render/image/public/')) {
+    const marker = `/public/${BUCKET}/`;
+    const idx = normalized.indexOf(marker);
+    if (idx !== -1) return normalized.slice(idx + marker.length).split('?')[0];
   }
   return normalized.replace(/^\/uploads\//, '').replace(/^\/+/, '');
 }

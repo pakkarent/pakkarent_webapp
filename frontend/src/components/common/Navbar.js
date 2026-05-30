@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useCity } from '../../context/CityContext';
 import { productAPI } from '../../services/api';
-import { resolveImageUrl, safeJsonArray } from '../../utils/media';
+import { resolveThumbnailUrl, safeJsonArray } from '../../utils/media';
 import './Navbar.css';
 
 /* ── Search Autocomplete ───────────────────────────────────── */
@@ -101,7 +101,7 @@ function SearchBar({ city }) {
   /* ── Helpers ── */
   const getImg = (product) => {
     const imgs = safeJsonArray(product.images);
-    return resolveImageUrl(imgs[0]) || null;
+    return resolveThumbnailUrl(imgs[0], 'search') || null;
   };
 
   return (
@@ -210,7 +210,7 @@ export default function Navbar() {
   const cityRef                   = useRef(null);
   const navigate                  = useNavigate();
 
-  const handleLogout = () => { logout(); navigate('/'); setMenuOpen(false); };
+  const handleLogout = async () => { await logout(); navigate('/'); setMenuOpen(false); };
 
   useEffect(() => {
     if (!cityOpen) return undefined;

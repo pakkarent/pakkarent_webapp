@@ -8,7 +8,7 @@ import {
   offerPriceForTenure,
   effectivePriceForTenure,
 } from '../utils/pricingDisplay';
-import { resolveImageUrl, safeJsonArray, safeJsonObject } from '../utils/media';
+import { resolveImageUrl, resolveThumbnailUrl, safeJsonArray, safeJsonObject, imageErrorFallback } from '../utils/media';
 import {
   isMonthlyRentalProduct,
   rentalDaysInclusive,
@@ -235,9 +235,14 @@ export default function ProductDetail() {
               onClick={() => images.length && setLightboxOpen(true)}
             >
               <img
-                src={resolveImageUrl(images[selectedImage]) || PLACEHOLDER_IMG}
+                src={resolveThumbnailUrl(images[selectedImage], 'detail') || PLACEHOLDER_IMG}
                 alt={product.name}
-                onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMG; }}
+                onError={(e) => {
+                  imageErrorFallback(e, images[selectedImage]);
+                  if (!e.currentTarget.src.includes('object/public')) {
+                    e.currentTarget.onerror = () => { e.currentTarget.src = PLACEHOLDER_IMG; };
+                  }
+                }}
               />
               {product.is_featured && <span className="featured-badge">⭐ Featured</span>}
 
@@ -263,9 +268,9 @@ export default function ProductDetail() {
                     aria-label={`View image ${idx + 1}`}
                   >
                     <img
-                      src={resolveImageUrl(img) || PLACEHOLDER_IMG}
+                      src={resolveThumbnailUrl(img, 'gallery') || PLACEHOLDER_IMG}
                       alt={`${product.name} ${idx + 1}`}
-                      onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMG; }}
+                      onError={(e) => imageErrorFallback(e, img)}
                     />
                   </button>
                 ))}

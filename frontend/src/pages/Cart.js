@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCity } from '../context/CityContext';
 import { useToast } from '../context/ToastContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../utils/pricingDisplay';
-import { resolveImageUrl, safeJsonArray } from '../utils/media';
+import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
 import { cartUsesMonthlyPricing, rentalDaysInclusive } from '../utils/rentalModel';
 import { inquiryAPI } from '../services/api';
 import useSEO from '../hooks/useSEO';
@@ -162,8 +162,9 @@ export default function Cart() {
                       const images = safeJsonArray(item.images);
                       return (
                         <img
-                          src={resolveImageUrl(images[0]) || 'https://via.placeholder.com/100x100?text=Item'}
+                          src={resolveThumbnailUrl(images[0], 'cart') || 'https://via.placeholder.com/100x100?text=Item'}
                           alt={item.name}
+                          onError={(e) => imageErrorFallback(e, images[0])}
                         />
                       );
                     })()}

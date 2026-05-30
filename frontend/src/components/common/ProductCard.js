@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../../utils/pricingDisplay';
-import { resolveImageUrl, safeJsonArray } from '../../utils/media';
+import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../../utils/media';
 import './ProductCard.css';
 
 const PLACEHOLDER_IMG = 'https://via.placeholder.com/300x200?text=PakkaRent';
@@ -15,7 +15,7 @@ export default function ProductCard({ product }) {
   const [hovered, setHovered] = useState(false);
 
   const mainImg =
-    resolveImageUrl(images[activeIdx]) ||
+    resolveThumbnailUrl(images[activeIdx], 'card') ||
     PLACEHOLDER_IMG;
 
   const prev = useCallback((e) => {
@@ -60,7 +60,7 @@ export default function ProductCard({ product }) {
           alt={product.name}
           loading="lazy"
           className={hovered ? 'zoomed' : ''}
-          onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMG; }}
+          onError={(e) => imageErrorFallback(e, images[activeIdx])}
         />
 
         {/* Badge showing total image count */}

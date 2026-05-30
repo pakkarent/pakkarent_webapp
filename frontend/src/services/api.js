@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getAuthToken, clearAuthTokens } from '../utils/authToken';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
 const baseURL = `${API_BASE.replace(/\/$/, '')}/api`;
@@ -6,7 +7,7 @@ const baseURL = `${API_BASE.replace(/\/$/, '')}/api`;
 const API = axios.create({ baseURL });
 
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('pakkarent_token');
+  const token = getAuthToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -16,9 +17,8 @@ API.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401) {
       const isPublicInquiry = err.config?.url?.includes('/inquiries');
-      localStorage.removeItem('pakkarent_token');
-      localStorage.removeItem('pakkarent_user');
-      if (!isPublicInquiry) {
+      clearAuthTokens();
+      if (!isPublicInquiry && !window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';
       }
     }
