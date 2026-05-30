@@ -1,0 +1,75 @@
+# PakkaRent — Render Blueprint
+# Deploy: Dashboard → New → Blueprint → connect pakkarent/pakkarent_webapp → Deploy
+# Secrets (sync: false) are prompted on first deploy.
+
+services:
+  # ── Backend API ─────────────────────────────────────────────────────────────
+  - type: web
+    name: pakkarent-api
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_SSL
+        value: "true"
+      - key: SUPABASE_URL
+        value: https://rxfgnbshfhbvngmtezhs.supabase.co
+      - key: SUPABASE_STORAGE_BUCKET
+        value: pakkarent_images
+      - key: INQUIRY_EMAIL_TO
+        value: pakkarent@gmail.com
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: CLIENT_URL
+        fromService:
+          name: pakkarent-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+
+  # ── Frontend (CRA static site) ────────────────────────────────────────────
+  - type: web
+    name: pakkarent-web
+    runtime: static
+    region: singapore
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: REACT_APP_SUPABASE_URL
+        value: https://rxfgnbshfhbvngmtezhs.supabase.co
+      - key: REACT_APP_SUPABASE_STORAGE_BUCKET
+        value: pakkarent_images
+      - key: REACT_APP_SUPABASE_ANON_KEY
+        sync: false
+      - key: REACT_APP_API_URL
+        fromService:
+          name: pakkarent-api
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
