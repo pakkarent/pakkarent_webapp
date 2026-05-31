@@ -1,18 +1,44 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import {
+  CITIES,
+  hasConfirmedCity,
+  markCityConfirmed,
+  getStoredCity,
+} from '../utils/cities';
 
 const CityContext = createContext(null);
-const CITIES = ['Chennai', 'Bangalore', 'Hyderabad'];
 
 export const CityProvider = ({ children }) => {
-  const [city, setCity] = useState(() => localStorage.getItem('pakkarent_city') || 'Chennai');
+  const [city, setCity] = useState(getStoredCity);
+  const [showCityPicker, setShowCityPicker] = useState(() => !hasConfirmedCity());
 
-  const changeCity = (newCity) => {
+  const changeCity = useCallback((newCity) => {
     setCity(newCity);
-    localStorage.setItem('pakkarent_city', newCity);
-  };
+    markCityConfirmed(newCity);
+    setShowCityPicker(false);
+  }, []);
+
+  const dismissCityPicker = useCallback(() => {
+    markCityConfirmed(city);
+    setShowCityPicker(false);
+  }, [city]);
+
+  /** Show picker on any route until the user has confirmed a city once. */
+  const ensureCityPickerIfNeeded = useCallback(() => {
+    if (!hasConfirmedCity()) {
+      setShowCityPicker(true);
+    }
+  }, []);
 
   return (
-    <CityContext.Provider value={{ city, changeCity, cities: CITIES }}>
+    <CityContext.Provider value={{
+      city,
+      changeCity,
+      cities: CITIES,
+      showCityPicker,
+      dismissCityPicker,
+      ensureCityPickerIfNeeded,
+    }}>
       {children}
     </CityContext.Provider>
   );

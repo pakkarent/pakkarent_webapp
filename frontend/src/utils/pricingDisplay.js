@@ -1,12 +1,13 @@
 /**
  * Server sends base prices plus optional offer_* fields when a % discount applies.
+ * Prices are unit rates — not multiplied by tenure months or rental days.
  */
 
 export function originalPriceForTenure(product, tenure) {
-  if (tenure === 3) return product.price_3month ?? product.monthly_price * 3;
-  if (tenure === 6) return product.price_6month ?? product.monthly_price * 6;
-  if (tenure === 12) return product.price_12month ?? product.monthly_price * 12;
-  return product.monthly_price * tenure;
+  if (tenure === 3 && product.price_3month != null) return Number(product.price_3month);
+  if (tenure === 6 && product.price_6month != null) return Number(product.price_6month);
+  if (tenure === 12 && product.price_12month != null) return Number(product.price_12month);
+  return Number(product.monthly_price);
 }
 
 export function offerPriceForTenure(product, tenure) {
@@ -19,11 +20,16 @@ export function offerPriceForTenure(product, tenure) {
   return null;
 }
 
-/** Price used at checkout for this tenure (offer if active, else list). */
+/** Unit rental rate for monthly products (offer if active, else list tier rate). */
 export function effectivePriceForTenure(product, tenure) {
   const offer = offerPriceForTenure(product, tenure);
   if (offer != null) return offer;
   return originalPriceForTenure(product, tenure);
+}
+
+/** Unit rate for day/event rentals (monthly_price column stores per-day rate). */
+export function unitDayPrice(product) {
+  return Number(product.monthly_price) || 0;
 }
 
 export function hasOffer(product) {

@@ -187,9 +187,7 @@ export default function ProductDetail() {
 
   const getPrice = () => {
     if (monthlyProduct) return effectivePriceForTenure(product, selectedTenure);
-    const days = rentalDaysInclusive(detailRentStart, detailRentEnd);
-    if (days < 1) return 0;
-    return Number(product.monthly_price) * days;
+    return Number(product.monthly_price);
   };
 
   const tenurePriceDisplay = (months) => {
@@ -347,7 +345,7 @@ export default function ProductDetail() {
                   {rentalDaysInclusive(detailRentStart, detailRentEnd) > 0 && (
                     <p className="rental-days-hint">
                       {rentalDaysInclusive(detailRentStart, detailRentEnd)} day
-                      {rentalDaysInclusive(detailRentStart, detailRentEnd) !== 1 ? 's' : ''} at ₹{product.monthly_price}/day
+                      {rentalDaysInclusive(detailRentStart, detailRentEnd) !== 1 ? 's' : ''} selected
                     </p>
                   )}
                 </div>
@@ -356,7 +354,7 @@ export default function ProductDetail() {
               <div className="price-info">
                 <div className="price-row">
                   <span>
-                    {monthlyProduct ? `Rental Price (${selectedTenure}M):` : 'Rental total:'}
+                    {monthlyProduct ? `Rate (${selectedTenure} mo plan):` : 'Rate (per day):'}
                   </span>
                   <span className="price-value price-value-stack">
                     {monthlyProduct && hasOffer(product) && offerPriceForTenure(product, selectedTenure) != null && (

@@ -29,12 +29,10 @@ function rentalDaysInclusive(startStr, endStr) {
 }
 
 function linePriceMonthly(p, tenureMonths) {
-  let price = Number(p.monthly_price);
-  if (tenureMonths === 3) price = p.price_3month != null ? Number(p.price_3month) : price * 3;
-  else if (tenureMonths === 6) price = p.price_6month != null ? Number(p.price_6month) : price * 6;
-  else if (tenureMonths === 12) price = p.price_12month != null ? Number(p.price_12month) : price * 12;
-  else price = Number(p.monthly_price) * tenureMonths;
-  return price;
+  if (tenureMonths === 3 && p.price_3month != null) return Number(p.price_3month);
+  if (tenureMonths === 6 && p.price_6month != null) return Number(p.price_6month);
+  if (tenureMonths === 12 && p.price_12month != null) return Number(p.price_12month);
+  return Number(p.monthly_price);
 }
 
 function dateToYMD(d) {
@@ -95,8 +93,7 @@ router.post('/', authenticate, async (req, res) => {
       if (isMonthlyProductRow(p)) {
         price = linePriceMonthly(p, orderTenureMonths);
       } else {
-        const days = rentalDaysInclusive(orderStart, orderEnd);
-        price = Number(p.monthly_price) * days;
+        price = Number(p.monthly_price);
       }
       total_amount += price * item.quantity;
       total_deposit += Number(p.security_deposit) * item.quantity;
@@ -122,8 +119,7 @@ router.post('/', authenticate, async (req, res) => {
       if (isMonthlyProductRow(p)) {
         price = linePriceMonthly(p, orderTenureMonths);
       } else {
-        const days = rentalDaysInclusive(orderStart, orderEnd);
-        price = Number(p.monthly_price) * days;
+        price = Number(p.monthly_price);
       }
 
       await client.query(

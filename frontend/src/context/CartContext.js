@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { effectivePriceForTenure } from '../utils/pricingDisplay';
+import { effectivePriceForTenure, unitDayPrice } from '../utils/pricingDisplay';
 import {
   isMonthlyRentalProduct,
-  rentalDaysInclusive,
   MIXED_CART_MSG,
   todayYMD,
   addDaysYMD,
@@ -73,10 +72,8 @@ export const CartProvider = ({ children }) => {
     if (isMonthlyRentalProduct(product)) {
       return effectivePriceForTenure(product, tenure);
     }
-    const days = rentalDaysInclusive(rentStart, rentEnd);
-    if (days < 1) return 0;
-    return Number(product.monthly_price) * days;
-  }, [tenure, rentStart, rentEnd]);
+    return unitDayPrice(product);
+  }, [tenure]);
 
   const addToCart = useCallback(
     (product, qty = 1, options = {}) => {

@@ -182,11 +182,7 @@ export default function Cart() {
                         <span>₹{getItemPrice(item)}</span>
                       )}
                       <span className="tenure-label">
-                        {monthlyCart
-                          ? `per ${tenure} mo`
-                          : rentalDays > 0
-                            ? `for ${rentalDays} day${rentalDays !== 1 ? 's' : ''}`
-                            : 'set dates'}
+                        {monthlyCart ? 'per month' : 'per day'}
                       </span>
                     </div>
                   </div>
@@ -237,7 +233,9 @@ export default function Cart() {
                     </label>
                   </div>
                   {rentalDays > 0 && (
-                    <p className="cart-rental-days">{rentalDays} day{rentalDays !== 1 ? 's' : ''} total</p>
+                    <p className="cart-rental-days">
+                      {rentalDays} day{rentalDays !== 1 ? 's' : ''} selected
+                    </p>
                   )}
                 </div>
               )}

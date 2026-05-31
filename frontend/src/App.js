@@ -8,6 +8,7 @@ import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import WhatsAppFab from './components/common/WhatsAppFab';
+import CityPickerModal from './components/common/CityPickerModal';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -43,6 +44,7 @@ const AdminRoute = ({ children }) => {
 function AppContent() {
   return (
     <BrowserRouter>
+      <CityPickerModal />
       <Navbar />
       <main id="main-content"><Routes>
         <Route path="/" element={<Home />} />
