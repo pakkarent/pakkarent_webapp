@@ -7,7 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../utils/pricingDisplay';
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
 import { cartUsesMonthlyPricing, rentalDaysInclusive } from '../utils/rentalModel';
-import { inquiryAPI } from '../services/api';
+import { buildInquiryWhatsAppUrl, openWhatsAppUrl } from '../utils/whatsappInquiry';
 import useSEO from '../hooks/useSEO';
 import './Cart.css';
 
@@ -40,6 +40,7 @@ export default function Cart() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmWhatsAppUrl, setConfirmWhatsAppUrl] = useState('');
 
   useEffect(() => {
     setFormData((prev) => ({
@@ -104,28 +105,32 @@ export default function Cart() {
       return;
     }
 
+    const items = cart.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      lineTotal: (getItemPrice(item) * item.quantity).toFixed(2),
+    }));
+
+    const payload = {
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      email: formData.email.trim(),
+      address: formData.address.trim(),
+      city: formData.city.trim(),
+      rentalSummary,
+      items,
+    };
+
+    const whatsappUrl = buildInquiryWhatsAppUrl(payload);
+
     setSubmitting(true);
     try {
-      const items = cart.map((item) => ({
-        name: item.name,
-        quantity: item.quantity,
-        lineTotal: (getItemPrice(item) * item.quantity).toFixed(2),
-      }));
-
-      await inquiryAPI.submit({
-        name: formData.name.trim(),
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
-        address: formData.address.trim(),
-        city: formData.city.trim(),
-        rentalSummary,
-        items,
-      });
-
+      openWhatsAppUrl(whatsappUrl);
+      setConfirmWhatsAppUrl(whatsappUrl);
       setShowConfirm(true);
       clearCart();
-    } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to place order. Please try again.', { type: 'error' });
+    } catch {
+      showToast('Could not open WhatsApp. Please try again.', { type: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -137,11 +142,21 @@ export default function Cart() {
         <div className="cart-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="cart-confirm-title">
           <div className="cart-confirm-modal">
             <span className="cart-confirm-icon" aria-hidden="true">✓</span>
-            <h2 id="cart-confirm-title">Order request received</h2>
+            <h2 id="cart-confirm-title">Almost done!</h2>
             <p>
-              This information has been shared with the team and they will contact you for order confirmation.
+              WhatsApp should have opened with your order details. Tap <strong>Send</strong> so our team receives it and can confirm your order.
             </p>
-            <Link to="/products" className="btn btn-primary btn-full" onClick={() => setShowConfirm(false)}>
+            {confirmWhatsAppUrl && (
+              <a
+                href={confirmWhatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-whatsapp btn-full"
+              >
+                Open WhatsApp again
+              </a>
+            )}
+            <Link to="/products" className="btn btn-outline btn-full cart-confirm-continue" onClick={() => setShowConfirm(false)}>
               Continue Shopping
             </Link>
           </div>
@@ -242,7 +257,7 @@ export default function Cart() {
 
               <div className="cart-delivery-form">
                 <h4>Delivery details</h4>
-                <p className="cart-guest-note">No login required — we will call you to confirm your order.</p>
+                <p className="cart-guest-note">No login required — your order is sent to us on WhatsApp and we will call you to confirm.</p>
                 <label>
                   Name
                   <input
@@ -302,7 +317,7 @@ export default function Cart() {
                 onClick={handlePlaceOrder}
                 disabled={submitting || (!monthlyCart && rentalDays < 1)}
               >
-                {submitting ? 'Submitting...' : 'Place Order'}
+                {submitting ? 'Opening WhatsApp...' : 'Send order on WhatsApp'}
               </button>
 
               <div className="cart-support">

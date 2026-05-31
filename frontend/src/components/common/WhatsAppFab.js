@@ -1,11 +1,9 @@
 import React from 'react';
+import { buildWhatsAppUrl, WHATSAPP_GREETING } from '../../utils/whatsappInquiry';
 import './WhatsAppFab.css';
 
-const WHATSAPP_NUMBER = '919361432697';
-const DEFAULT_MESSAGE = "Hi PakkaRent! I'd like to know more about your rentals.";
-
 export default function WhatsAppFab() {
-  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(DEFAULT_MESSAGE)}`;
+  const href = buildWhatsAppUrl(WHATSAPP_GREETING);
 
   return (
     <a

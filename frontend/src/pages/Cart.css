@@ -89,7 +89,21 @@
   margin-bottom: 16px;
 }
 .cart-confirm-modal h2 { font-size: 22px; margin-bottom: 12px; color: var(--dark); }
-.cart-confirm-modal p { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 24px; }
+.cart-confirm-modal p { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 20px; }
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #25d366;
+  color: white;
+  border: none;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.btn-whatsapp:hover { background: #1ebe57; color: white; }
+.cart-confirm-continue { margin-bottom: 0; }
 .summary-rows { margin-bottom: 24px; }
 .summary-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--gray-border); font-size: 14px; }
 .summary-row.discount { color: var(--green); }

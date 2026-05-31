@@ -69,3 +69,5 @@ services:
           name: pakkarent-api
           type: web
           envVarKey: RENDER_EXTERNAL_URL
+      - key: REACT_APP_WHATSAPP_NUMBER
+        value: "919361432697"

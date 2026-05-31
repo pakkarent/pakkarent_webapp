@@ -122,7 +122,7 @@ export const SITE_PAGES = {
       },
       {
         heading: 'Place an order online',
-        body: `Add products to your cart on this website, enter your address and phone number, and click Place Order. Our team will contact you to confirm availability and payment.`,
+        body: `Add products to your cart on this website, enter your address and phone number, and tap Send order on WhatsApp. Tap Send in WhatsApp so our team receives your details — we will call you to confirm availability and payment.`,
         links: [{ label: 'Browse products', href: '/products' }],
       },
     ],
