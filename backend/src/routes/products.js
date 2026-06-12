@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
   if (city) { conditions.push(`(p.city = $${idx} OR p.city = 'all')`); params.push(city); idx++; }
 
   if (subcategory_id) {
-    conditions.push(`p.subcategory_id = $${idx}`);
+    conditions.push(`(p.subcategory_id = $${idx} OR p.category_id = $${idx})`);
     params.push(subcategory_id);
     idx++;
   } else if (category_id) {
@@ -34,6 +34,7 @@ router.get('/', async (req, res) => {
       p.category_id = $${idx}
       OR sc.parent_id = $${idx}
       OR p.subcategory_id IN (SELECT id FROM categories WHERE parent_id = $${idx})
+      OR p.category_id IN (SELECT id FROM categories WHERE parent_id = $${idx})
     )`);
     params.push(category_id);
     idx++;

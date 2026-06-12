@@ -43,12 +43,14 @@ router.get('/', async (req, res) => {
       conditions.push(`EXISTS (
         SELECT 1 FROM products p
         LEFT JOIN categories sc ON sc.id = p.subcategory_id
+        LEFT JOIN categories pc ON pc.id = p.category_id
         WHERE p.is_active = true
           AND (p.city = $${idx} OR p.city = 'all')
           AND (
             p.category_id = c.id
             OR p.subcategory_id = c.id
             OR sc.parent_id = c.id
+            OR pc.parent_id = c.id
           )
       )`);
       params.push(city);
@@ -64,7 +66,32 @@ router.get('/', async (req, res) => {
        ORDER BY COALESCE(c.parent_id, c.id), c.parent_id NULLS FIRST, c.sort_order, c.name`,
       params
     );
-    res.json({ success: true, categories: result.rows });
+
+    let categories = result.rows;
+    const parentIds = [...new Set(
+      categories.filter((row) => row.parent_id).map((row) => row.parent_id)
+    )];
+    const existingIds = new Set(categories.map((row) => row.id));
+    const missingParentIds = parentIds.filter((id) => !existingIds.has(id));
+    if (missingParentIds.length) {
+      const parents = await pool.query(
+        `SELECT c.*, pc.name AS parent_name
+         FROM categories c
+         LEFT JOIN categories pc ON pc.id = c.parent_id
+         WHERE c.id = ANY($1) AND c.is_active = true`,
+        [missingParentIds]
+      );
+      categories = [...parents.rows, ...categories];
+      categories.sort(
+        (a, b) =>
+          (a.parent_id || a.id) - (b.parent_id || b.id)
+          || (a.parent_id ? 1 : 0) - (b.parent_id ? 1 : 0)
+          || (a.sort_order || 0) - (b.sort_order || 0)
+          || a.name.localeCompare(b.name)
+      );
+    }
+
+    res.json({ success: true, categories });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
