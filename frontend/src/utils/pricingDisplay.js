@@ -27,9 +27,17 @@ export function effectivePriceForTenure(product, tenure) {
   return originalPriceForTenure(product, tenure);
 }
 
-/** Unit rate for day/event rentals (monthly_price column stores per-day rate). */
+/** Unit rate for day/event rentals (monthly_price column stores per-day or per-event rate). */
 export function unitDayPrice(product) {
   return Number(product.monthly_price) || 0;
+}
+
+/** Unit rate for event/day rentals with offer applied when available. */
+export function effectiveEventPrice(product) {
+  if (hasOffer(product) && product.offer_monthly_price != null) {
+    return Number(product.offer_monthly_price);
+  }
+  return unitDayPrice(product);
 }
 
 export function hasOffer(product) {

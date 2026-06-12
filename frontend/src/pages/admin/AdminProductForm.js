@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productAPI, categoryAPI, uploadAPI } from '../../services/api';
+import {
+  PRICING_TYPES,
+  basePriceLabel,
+  isMonthlyCategory,
+  isMonthlyPricingType,
+} from '../../utils/productPricing';
 import './AdminForm.css';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
@@ -62,6 +68,7 @@ export default function AdminProductForm() {
   const [newCategory, setNewCategory] = useState({ name: '', description: '', icon: '📦' });
   const [categoryError, setCategoryError] = useState('');
 
+  const [pricingType, setPricingType] = useState('per_month');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -103,7 +110,10 @@ export default function AdminProductForm() {
             is_featured: prod.is_featured,
             is_active: typeof prod.is_active === 'boolean' ? prod.is_active : true
           });
-          setSpecRows(specsObjectToRows(prod.specs));
+          const specRowsLoaded = specsObjectToRows(prod.specs);
+          setSpecRows(specRowsLoaded);
+          const pt = specRowsLoaded.find((r) => r.key === 'pricing_type')?.value || 'per_month';
+          setPricingType(pt);
           setManualImageUrls('');
         }
       } catch (err) {
@@ -117,10 +127,38 @@ export default function AdminProductForm() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-    if (formErrors[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    const nextValue = type === 'checkbox' ? checked : value;
+    setFormData((prev) => ({ ...prev, [name]: nextValue }));
+    if (name === 'category_id' && nextValue) {
+      if (isMonthlyCategory(nextValue)) {
+        setPricingType('per_month');
+      } else {
+        setPricingType((pt) => (pt === 'per_month' ? 'per_event' : pt));
+      }
     }
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handlePricingTypeChange = (e) => {
+    const nextType = e.target.value;
+    setPricingType(nextType);
+    if (!isMonthlyPricingType(nextType)) {
+      setFormData((prev) => ({
+        ...prev,
+        price_3month: '',
+        price_6month: '',
+        price_12month: '',
+      }));
+    }
+  };
+
+  const buildSpecsWithPricingType = (specsObj) => {
+    const withoutPricing = Object.fromEntries(
+      Object.entries(specsObj).filter(([k]) => k !== 'pricing_type')
+    );
+    return { ...withoutPricing, pricing_type: pricingType };
   };
 
   const parseNumber = (val) => {
@@ -147,7 +185,9 @@ export default function AdminProductForm() {
     const deposit = parseNumber(formData.security_deposit) ?? 0;
     const stock = parseNumber(formData.stock);
 
-    if (monthly === null || monthly <= 0) nextErrors.monthly_price = 'Monthly price must be greater than 0.';
+    if (monthly === null || monthly <= 0) {
+      nextErrors.monthly_price = `${basePriceLabel(pricingType)} must be greater than 0.`;
+    }
     if (price3 !== null && price3 <= 0) nextErrors.price_3month = '3-month price must be greater than 0.';
     if (price6 !== null && price6 <= 0) nextErrors.price_6month = '6-month price must be greater than 0.';
     if (price12 !== null && price12 <= 0) nextErrors.price_12month = '12-month price must be greater than 0.';
@@ -189,7 +229,7 @@ export default function AdminProductForm() {
       category_id: parseInt(formData.category_id),
       stock: parseInt(formData.stock),
       images: initialImages,
-      specs: parsedSpecs.ok ? parsedSpecs.value : {}
+      specs: parsedSpecs.ok ? buildSpecsWithPricingType(parsedSpecs.value) : { pricing_type: pricingType }
     };
     try {
       if (id) {
@@ -389,26 +429,38 @@ export default function AdminProductForm() {
             <h2>Pricing</h2>
             <div className="form-row">
               <div className="form-group">
-                <label>Monthly Price *</label>
+                <label>Pricing type *</label>
+                <select value={pricingType} onChange={handlePricingTypeChange}>
+                  {PRICING_TYPES.map((pt) => (
+                    <option key={pt.value} value={pt.value}>{pt.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>{basePriceLabel(pricingType)} *</label>
                 <input type="number" name="monthly_price" value={formData.monthly_price} onChange={handleChange} required step="0.01" />
                 {formErrors.monthly_price && <p className="field-error">{formErrors.monthly_price}</p>}
               </div>
-              <div className="form-group">
-                <label>3-Month Price</label>
-                <input type="number" name="price_3month" value={formData.price_3month} onChange={handleChange} step="0.01" />
-                {formErrors.price_3month && <p className="field-error">{formErrors.price_3month}</p>}
-              </div>
-              <div className="form-group">
-                <label>6-Month Price</label>
-                <input type="number" name="price_6month" value={formData.price_6month} onChange={handleChange} step="0.01" />
-                {formErrors.price_6month && <p className="field-error">{formErrors.price_6month}</p>}
-              </div>
-              <div className="form-group">
-                <label>12-Month Price</label>
-                <input type="number" name="price_12month" value={formData.price_12month} onChange={handleChange} step="0.01" />
-                {formErrors.price_12month && <p className="field-error">{formErrors.price_12month}</p>}
-              </div>
             </div>
+            {isMonthlyPricingType(pricingType) && (
+              <div className="form-row">
+                <div className="form-group">
+                  <label>3-Month Price</label>
+                  <input type="number" name="price_3month" value={formData.price_3month} onChange={handleChange} step="0.01" />
+                  {formErrors.price_3month && <p className="field-error">{formErrors.price_3month}</p>}
+                </div>
+                <div className="form-group">
+                  <label>6-Month Price</label>
+                  <input type="number" name="price_6month" value={formData.price_6month} onChange={handleChange} step="0.01" />
+                  {formErrors.price_6month && <p className="field-error">{formErrors.price_6month}</p>}
+                </div>
+                <div className="form-group">
+                  <label>12-Month Price</label>
+                  <input type="number" name="price_12month" value={formData.price_12month} onChange={handleChange} step="0.01" />
+                  {formErrors.price_12month && <p className="field-error">{formErrors.price_12month}</p>}
+                </div>
+              </div>
+            )}
             <div className="form-row">
               <div className="form-group">
                 <label>Security Deposit</label>

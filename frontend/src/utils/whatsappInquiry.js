@@ -9,8 +9,43 @@ function display(val) {
   return s ? String(s) : '—';
 }
 
+function formatIndianMoney(amount) {
+  return Number(amount).toLocaleString('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function formatIndianDate(isoDate) {
+  if (!isoDate) return '';
+  const d = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 function orderTotal(items) {
   return (items || []).reduce((sum, item) => sum + Number(item.lineTotal || 0), 0);
+}
+
+export function buildMapLink(lat, lng) {
+  if (lat == null || lng == null) return '';
+  return `https://www.google.com/maps?q=${lat},${lng}`;
+}
+
+function rentalLines(payload) {
+  if (payload.rentalDays != null && payload.rentStart && payload.rentEnd) {
+    const days = payload.rentalDays;
+    return [
+      `• Duration: ${days} day${days !== 1 ? 's' : ''}`,
+      `• Dates: ${formatIndianDate(payload.rentStart)} → ${formatIndianDate(payload.rentEnd)}`,
+    ];
+  }
+  if (payload.tenure) {
+    const lines = [`• Duration: ${payload.tenure} month${payload.tenure !== 1 ? 's' : ''}`];
+    if (payload.rentStart) lines.push(`• Start: ${formatIndianDate(payload.rentStart)}`);
+    return lines;
+  }
+  return [`• ${display(payload.rentalSummary)}`];
 }
 
 /** Pre-filled WhatsApp message for a cart inquiry. */
@@ -18,27 +53,45 @@ export function formatInquiryWhatsAppMessage(payload) {
   const items = payload.items || [];
   const total = orderTotal(items);
   const itemLines = items.map((item, i) => {
-    const qty = item.quantity > 1 ? ` x${item.quantity}` : '';
-    return `${i + 1}. ${display(item.name)}${qty} — ₹${Number(item.lineTotal || 0).toFixed(2)}`;
+    const qty = item.quantity > 1 ? ` (×${item.quantity})` : '';
+    return `${i + 1}. ${display(item.name)}${qty}\n   ₹${formatIndianMoney(item.lineTotal)}`;
   });
 
+  const customerLines = [
+    `• Name: ${display(payload.name)}`,
+    `• Phone: ${display(payload.phone)}`,
+  ];
+  if (payload.email?.trim()) {
+    customerLines.push(`• Email: ${display(payload.email)}`);
+  }
+
+  const deliveryLines = [
+    `• City: ${display(payload.city)}`,
+    `• Address: ${display(payload.address)}`,
+  ];
+  const mapLink = payload.mapLink || buildMapLink(payload.lat, payload.lng);
+  if (mapLink) {
+    deliveryLines.push(`• Map: ${mapLink}`);
+  }
+
   return [
-    '*New order inquiry — PakkaRent*',
+    '📦 *NEW ORDER — PakkaRent*',
+    '────────────────────',
     '',
-    '*Customer*',
-    `Name: ${display(payload.name)}`,
-    `Phone: ${display(payload.phone)}`,
-    `Email: ${display(payload.email)}`,
-    `Address: ${display(payload.address)}`,
-    `City: ${display(payload.city)}`,
+    '👤 *Customer*',
+    ...customerLines,
     '',
-    '*Rental*',
-    display(payload.rentalSummary),
+    '📍 *Delivery*',
+    ...deliveryLines,
     '',
-    '*Items*',
+    '📅 *Rental*',
+    ...rentalLines(payload),
+    '',
+    '🛒 *Items*',
     ...itemLines,
     '',
-    `*Total: ₹${total.toFixed(2)}*`,
+    '────────────────────',
+    `💰 *Total: ₹${formatIndianMoney(total)}*`,
   ].join('\n');
 }
 

@@ -57,13 +57,25 @@
 }
 .admin-back:hover { text-decoration: underline; color: #fff; }
 
-.admin-pricing-grid {
+.admin-pricing-grid,
+.admin-pricing-stack {
   display: grid;
   gap: 24px;
   margin-bottom: 32px;
 }
 @media (min-width: 900px) {
   .admin-pricing-grid { grid-template-columns: 1fr 1fr; }
+}
+.admin-pricing-segment { border-top: 4px solid var(--primary); }
+.admin-pricing-subform {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gray-border);
+}
+.admin-pricing-subform h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 12px;
 }
 .admin-form-card {
   background: white;

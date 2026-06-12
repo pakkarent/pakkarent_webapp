@@ -7,8 +7,10 @@ import { useToast } from '../context/ToastContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../utils/pricingDisplay';
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
 import { cartUsesMonthlyPricing, rentalDaysInclusive } from '../utils/rentalModel';
-import { buildInquiryWhatsAppUrl, openWhatsAppUrl } from '../utils/whatsappInquiry';
+import { buildInquiryWhatsAppUrl, buildMapLink, openWhatsAppUrl } from '../utils/whatsappInquiry';
+import DeliveryMapPicker from '../components/common/DeliveryMapPicker';
 import useSEO from '../hooks/useSEO';
+import 'leaflet/dist/leaflet.css';
 import './Cart.css';
 
 export default function Cart() {
@@ -41,6 +43,9 @@ export default function Cart() {
   const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmWhatsAppUrl, setConfirmWhatsAppUrl] = useState('');
+  const [deliveryLocation, setDeliveryLocation] = useState(null);
+  const [showMapPicker, setShowMapPicker] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
     setFormData((prev) => ({
@@ -77,6 +82,30 @@ export default function Cart() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'address') setDeliveryLocation(null);
+  };
+
+  const handleUseLocation = () => {
+    if (!navigator.geolocation) {
+      showToast('Location is not supported on this device.', { type: 'error' });
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setDeliveryLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+        setLocating(false);
+        showToast('Location pinned. It will be included in your WhatsApp order.', { type: 'success' });
+      },
+      () => {
+        setLocating(false);
+        showToast('Could not get location. Allow location access or enter your address manually.', { type: 'error' });
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+    );
   };
 
   const rentalSummary = monthlyCart
@@ -118,7 +147,14 @@ export default function Cart() {
       address: formData.address.trim(),
       city: formData.city.trim(),
       rentalSummary,
+      rentalDays: monthlyCart ? null : rentalDays,
+      rentStart,
+      rentEnd,
+      tenure: monthlyCart ? tenure : null,
       items,
+      lat: deliveryLocation?.lat,
+      lng: deliveryLocation?.lng,
+      mapLink: deliveryLocation ? buildMapLink(deliveryLocation.lat, deliveryLocation.lng) : '',
     };
 
     const whatsappUrl = buildInquiryWhatsAppUrl(payload);
@@ -296,11 +332,58 @@ export default function Cart() {
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    placeholder="Enter your delivery address"
+                    placeholder="House / street / landmark"
                     rows="3"
                     required
                   />
                 </label>
+                <div className="cart-location-tools">
+                  <button
+                    type="button"
+                    className={`btn btn-outline btn-location${showMapPicker ? ' active' : ''}`}
+                    onClick={() => setShowMapPicker((prev) => !prev)}
+                  >
+                    {showMapPicker ? 'Hide map' : '🗺️ Tap on map to pin location'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-outline btn-location${deliveryLocation ? ' pinned' : ''}`}
+                    onClick={handleUseLocation}
+                    disabled={locating}
+                  >
+                    {locating ? 'Getting location…' : '📍 Use current location'}
+                  </button>
+                  {deliveryLocation && (
+                    <>
+                      <a
+                        href={buildMapLink(deliveryLocation.lat, deliveryLocation.lng)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="cart-map-link"
+                      >
+                        Preview on map
+                      </a>
+                      <button
+                        type="button"
+                        className="cart-clear-location"
+                        onClick={() => setDeliveryLocation(null)}
+                      >
+                        Clear
+                      </button>
+                    </>
+                  )}
+                </div>
+                {showMapPicker && (
+                  <DeliveryMapPicker
+                    city={formData.city}
+                    value={deliveryLocation}
+                    onSelect={(coords) => {
+                      setDeliveryLocation(coords);
+                      showToast('Location pinned from map.', { type: 'success' });
+                    }}
+                  />
+                )}
+                <p className="cart-location-hint">Optional — tap map or share current GPS so delivery is easier to find.</p>
                 <label>
                   City
                   <select name="city" value={formData.city} onChange={handleChange} required>

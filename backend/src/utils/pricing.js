@@ -31,31 +31,58 @@ function applyDiscountToProduct(row, discountPercent) {
  * @param {import('pg').Pool} pool
  * @returns {Promise<{ globalPercent: number, byCategory: Record<number, number> }>}
  */
-async function loadActivePricingRules(pool) {
-  const res = await pool.query(
-    `SELECT scope, category_id, discount_percent FROM pricing_offers WHERE is_active = true`
-  );
-  let globalPercent = 0;
-  const byCategory = {};
-  for (const r of res.rows) {
-    if (r.scope === 'all') {
-      globalPercent = Number(r.discount_percent) || 0;
-    } else if (r.scope === 'category' && r.category_id != null) {
-      byCategory[r.category_id] = Number(r.discount_percent) || 0;
+function parseSpecs(specs) {
+  if (!specs) return {};
+  if (typeof specs === 'string') {
+    try {
+      return JSON.parse(specs);
+    } catch {
+      return {};
     }
   }
-  return { globalPercent, byCategory };
+  return specs;
 }
 
-function discountForProduct(categoryId, rules) {
-  if (rules.byCategory[categoryId] != null && rules.byCategory[categoryId] > 0) {
-    return rules.byCategory[categoryId];
+function productPricingSegment(row) {
+  const pt = parseSpecs(row.specs).pricing_type;
+  return pt === 'per_month' ? 'monthly' : 'event';
+}
+
+function emptySegmentRules() {
+  return { globalPercent: 0, byCategory: {} };
+}
+
+async function loadActivePricingRules(pool) {
+  const res = await pool.query(
+    `SELECT scope, category_id, discount_percent, pricing_segment
+     FROM pricing_offers WHERE is_active = true`
+  );
+  const rules = {
+    monthly: emptySegmentRules(),
+    event: emptySegmentRules(),
+  };
+  for (const r of res.rows) {
+    const seg = r.pricing_segment === 'event' ? 'event' : 'monthly';
+    if (r.scope === 'all') {
+      rules[seg].globalPercent = Number(r.discount_percent) || 0;
+    } else if (r.scope === 'category' && r.category_id != null) {
+      rules[seg].byCategory[r.category_id] = Number(r.discount_percent) || 0;
+    }
   }
-  return rules.globalPercent || 0;
+  return rules;
+}
+
+function discountForProduct(categoryId, rules, row) {
+  const seg = productPricingSegment(row);
+  const segRules = rules[seg] || rules.monthly;
+  if (segRules.byCategory[categoryId] != null && segRules.byCategory[categoryId] > 0) {
+    return segRules.byCategory[categoryId];
+  }
+  return segRules.globalPercent || 0;
 }
 
 function enrichProduct(row, rules) {
-  const pct = discountForProduct(row.category_id, rules);
+  const pct = discountForProduct(row.category_id, rules, row);
   return applyDiscountToProduct(row, pct);
 }
 

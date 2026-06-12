@@ -22,7 +22,8 @@ router.get('/', async (req, res) => {
 
 // Create or replace store-wide offer (deactivates previous global)
 router.post('/global', async (req, res) => {
-  const { discount_percent, label, is_active = true } = req.body;
+  const { discount_percent, label, is_active = true, pricing_segment = 'monthly' } = req.body;
+  const segment = pricing_segment === 'event' ? 'event' : 'monthly';
   const pct = Number(discount_percent);
   if (Number.isNaN(pct) || pct < 0 || pct > 100) {
     return res.status(400).json({ success: false, message: 'discount_percent must be 0–100' });
@@ -31,12 +32,14 @@ router.post('/global', async (req, res) => {
   try {
     await client.query('BEGIN');
     await client.query(
-      `UPDATE pricing_offers SET is_active = false, updated_at = NOW() WHERE scope = 'all' AND is_active = true`
+      `UPDATE pricing_offers SET is_active = false, updated_at = NOW()
+       WHERE scope = 'all' AND pricing_segment = $1 AND is_active = true`,
+      [segment]
     );
     const ins = await client.query(
-      `INSERT INTO pricing_offers (scope, category_id, discount_percent, label, is_active)
-       VALUES ('all', NULL, $1, $2, $3) RETURNING *`,
-      [pct, label || null, !!is_active]
+      `INSERT INTO pricing_offers (scope, category_id, discount_percent, label, is_active, pricing_segment)
+       VALUES ('all', NULL, $1, $2, $3, $4) RETURNING *`,
+      [pct, label || null, !!is_active, segment]
     );
     await client.query('COMMIT');
     res.status(201).json({ success: true, offer: ins.rows[0] });
@@ -50,7 +53,8 @@ router.post('/global', async (req, res) => {
 
 // Upsert category-specific offer
 router.post('/category', async (req, res) => {
-  const { category_id, discount_percent, label, is_active = true } = req.body;
+  const { category_id, discount_percent, label, is_active = true, pricing_segment = 'monthly' } = req.body;
+  const segment = pricing_segment === 'event' ? 'event' : 'monthly';
   const cid = parseInt(category_id, 10);
   const pct = Number(discount_percent);
   if (!cid || Number.isNaN(pct) || pct < 0 || pct > 100) {
@@ -61,13 +65,13 @@ router.post('/category', async (req, res) => {
     await client.query('BEGIN');
     await client.query(
       `UPDATE pricing_offers SET is_active = false, updated_at = NOW()
-       WHERE scope = 'category' AND category_id = $1 AND is_active = true`,
-      [cid]
+       WHERE scope = 'category' AND category_id = $1 AND pricing_segment = $2 AND is_active = true`,
+      [cid, segment]
     );
     const ins = await client.query(
-      `INSERT INTO pricing_offers (scope, category_id, discount_percent, label, is_active)
-       VALUES ('category', $1, $2, $3, $4) RETURNING *`,
-      [cid, pct, label || null, !!is_active]
+      `INSERT INTO pricing_offers (scope, category_id, discount_percent, label, is_active, pricing_segment)
+       VALUES ('category', $1, $2, $3, $4, $5) RETURNING *`,
+      [cid, pct, label || null, !!is_active, segment]
     );
     await client.query('COMMIT');
     res.status(201).json({ success: true, offer: ins.rows[0] });

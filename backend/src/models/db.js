@@ -7,7 +7,7 @@ const { seedMemoryDB } = require('./seed-memory');
 
 function poolConfig() {
   const connectionString = process.env.DATABASE_URL;
-  const isSupabase = connectionString?.includes('supabase.co');
+  const isSupabase = /supabase\.(co|com)/i.test(connectionString || '');
 
   return {
     connectionString,
@@ -33,7 +33,9 @@ async function init() {
     await client.query('SELECT 1');
     client.release();
     _pool.on('error', (err) => console.error('PostgreSQL error:', err));
-    const label = process.env.DATABASE_URL.includes('supabase.co') ? 'Supabase PostgreSQL' : 'PostgreSQL';
+    const label = /supabase\.(co|com)/i.test(process.env.DATABASE_URL || '')
+      ? 'Supabase PostgreSQL'
+      : 'PostgreSQL';
     console.log(`✅  Connected to ${label}`);
     return;
   } catch (err) {

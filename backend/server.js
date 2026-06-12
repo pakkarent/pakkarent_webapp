@@ -37,7 +37,7 @@ app.get('/api/health', async (req, res) => {
   let db = 'unknown';
   try {
     await pool.query('SELECT 1');
-    db = process.env.DATABASE_URL?.includes('supabase.co') ? 'supabase' : 'postgres';
+    db = /supabase\.(co|com)/i.test(process.env.DATABASE_URL || '') ? 'supabase' : 'postgres';
   } catch {
     db = 'unavailable';
   }
