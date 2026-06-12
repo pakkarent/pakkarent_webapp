@@ -4,23 +4,46 @@ const pool = require('../models/db');
 const { authenticate, adminOnly } = require('../middleware/auth');
 
 router.get('/', async (req, res) => {
-  const { city } = req.query;
+  const { city, parent_id, parents_only } = req.query;
   try {
-    if (city) {
-      const result = await pool.query(
-        `SELECT DISTINCT c.*
-         FROM categories c
-         JOIN products p ON p.category_id = c.id
-         WHERE c.is_active = true
-           AND p.is_active = true
-           AND (p.city = $1 OR p.city = 'all')
-         ORDER BY c.sort_order`,
-        [city]
-      );
-      return res.json({ success: true, categories: result.rows });
+    let conditions = ['c.is_active = true'];
+    const params = [];
+    let idx = 1;
+
+    if (parents_only === 'true') {
+      conditions.push('c.parent_id IS NULL');
+    }
+    if (parent_id) {
+      conditions.push(`c.parent_id = $${idx}`);
+      params.push(parseInt(parent_id, 10));
+      idx++;
     }
 
-    const result = await pool.query('SELECT * FROM categories WHERE is_active=true ORDER BY sort_order');
+    if (city) {
+      conditions.push(`EXISTS (
+        SELECT 1 FROM products p
+        LEFT JOIN categories sc ON sc.id = p.subcategory_id
+        WHERE p.is_active = true
+          AND (p.city = $${idx} OR p.city = 'all')
+          AND (
+            p.category_id = c.id
+            OR p.subcategory_id = c.id
+            OR sc.parent_id = c.id
+          )
+      )`);
+      params.push(city);
+      idx++;
+    }
+
+    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    const result = await pool.query(
+      `SELECT c.*, pc.name AS parent_name
+       FROM categories c
+       LEFT JOIN categories pc ON pc.id = c.parent_id
+       ${where}
+       ORDER BY COALESCE(c.parent_id, c.id), c.parent_id NULLS FIRST, c.sort_order, c.name`,
+      params
+    );
     res.json({ success: true, categories: result.rows });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -28,11 +51,12 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', authenticate, adminOnly, async (req, res) => {
-  const { name, description, icon, image, sort_order } = req.body;
+  const { name, description, icon, image, sort_order, parent_id } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO categories (name, description, icon, image, sort_order) VALUES ($1,$2,$3,$4,$5) RETURNING *',
-      [name, description, icon, image, sort_order || 0]
+      `INSERT INTO categories (name, description, icon, image, sort_order, parent_id)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [name, description, icon, image, sort_order || 0, parent_id || null]
     );
     res.status(201).json({ success: true, category: result.rows[0] });
   } catch (err) {
@@ -41,11 +65,14 @@ router.post('/', authenticate, adminOnly, async (req, res) => {
 });
 
 router.put('/:id', authenticate, adminOnly, async (req, res) => {
-  const { name, description, icon, image, sort_order, is_active } = req.body;
+  const { name, description, icon, image, sort_order, is_active, parent_id } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE categories SET name=$1, description=$2, icon=$3, image=$4, sort_order=$5, is_active=$6 WHERE id=$7 RETURNING *',
-      [name, description, icon, image, sort_order, is_active, req.params.id]
+      `UPDATE categories
+       SET name=$1, description=$2, icon=$3, image=$4, sort_order=$5,
+           is_active=$6, parent_id=$7
+       WHERE id=$8 RETURNING *`,
+      [name, description, icon, image, sort_order, is_active, parent_id ?? null, req.params.id]
     );
     res.json({ success: true, category: result.rows[0] });
   } catch (err) {

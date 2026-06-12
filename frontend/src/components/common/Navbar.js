@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useCity } from '../../context/CityContext';
 import { productAPI } from '../../services/api';
 import { resolveThumbnailUrl, safeJsonArray } from '../../utils/media';
+import { DesktopCategoryNav, MobileCategoryNav } from './CategoryNav';
 import './Navbar.css';
 
 /* ── Search Autocomplete ───────────────────────────────────── */
@@ -294,16 +295,7 @@ export default function Navbar() {
       {/* Category strip */}
       <div className="navbar-bottom">
         <div className="container">
-          <nav className="navbar-categories">
-            <Link to="/products?category_id=1" className="cat-link">⛺ Camping</Link>
-            <Link to="/products?category_id=2" className="cat-link">🏠 Appliances</Link>
-            <Link to="/products?category_id=3" className="cat-link">🎉 Events</Link>
-            <Link to="/products?category_id=4" className="cat-link">🖼️ Backdrops</Link>
-            <Link to="/products?category_id=5" className="cat-link">🎂 Birthday</Link>
-            <Link to="/products?category_id=6" className="cat-link">👶 Baby Props</Link>
-            <Link to="/products?category_id=7" className="cat-link">🧸 Kids Toys</Link>
-            <Link to="/products?category_id=8" className="cat-link">🎯 Games</Link>
-          </nav>
+          <DesktopCategoryNav />
         </div>
       </div>
 
@@ -311,14 +303,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="mobile-menu">
           <MobileSearch city={city} onClose={() => setMenuOpen(false)} />
-          <Link to="/products?category_id=1" onClick={() => setMenuOpen(false)}>⛺ Camping Rental</Link>
-          <Link to="/products?category_id=2" onClick={() => setMenuOpen(false)}>🏠 Home Appliances</Link>
-          <Link to="/products?category_id=3" onClick={() => setMenuOpen(false)}>🎉 Event Rental</Link>
-          <Link to="/products?category_id=4" onClick={() => setMenuOpen(false)}>🖼️ Backdrop Rental</Link>
-          <Link to="/products?category_id=5" onClick={() => setMenuOpen(false)}>🎂 Birthday Rental</Link>
-          <Link to="/products?category_id=6" onClick={() => setMenuOpen(false)}>👶 Baby Props</Link>
-          <Link to="/products?category_id=7" onClick={() => setMenuOpen(false)}>🧸 Kids Toys</Link>
-          <Link to="/products?category_id=8" onClick={() => setMenuOpen(false)}>🎯 Games Rental</Link>
+          <MobileCategoryNav onNavigate={() => setMenuOpen(false)} />
           <Link to="/cart" onClick={() => setMenuOpen(false)}>🛒 Cart ({cartCount})</Link>
           {user ? (
             <>

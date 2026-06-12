@@ -4,32 +4,60 @@ const pool = require('../models/db');
 const { authenticate, adminOnly } = require('../middleware/auth');
 const { loadActivePricingRules, enrichProduct } = require('../utils/pricing');
 
+const PRODUCT_SELECT = `
+  SELECT p.*,
+         c.name AS category_name,
+         c.icon AS category_icon,
+         sc.name AS subcategory_name,
+         sc.icon AS subcategory_icon
+  FROM products p
+  LEFT JOIN categories c ON p.category_id = c.id
+  LEFT JOIN categories sc ON p.subcategory_id = sc.id
+`;
+
 // Get all products with filters
 router.get('/', async (req, res) => {
-  const { city, category_id, min_price, max_price, search, page = 1, limit = 12, featured } = req.query;
+  const { city, category_id, subcategory_id, min_price, max_price, search, page = 1, limit = 12, featured } = req.query;
   const offset = (page - 1) * limit;
   let conditions = ['p.is_active = true'];
   let params = [];
   let idx = 1;
 
   if (city) { conditions.push(`(p.city = $${idx} OR p.city = 'all')`); params.push(city); idx++; }
-  if (category_id) { conditions.push(`p.category_id = $${idx}`); params.push(category_id); idx++; }
+
+  if (subcategory_id) {
+    conditions.push(`p.subcategory_id = $${idx}`);
+    params.push(subcategory_id);
+    idx++;
+  } else if (category_id) {
+    conditions.push(`(
+      p.category_id = $${idx}
+      OR sc.parent_id = $${idx}
+      OR p.subcategory_id IN (SELECT id FROM categories WHERE parent_id = $${idx})
+    )`);
+    params.push(category_id);
+    idx++;
+  }
+
   if (min_price) { conditions.push(`p.monthly_price >= $${idx}`); params.push(min_price); idx++; }
   if (max_price) { conditions.push(`p.monthly_price <= $${idx}`); params.push(max_price); idx++; }
   if (search) { conditions.push(`(p.name ILIKE $${idx} OR p.description ILIKE $${idx})`); params.push(`%${search}%`); idx++; }
-  if (featured === 'true') { conditions.push(`p.is_featured = true`); }
+  if (featured === 'true') { conditions.push('p.is_featured = true'); }
 
   const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
 
   try {
     const countResult = await pool.query(
-      `SELECT COUNT(*) FROM products p ${where}`,
+      `SELECT COUNT(*) FROM products p
+       LEFT JOIN categories sc ON p.subcategory_id = sc.id
+       ${where}`,
       params
     );
     const result = await pool.query(
-      `SELECT p.*, c.name as category_name, c.icon as category_icon
-       FROM products p LEFT JOIN categories c ON p.category_id = c.id
-       ${where} ORDER BY p.created_at DESC LIMIT $${idx} OFFSET $${idx+1}`,
+      `${PRODUCT_SELECT}
+       ${where}
+       ORDER BY p.created_at DESC
+       LIMIT $${idx} OFFSET $${idx + 1}`,
       [...params, limit, offset]
     );
     const rules = await loadActivePricingRules(pool);
@@ -44,8 +72,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT p.*, c.name as category_name FROM products p
-       LEFT JOIN categories c ON p.category_id = c.id WHERE p.id=$1`,
+      `${PRODUCT_SELECT} WHERE p.id=$1`,
       [req.params.id]
     );
     if (!result.rows.length) return res.status(404).json({ success: false, message: 'Product not found' });
@@ -59,12 +86,21 @@ router.get('/:id', async (req, res) => {
 
 // Create product (admin)
 router.post('/', authenticate, adminOnly, async (req, res) => {
-  const { name, description, category_id, city, monthly_price, price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured } = req.body;
+  const {
+    name, description, category_id, subcategory_id, city, monthly_price,
+    price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured,
+  } = req.body;
   try {
     const result = await pool.query(
-      `INSERT INTO products (name, description, category_id, city, monthly_price, price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-      [name, description, category_id, city, monthly_price, price_3month, price_6month, price_12month, security_deposit, JSON.stringify(images), JSON.stringify(specs), stock, is_featured || false]
+      `INSERT INTO products (
+         name, description, category_id, subcategory_id, city, monthly_price,
+         price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+      [
+        name, description, category_id, subcategory_id || null, city, monthly_price,
+        price_3month, price_6month, price_12month, security_deposit,
+        JSON.stringify(images), JSON.stringify(specs), stock, is_featured || false,
+      ]
     );
     res.status(201).json({ success: true, product: result.rows[0] });
   } catch (err) {
@@ -74,12 +110,23 @@ router.post('/', authenticate, adminOnly, async (req, res) => {
 
 // Update product (admin)
 router.put('/:id', authenticate, adminOnly, async (req, res) => {
-  const { name, description, category_id, city, monthly_price, price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured, is_active } = req.body;
+  const {
+    name, description, category_id, subcategory_id, city, monthly_price,
+    price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured, is_active,
+  } = req.body;
   try {
     const result = await pool.query(
-      `UPDATE products SET name=$1, description=$2, category_id=$3, city=$4, monthly_price=$5, price_3month=$6, price_6month=$7, price_12month=$8, security_deposit=$9, images=$10, specs=$11, stock=$12, is_featured=$13, is_active=COALESCE($14, is_active), updated_at=NOW()
-       WHERE id=$15 RETURNING *`,
-      [name, description, category_id, city, monthly_price, price_3month, price_6month, price_12month, security_deposit, JSON.stringify(images), JSON.stringify(specs), stock, is_featured, is_active, req.params.id]
+      `UPDATE products SET
+         name=$1, description=$2, category_id=$3, subcategory_id=$4, city=$5, monthly_price=$6,
+         price_3month=$7, price_6month=$8, price_12month=$9, security_deposit=$10,
+         images=$11, specs=$12, stock=$13, is_featured=$14,
+         is_active=COALESCE($15, is_active), updated_at=NOW()
+       WHERE id=$16 RETURNING *`,
+      [
+        name, description, category_id, subcategory_id || null, city, monthly_price,
+        price_3month, price_6month, price_12month, security_deposit,
+        JSON.stringify(images), JSON.stringify(specs), stock, is_featured, is_active, req.params.id,
+      ]
     );
     res.json({ success: true, product: result.rows[0] });
   } catch (err) {

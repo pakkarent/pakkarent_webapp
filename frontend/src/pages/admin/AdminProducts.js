@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../../services/api';
 import { getPricingType, pricingTypeLabel } from '../../utils/productPricing';
+import { formatCategoryLabel, getParentCategories, getSubcategories } from '../../utils/categoryUtils';
 import './AdminTable.css';
 
 export default function AdminProducts() {
@@ -11,8 +12,12 @@ export default function AdminProducts() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [categoryId, setCategoryId] = useState('');
+  const [subcategoryId, setSubcategoryId] = useState('');
   const [city, setCity] = useState('');
   const [search, setSearch] = useState('');
+
+  const parentCategories = getParentCategories(categories);
+  const subcategories = getSubcategories(categories, categoryId);
 
   useEffect(() => {
     categoryAPI.getAll().then((res) => setCategories(res.data.categories || [])).catch(() => {});
@@ -25,7 +30,8 @@ export default function AdminProducts() {
         const res = await productAPI.getAll({
           page,
           limit: 20,
-          category_id: categoryId || undefined,
+          category_id: subcategoryId ? undefined : (categoryId || undefined),
+          subcategory_id: subcategoryId || undefined,
           city: city || undefined,
           search: search.trim() || undefined,
         });
@@ -38,7 +44,7 @@ export default function AdminProducts() {
       }
     };
     fetch();
-  }, [page, categoryId, city, search]);
+  }, [page, categoryId, subcategoryId, city, search]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure? This action cannot be undone.')) return;
@@ -53,6 +59,7 @@ export default function AdminProducts() {
 
   const clearFilters = () => {
     setCategoryId('');
+    setSubcategoryId('');
     setCity('');
     setSearch('');
     setPage(1);
@@ -81,15 +88,34 @@ export default function AdminProducts() {
               value={categoryId}
               onChange={(e) => {
                 setCategoryId(e.target.value);
+                setSubcategoryId('');
                 setPage(1);
               }}
             >
               <option value="">All categories</option>
-              {categories.map((c) => (
+              {parentCategories.map((c) => (
                 <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
               ))}
             </select>
           </label>
+          {subcategories.length > 0 && (
+            <label>
+              Subcategory
+              <select
+                className="status-filter"
+                value={subcategoryId}
+                onChange={(e) => {
+                  setSubcategoryId(e.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="">All subcategories</option>
+                {subcategories.map((s) => (
+                  <option key={s.id} value={s.id}>{s.icon} {s.name}</option>
+                ))}
+              </select>
+            </label>
+          )}
           <label>
             City
             <select
@@ -119,7 +145,7 @@ export default function AdminProducts() {
               }}
             />
           </label>
-          {(categoryId || city || search) && (
+          {(categoryId || subcategoryId || city || search) && (
             <button type="button" className="btn btn-outline admin-filter-clear" onClick={clearFilters}>
               Clear filters
             </button>
@@ -157,7 +183,7 @@ export default function AdminProducts() {
                         <div>{prod.name}</div>
                         <small>ID: {prod.id}</small>
                       </td>
-                      <td>{prod.category_name}</td>
+                      <td>{formatCategoryLabel(prod)}</td>
                       <td>{prod.city === 'all' ? 'All Cities' : prod.city}</td>
                       <td>
                         <span className={`pricing-badge pricing-badge-${pricingType}`}>

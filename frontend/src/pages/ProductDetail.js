@@ -9,6 +9,7 @@ import {
   effectivePriceForTenure,
 } from '../utils/pricingDisplay';
 import { resolveImageUrl, resolveThumbnailUrl, safeJsonArray, safeJsonObject, imageErrorFallback } from '../utils/media';
+import { formatCategoryLabel } from '../utils/categoryUtils';
 import {
   isMonthlyRentalProduct,
   rentalDaysInclusive,
@@ -279,7 +280,7 @@ export default function ProductDetail() {
           {/* ── Info ── */}
           <div className="detail-info">
             <div className="detail-badges">
-              <span className="category-badge">{product.category_name}</span>
+              <span className="category-badge">{formatCategoryLabel(product)}</span>
               {hasOffer(product) && (
                 <span className="detail-offer-pill">{product.offer_discount_percent}% off</span>
               )}

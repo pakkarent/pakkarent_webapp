@@ -7,6 +7,7 @@ import {
   isMonthlyCategory,
   isMonthlyPricingType,
 } from '../../utils/productPricing';
+import { getParentCategories, getSubcategories } from '../../utils/categoryUtils';
 import './AdminForm.css';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
@@ -64,6 +65,7 @@ export default function AdminProductForm() {
   const [manualImageUrls, setManualImageUrls] = useState('');
   const [specRows, setSpecRows] = useState([{ key: '', value: '' }]);
   const [showAddCategory, setShowAddCategory] = useState(false);
+  const [addCategoryAsSub, setAddCategoryAsSub] = useState(false);
   const [creatingCategory, setCreatingCategory] = useState(false);
   const [newCategory, setNewCategory] = useState({ name: '', description: '', icon: '📦' });
   const [categoryError, setCategoryError] = useState('');
@@ -73,6 +75,7 @@ export default function AdminProductForm() {
     name: '',
     description: '',
     category_id: '',
+    subcategory_id: '',
     city: 'all',
     monthly_price: '',
     price_3month: '',
@@ -100,6 +103,7 @@ export default function AdminProductForm() {
             name: prod.name,
             description: prod.description,
             category_id: String(prod.category_id),
+            subcategory_id: prod.subcategory_id ? String(prod.subcategory_id) : '',
             city: prod.city,
             monthly_price: prod.monthly_price,
             price_3month: prod.price_3month || '',
@@ -128,7 +132,13 @@ export default function AdminProductForm() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const nextValue = type === 'checkbox' ? checked : value;
-    setFormData((prev) => ({ ...prev, [name]: nextValue }));
+    setFormData((prev) => {
+      const next = { ...prev, [name]: nextValue };
+      if (name === 'category_id') {
+        next.subcategory_id = '';
+      }
+      return next;
+    });
     if (name === 'category_id' && nextValue) {
       if (isMonthlyCategory(nextValue)) {
         setPricingType('per_month');
@@ -226,8 +236,9 @@ export default function AdminProductForm() {
       price_6month: formData.price_6month ? parseFloat(formData.price_6month) : null,
       price_12month: formData.price_12month ? parseFloat(formData.price_12month) : null,
       security_deposit: parseFloat(formData.security_deposit) || 0,
-      category_id: parseInt(formData.category_id),
-      stock: parseInt(formData.stock),
+      category_id: parseInt(formData.category_id, 10),
+      subcategory_id: formData.subcategory_id ? parseInt(formData.subcategory_id, 10) : null,
+      stock: parseInt(formData.stock, 10),
       images: initialImages,
       specs: parsedSpecs.ok ? buildSpecsWithPricingType(parsedSpecs.value) : { pricing_type: pricingType }
     };
@@ -261,7 +272,8 @@ export default function AdminProductForm() {
         description: newCategory.description.trim(),
         icon: (newCategory.icon || '📦').trim(),
         image: '',
-        sort_order: highestSort + 1
+        sort_order: highestSort + 1,
+        parent_id: addCategoryAsSub && formData.category_id ? parseInt(formData.category_id, 10) : null,
       };
       const res = await categoryAPI.create(payload);
       const created = res.data?.category;
@@ -270,8 +282,17 @@ export default function AdminProductForm() {
           (a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0)
         );
         setCategories(updated);
-        setFormData((prev) => ({ ...prev, category_id: String(created.id) }));
+        if (created.parent_id) {
+          setFormData((prev) => ({
+            ...prev,
+            category_id: String(created.parent_id),
+            subcategory_id: String(created.id),
+          }));
+        } else {
+          setFormData((prev) => ({ ...prev, category_id: String(created.id), subcategory_id: '' }));
+        }
         setShowAddCategory(false);
+        setAddCategoryAsSub(false);
         setNewCategory({ name: '', description: '', icon: '📦' });
       }
     } catch (err) {
@@ -334,6 +355,9 @@ export default function AdminProductForm() {
     });
   };
 
+  const parentCategories = getParentCategories(categories);
+  const availableSubcategories = getSubcategories(categories, formData.category_id);
+
   if (loading) return <div className="loading">Loading...</div>;
 
   return (
@@ -363,26 +387,60 @@ export default function AdminProductForm() {
                 <label>Category *</label>
                 <select name="category_id" value={formData.category_id} onChange={handleChange} required>
                   <option value="">Select Category</option>
-                  {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                  {parentCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
                 </select>
                 {formErrors.category_id && <p className="field-error">{formErrors.category_id}</p>}
+              </div>
+              {availableSubcategories.length > 0 && (
+                <div className="form-group">
+                  <label>Subcategory</label>
+                  <select name="subcategory_id" value={formData.subcategory_id} onChange={handleChange}>
+                    <option value="">None</option>
+                    {availableSubcategories.map((sub) => (
+                      <option key={sub.id} value={sub.id}>{sub.icon} {sub.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="form-group category-actions-group">
                 <div className="category-inline-actions">
                   <button
                     type="button"
                     className="btn btn-outline"
                     onClick={() => {
                       setShowAddCategory((v) => !v);
+                      setAddCategoryAsSub(false);
                       setCategoryError('');
                     }}
                   >
-                    {showAddCategory ? 'Close' : '+ Add new category'}
+                    {showAddCategory && !addCategoryAsSub ? 'Close' : '+ Add category'}
                   </button>
+                  {formData.category_id && (
+                    <button
+                      type="button"
+                      className="btn btn-outline"
+                      onClick={() => {
+                        setShowAddCategory((v) => !v || !addCategoryAsSub);
+                        setAddCategoryAsSub(true);
+                        setCategoryError('');
+                      }}
+                    >
+                      {showAddCategory && addCategoryAsSub ? 'Close' : '+ Add subcategory'}
+                    </button>
+                  )}
                 </div>
                 {showAddCategory && (
                   <div className="category-create-box">
+                    <p className="form-hint">
+                      {addCategoryAsSub
+                        ? `New subcategory under ${parentCategories.find((c) => String(c.id) === formData.category_id)?.name || 'selected category'}`
+                        : 'New top-level category'}
+                    </p>
                     <input
                       type="text"
-                      placeholder="Category name"
+                      placeholder={addCategoryAsSub ? 'Subcategory name (e.g. Cradle)' : 'Category name'}
                       value={newCategory.name}
                       onChange={(e) => setNewCategory((prev) => ({ ...prev, name: e.target.value }))}
                     />
@@ -412,6 +470,8 @@ export default function AdminProductForm() {
                   </div>
                 )}
               </div>
+            </div>
+            <div className="form-row">
               <div className="form-group">
                 <label>City</label>
                 <select name="city" value={formData.city} onChange={handleChange}>

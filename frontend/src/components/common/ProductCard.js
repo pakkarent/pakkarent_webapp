@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../../utils/pricingDisplay';
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../../utils/media';
+import { formatCategoryLabel } from '../../utils/categoryUtils';
 import './ProductCard.css';
 
 const PLACEHOLDER_IMG = 'https://via.placeholder.com/300x200?text=PakkaRent';
@@ -93,7 +94,7 @@ export default function ProductCard({ product }) {
 
       {/* ── Card body ── */}
       <div className="card-body">
-        <span className="card-category">{product.category_name}</span>
+        <span className="card-category">{formatCategoryLabel(product)}</span>
         <Link to={`/products/${product.id}`}>
           <h3 className="card-title">{product.name}</h3>
         </Link>

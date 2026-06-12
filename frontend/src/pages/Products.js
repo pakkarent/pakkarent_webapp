@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
+import { getParentCategories, getSubcategories } from '../utils/categoryUtils';
 import useSEO from '../hooks/useSEO';
 import JsonLd from '../components/common/JsonLd';
 import './Products.css';
@@ -17,19 +18,28 @@ export default function Products() {
   const { city } = useCity();
 
   const category_id = searchParams.get('category_id');
+  const subcategory_id = searchParams.get('subcategory_id');
   const search = searchParams.get('search');
   const featured = searchParams.get('featured');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(category_id || '');
+  const [selectedSubcategory, setSelectedSubcategory] = useState(subcategory_id || '');
+  const [filterSubcategories, setFilterSubcategories] = useState([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const activeFilterCount =
-    (selectedCategory ? 1 : 0) + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0);
+  const parentCategories = getParentCategories(categories);
 
-  const activeCategoryName = selectedCategory
-    ? (categories.find(c => c.id.toString() === selectedCategory)?.name || '')
-    : '';
+  const activeFilterCount =
+    (selectedCategory ? 1 : 0) + (selectedSubcategory ? 1 : 0) + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0);
+
+  const activeCategoryName = selectedSubcategory
+    ? (filterSubcategories.find((c) => c.id.toString() === selectedSubcategory)?.name
+      || categories.find((c) => c.id.toString() === selectedSubcategory)?.name
+      || '')
+    : selectedCategory
+      ? (categories.find((c) => c.id.toString() === selectedCategory)?.name || '')
+      : '';
 
   const seoTitle = (() => {
     if (search) return `Search results for "${search}" in ${city}`;
@@ -97,11 +107,27 @@ export default function Products() {
     };
   }, [products, seoTitle]);
 
-  // Keep selectedCategory in sync with URL query (menu clicks)
+  // Keep filters in sync with URL (menu / submenu clicks)
   useEffect(() => {
     setSelectedCategory(category_id || '');
+    setSelectedSubcategory(subcategory_id || '');
     setPage(1);
-  }, [category_id]);
+  }, [category_id, subcategory_id]);
+
+  // Load subcategories for the selected parent category
+  useEffect(() => {
+    if (!selectedCategory) {
+      setFilterSubcategories([]);
+      return;
+    }
+    categoryAPI
+      .getAll({
+        parent_id: selectedCategory,
+        city: city !== 'all' ? city : undefined,
+      })
+      .then((res) => setFilterSubcategories(res.data.categories || []))
+      .catch(() => setFilterSubcategories([]));
+  }, [selectedCategory, city]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -110,17 +136,19 @@ export default function Products() {
         const [prodRes, catRes] = await Promise.all([
           productAPI.getAll({
             city: city !== 'all' ? city : undefined,
-            category_id: selectedCategory || undefined,
+            category_id: selectedSubcategory ? undefined : (selectedCategory || undefined),
+            subcategory_id: selectedSubcategory || undefined,
             min_price: minPrice || undefined,
             max_price: maxPrice || undefined,
             search: search || undefined,
             featured: featured || undefined,
             page,
-            limit: 12
+            limit: 12,
           }),
           categoryAPI.getAll({
-            city: city !== 'all' ? city : undefined
-          })
+            parents_only: true,
+            city: city !== 'all' ? city : undefined,
+          }),
         ]);
         setProducts(prodRes.data.products);
         setTotal(prodRes.data.total);
@@ -132,7 +160,7 @@ export default function Products() {
       }
     };
     fetchData();
-  }, [city, selectedCategory, minPrice, maxPrice, search, featured, page]);
+  }, [city, selectedCategory, selectedSubcategory, minPrice, maxPrice, search, featured, page]);
 
   const totalPages = Math.ceil(total / 12);
   const visiblePages = (() => {
@@ -187,21 +215,48 @@ export default function Products() {
                   />
                   <span>All Categories</span>
                 </label>
-                {categories.map(cat => (
-                  <label key={cat.id}>
-                    <input
-                      type="radio"
-                      name="category"
-                      value={cat.id}
-                      checked={selectedCategory === cat.id.toString()}
-                      onChange={() => {
-                        setSelectedCategory(cat.id.toString());
-                        setPage(1);
-                      }}
-                    />
-                    <span>{cat.name}</span>
-                  </label>
-                ))}
+                {parentCategories.map((cat) => {
+                  const isSelected = selectedCategory === cat.id.toString();
+                  const subsForCat = isSelected ? filterSubcategories : [];
+                  return (
+                    <React.Fragment key={cat.id}>
+                      <label className={isSelected ? 'filter-cat-selected' : ''}>
+                        <input
+                          type="radio"
+                          name="category"
+                          value={cat.id}
+                          checked={isSelected && !selectedSubcategory}
+                          onChange={() => {
+                            setSelectedCategory(cat.id.toString());
+                            setSelectedSubcategory('');
+                            setPage(1);
+                          }}
+                        />
+                        <span>{cat.icon} {cat.name}</span>
+                      </label>
+                      {isSelected && subsForCat.length > 0 && (
+                        <div className="filter-sub-menu" role="group" aria-label={`${cat.name} subcategories`}>
+                          {subsForCat.map((sub) => (
+                            <label key={sub.id} className="filter-sub-option">
+                              <input
+                                type="radio"
+                                name="subcategory"
+                                value={sub.id}
+                                checked={selectedSubcategory === sub.id.toString()}
+                                onChange={() => {
+                                  setSelectedCategory(cat.id.toString());
+                                  setSelectedSubcategory(sub.id.toString());
+                                  setPage(1);
+                                }}
+                              />
+                              <span>{sub.icon} {sub.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </div>
             </div>
 
