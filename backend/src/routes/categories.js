@@ -3,6 +3,26 @@ const router = express.Router();
 const pool = require('../models/db');
 const { authenticate, adminOnly } = require('../middleware/auth');
 
+// Admin: all categories including inactive (no city filter)
+router.get('/admin-list', authenticate, adminOnly, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT c.*, pc.name AS parent_name,
+        (SELECT COUNT(*)::int FROM products p
+         WHERE p.is_active = true
+           AND (p.category_id = c.id OR p.subcategory_id = c.id)) AS product_count,
+        (SELECT COUNT(*)::int FROM categories child
+         WHERE child.parent_id = c.id AND child.is_active = true) AS subcategory_count
+       FROM categories c
+       LEFT JOIN categories pc ON pc.id = c.parent_id
+       ORDER BY COALESCE(c.parent_id, c.id), c.parent_id NULLS FIRST, c.sort_order, c.name`
+    );
+    res.json({ success: true, categories: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.get('/', async (req, res) => {
   const { city, parent_id, parents_only } = req.query;
   try {

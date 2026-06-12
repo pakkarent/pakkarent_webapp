@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { categoryAPI } from '../../services/api';
 import { useCity } from '../../context/CityContext';
@@ -13,42 +14,95 @@ function navShortLabel(cat) {
 }
 
 function CategoryDropdown({ category, subcategories }) {
+  const wrapRef = useRef(null);
+  const closeTimer = useRef(null);
   const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get('category_id');
   const activeSub = searchParams.get('subcategory_id');
   const isActive = activeCat === String(category.id);
 
-  return (
-    <div
-      className="cat-dropdown-wrap"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <Link
-        to={`/products?category_id=${category.id}`}
-        className={`cat-link cat-link-has-sub${isActive && !activeSub ? ' active' : ''}`}
-        aria-haspopup="true"
-        aria-expanded={open}
-      >
-        {navShortLabel(category)}
-        <span className="cat-chevron" aria-hidden="true">▾</span>
-      </Link>
-      {open && (
-        <div className="cat-submenu" role="menu">
+  const syncCoords = () => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setCoords({ top: rect.bottom, left: rect.left });
+  };
+
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  };
+
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 120);
+  };
+
+  const showMenu = () => {
+    cancelClose();
+    syncCoords();
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onReposition = () => syncCoords();
+    window.addEventListener('scroll', onReposition, true);
+    window.addEventListener('resize', onReposition);
+    return () => {
+      window.removeEventListener('scroll', onReposition, true);
+      window.removeEventListener('resize', onReposition);
+    };
+  }, [open]);
+
+  useEffect(() => () => cancelClose(), []);
+
+  const submenu = open
+    ? createPortal(
+        <div
+          className="cat-submenu cat-submenu-portal"
+          role="menu"
+          style={{ top: coords.top, left: coords.left }}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
+        >
           {subcategories.map((sub) => (
             <Link
               key={sub.id}
               to={`/products?category_id=${category.id}&subcategory_id=${sub.id}`}
               className={`cat-submenu-link${activeSub === String(sub.id) ? ' active' : ''}`}
               role="menuitem"
+              onClick={() => setOpen(false)}
             >
               <span>{sub.icon}</span>
               <span>{sub.name}</span>
             </Link>
           ))}
-        </div>
-      )}
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <div
+      ref={wrapRef}
+      className="cat-dropdown-wrap"
+      onMouseEnter={showMenu}
+      onMouseLeave={scheduleClose}
+    >
+      <Link
+        to={`/products?category_id=${category.id}`}
+        className={`cat-link cat-link-has-sub${isActive && !activeSub ? ' active' : ''}`}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onFocus={showMenu}
+        onBlur={scheduleClose}
+      >
+        {navShortLabel(category)}
+        <span className="cat-chevron" aria-hidden="true">▾</span>
+      </Link>
+      {submenu}
     </div>
   );
 }

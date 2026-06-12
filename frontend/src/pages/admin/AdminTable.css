@@ -32,6 +32,20 @@
 .pricing-badge-per_month { background: #e3f2fd; color: #1565c0; }
 .pricing-badge-per_day { background: #fff3e0; color: #e65100; }
 .pricing-badge-per_event { background: #f3e5f5; color: #6a1b9a; }
+.admin-cat-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.admin-cat-form { margin-bottom: 24px; }
+.admin-cat-form h2 { font-size: 18px; margin-bottom: 12px; }
+.admin-cat-active { margin-bottom: 16px; }
+.admin-cat-table .cat-name-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 200px;
+}
+.cat-level-1 .cat-name-cell { padding-left: 28px; }
+.cat-table-icon { font-size: 20px; line-height: 1.2; }
+.cat-table-name { font-weight: 600; color: var(--dark); }
+.cat-table-desc { display: block; color: var(--gray); font-size: 11px; margin-top: 2px; max-width: 280px; }
 .total-info { font-size: 14px; color: var(--gray); }
 .table-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
 .admin-table { width: 100%; background: white; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border-collapse: collapse; }

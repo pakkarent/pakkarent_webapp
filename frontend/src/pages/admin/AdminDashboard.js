@@ -86,6 +86,12 @@ export default function AdminDashboard() {
               <p>Add, edit, or remove products</p>
             </Link>
 
+            <Link to="/admin/categories" className="action-card">
+              <span className="action-icon">🗂️</span>
+              <h3>Manage Categories</h3>
+              <p>Categories, subcategories and sort order</p>
+            </Link>
+
             <Link to="/admin/orders" className="action-card">
               <span className="action-icon">📋</span>
               <h3>Manage Orders</h3>

@@ -299,11 +299,18 @@
   padding: 0;
   border-top: 1px solid var(--gray-border);
   background: #fff;
+  overflow: visible;
+  position: relative;
+  z-index: 1001;
+}
+.navbar-bottom .container {
+  overflow: visible;
 }
 .navbar-categories {
   display: flex;
   gap: 0;
   overflow-x: auto;
+  overflow-y: visible;
   scrollbar-width: none;
   padding: 0 4px;
 }
@@ -351,6 +358,12 @@
   z-index: 1100;
   padding: 6px 0;
   animation: ac-fade-in 0.15s ease;
+}
+.cat-submenu-portal {
+  position: fixed;
+  top: auto;
+  left: auto;
+  z-index: 2000;
 }
 .cat-submenu-link {
   display: flex;
