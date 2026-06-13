@@ -15,7 +15,7 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const { city } = useCity();
+  const { city, showCityPicker, confirmCityForCatalog } = useCity();
 
   const category_id = searchParams.get('category_id');
   const subcategory_id = searchParams.get('subcategory_id');
@@ -107,7 +107,14 @@ export default function Products() {
     };
   }, [products, seoTitle]);
 
-  // Keep filters in sync with URL (menu / submenu clicks)
+  // Deep links: confirm city so catalog loads without waiting on the picker modal
+  useEffect(() => {
+    if (category_id || subcategory_id || search || featured) {
+      confirmCityForCatalog();
+    }
+  }, [category_id, subcategory_id, search, featured, confirmCityForCatalog]);
+
+  // Keep sidebar filters in sync with URL (menu / submenu clicks)
   useEffect(() => {
     setSelectedCategory(category_id || '');
     setSelectedSubcategory(subcategory_id || '');
@@ -133,11 +140,12 @@ export default function Products() {
     const fetchData = async () => {
       setLoading(true);
       try {
+        const cityFilter = city !== 'all' ? city : undefined;
         const [prodRes, catRes] = await Promise.all([
           productAPI.getAll({
-            city: city !== 'all' ? city : undefined,
-            category_id: selectedSubcategory ? undefined : (selectedCategory || undefined),
-            subcategory_id: selectedSubcategory || undefined,
+            city: cityFilter,
+            category_id: subcategory_id ? undefined : (category_id || undefined),
+            subcategory_id: subcategory_id || undefined,
             min_price: minPrice || undefined,
             max_price: maxPrice || undefined,
             search: search || undefined,
@@ -147,7 +155,7 @@ export default function Products() {
           }),
           categoryAPI.getAll({
             parents_only: true,
-            city: city !== 'all' ? city : undefined,
+            city: cityFilter,
           }),
         ]);
         setProducts(prodRes.data.products);
@@ -160,7 +168,7 @@ export default function Products() {
       }
     };
     fetchData();
-  }, [city, selectedCategory, selectedSubcategory, minPrice, maxPrice, search, featured, page]);
+  }, [city, category_id, subcategory_id, minPrice, maxPrice, search, featured, page, showCityPicker]);
 
   const totalPages = Math.ceil(total / 12);
   const visiblePages = (() => {

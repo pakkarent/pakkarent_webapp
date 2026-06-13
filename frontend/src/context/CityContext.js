@@ -23,6 +23,12 @@ export const CityProvider = ({ children }) => {
     setShowCityPicker(false);
   }, [city]);
 
+  /** Confirm stored city and close picker (e.g. deep-linked product URLs). */
+  const confirmCityForCatalog = useCallback(() => {
+    markCityConfirmed(city);
+    setShowCityPicker(false);
+  }, [city]);
+
   /** Show picker on any route until the user has confirmed a city once. */
   const ensureCityPickerIfNeeded = useCallback(() => {
     if (!hasConfirmedCity()) {
@@ -37,6 +43,7 @@ export const CityProvider = ({ children }) => {
       cities: CITIES,
       showCityPicker,
       dismissCityPicker,
+      confirmCityForCatalog,
       ensureCityPickerIfNeeded,
     }}>
       {children}
