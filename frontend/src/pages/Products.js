@@ -3,13 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
-import { getParentCategories, getSubcategories } from '../utils/categoryUtils';
+import { getParentCategories } from '../utils/categoryUtils';
 import useSEO from '../hooks/useSEO';
 import JsonLd from '../components/common/JsonLd';
 import './Products.css';
 
 export default function Products() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,28 +17,36 @@ export default function Products() {
   const [page, setPage] = useState(1);
   const { city, showCityPicker, confirmCityForCatalog } = useCity();
 
-  const category_id = searchParams.get('category_id');
-  const subcategory_id = searchParams.get('subcategory_id');
+  const category_id = searchParams.get('category_id') || '';
+  const subcategory_id = searchParams.get('subcategory_id') || '';
   const search = searchParams.get('search');
   const featured = searchParams.get('featured');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(category_id || '');
-  const [selectedSubcategory, setSelectedSubcategory] = useState(subcategory_id || '');
   const [filterSubcategories, setFilterSubcategories] = useState([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const setCategoryFilters = (catId, subId) => {
+    const params = new URLSearchParams(searchParams);
+    if (catId) params.set('category_id', catId);
+    else params.delete('category_id');
+    if (subId) params.set('subcategory_id', subId);
+    else params.delete('subcategory_id');
+    setSearchParams(params);
+    setPage(1);
+  };
 
   const parentCategories = getParentCategories(categories);
 
   const activeFilterCount =
-    (selectedCategory ? 1 : 0) + (selectedSubcategory ? 1 : 0) + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0);
+    (category_id ? 1 : 0) + (subcategory_id ? 1 : 0) + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0);
 
-  const activeCategoryName = selectedSubcategory
-    ? (filterSubcategories.find((c) => c.id.toString() === selectedSubcategory)?.name
-      || categories.find((c) => c.id.toString() === selectedSubcategory)?.name
+  const activeCategoryName = subcategory_id
+    ? (filterSubcategories.find((c) => c.id.toString() === subcategory_id)?.name
+      || categories.find((c) => c.id.toString() === subcategory_id)?.name
       || '')
-    : selectedCategory
-      ? (categories.find((c) => c.id.toString() === selectedCategory)?.name || '')
+    : category_id
+      ? (categories.find((c) => c.id.toString() === category_id)?.name || '')
       : '';
 
   const seoTitle = (() => {
@@ -75,7 +83,7 @@ export default function Products() {
     if (activeCategoryName) {
       items.push({
         name: activeCategoryName,
-        url: `${origin}/products?category_id=${selectedCategory}`,
+        url: `${origin}/products?category_id=${category_id}${subcategory_id ? `&subcategory_id=${subcategory_id}` : ''}`,
       });
     }
     return {
@@ -88,7 +96,7 @@ export default function Products() {
         item: it.url,
       })),
     };
-  }, [activeCategoryName, selectedCategory]);
+  }, [activeCategoryName, category_id, subcategory_id]);
 
   const itemListLd = useMemo(() => {
     if (!products.length) return null;
@@ -114,27 +122,25 @@ export default function Products() {
     }
   }, [category_id, subcategory_id, search, featured, confirmCityForCatalog]);
 
-  // Keep sidebar filters in sync with URL (menu / submenu clicks)
+  // Reset pagination when URL filters change
   useEffect(() => {
-    setSelectedCategory(category_id || '');
-    setSelectedSubcategory(subcategory_id || '');
     setPage(1);
   }, [category_id, subcategory_id]);
 
   // Load subcategories for the selected parent category
   useEffect(() => {
-    if (!selectedCategory) {
+    if (!category_id) {
       setFilterSubcategories([]);
       return;
     }
     categoryAPI
       .getAll({
-        parent_id: selectedCategory,
+        parent_id: category_id,
         city: city !== 'all' ? city : undefined,
       })
       .then((res) => setFilterSubcategories(res.data.categories || []))
       .catch(() => setFilterSubcategories([]));
-  }, [selectedCategory, city]);
+  }, [category_id, city]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -215,16 +221,13 @@ export default function Products() {
                     type="radio"
                     name="category"
                     value=""
-                    checked={selectedCategory === ''}
-                    onChange={() => {
-                      setSelectedCategory('');
-                      setPage(1);
-                    }}
+                    checked={!category_id}
+                    onChange={() => setCategoryFilters('', '')}
                   />
                   <span>All Categories</span>
                 </label>
                 {parentCategories.map((cat) => {
-                  const isSelected = selectedCategory === cat.id.toString();
+                  const isSelected = category_id === cat.id.toString();
                   const subsForCat = isSelected ? filterSubcategories : [];
                   return (
                     <React.Fragment key={cat.id}>
@@ -233,12 +236,8 @@ export default function Products() {
                           type="radio"
                           name="category"
                           value={cat.id}
-                          checked={isSelected && !selectedSubcategory}
-                          onChange={() => {
-                            setSelectedCategory(cat.id.toString());
-                            setSelectedSubcategory('');
-                            setPage(1);
-                          }}
+                          checked={isSelected && !subcategory_id}
+                          onChange={() => setCategoryFilters(cat.id.toString(), '')}
                         />
                         <span>{cat.icon} {cat.name}</span>
                       </label>
@@ -250,12 +249,8 @@ export default function Products() {
                                 type="radio"
                                 name="subcategory"
                                 value={sub.id}
-                                checked={selectedSubcategory === sub.id.toString()}
-                                onChange={() => {
-                                  setSelectedCategory(cat.id.toString());
-                                  setSelectedSubcategory(sub.id.toString());
-                                  setPage(1);
-                                }}
+                                checked={subcategory_id === sub.id.toString()}
+                                onChange={() => setCategoryFilters(cat.id.toString(), sub.id.toString())}
                               />
                               <span>{sub.icon} {sub.name}</span>
                             </label>

@@ -61,37 +61,6 @@ export const SITE_PAGES = {
     ],
   },
 
-  blog: {
-    title: 'Blog',
-    subtitle: 'Tips, updates and rental inspiration',
-    seoDescription: 'PakkaRent blog — rental tips, event ideas and product updates from Chennai, Bangalore and Hyderabad.',
-    sections: [
-      {
-        heading: 'Latest from PakkaRent',
-        body: `Follow us on social media for photos from customer events, new arrivals and seasonal offers. Join our community of happy renters across South India.`,
-      },
-      {
-        heading: 'Featured topics',
-        list: [
-          'Planning a naming ceremony? Rent silver cradles and oonjal swings',
-          'Weekend camping checklist — tent, sleeping bag and barbeque essentials',
-          'Monthly appliance rental vs buying — save up to 70%',
-          'Birthday party on a budget — cake stands, backdrops and baby car rentals',
-          'Team-building games for corporate events — tug of war, moonwalk and more',
-        ],
-      },
-      {
-        heading: 'Follow us',
-        body: `Instagram: @pakkarent · Facebook: PakkaRent · Twitter: @pakka_rent`,
-        links: [
-          { label: 'Instagram', href: 'https://www.instagram.com/pakkarent/', external: true },
-          { label: 'Facebook', href: 'https://www.facebook.com/pakkarent/', external: true },
-          { label: 'Twitter', href: 'https://twitter.com/pakka_rent', external: true },
-        ],
-      },
-    ],
-  },
-
   contact: {
     title: 'Contact Us',
     subtitle: 'For a quicker response, chat with us on WhatsApp',

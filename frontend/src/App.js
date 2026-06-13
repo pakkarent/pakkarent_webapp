@@ -19,6 +19,8 @@ import Register from './pages/Register';
 import AuthCallback from './pages/AuthCallback';
 import MyOrders from './pages/MyOrders';
 import Profile from './pages/Profile';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import InfoPage from './pages/InfoPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
@@ -54,7 +56,8 @@ function AppContent() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/about" element={<InfoPage pageKey="about" />} />
         <Route path="/how-it-works" element={<InfoPage pageKey="how-it-works" />} />
-        <Route path="/blog" element={<InfoPage pageKey="blog" />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/contact" element={<InfoPage pageKey="contact" />} />
         <Route path="/faq" element={<InfoPage pageKey="faq" />} />
         <Route path="/delivery-info" element={<InfoPage pageKey="delivery" />} />

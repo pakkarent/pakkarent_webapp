@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "migrate:images": "node scripts/migrate-images-to-supabase.js"
+    "migrate:images": "node scripts/migrate-images-to-supabase.js",
+    "relink:images": "node scripts/relink-product-images-from-storage.js",
+    "dedupe:products": "node scripts/dedupe-products.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2",

@@ -1,6 +1,12 @@
-/** Top-level categories only (no parent). */
+/** Top-level categories only (no parent), nav order. */
 export function getParentCategories(categories) {
-  return (categories || []).filter((c) => !c.parent_id);
+  return (categories || [])
+    .filter((c) => !c.parent_id)
+    .sort(
+      (a, b) =>
+        Number(a.sort_order || 0) - Number(b.sort_order || 0) ||
+        a.name.localeCompare(b.name)
+    );
 }
 
 /** Subcategories for a given parent category id. */

@@ -114,14 +114,14 @@ ON CONFLICT DO NOTHING;
 -- SEED: CATEGORIES  (id 1-8, matches nav order on pakkarent.com)
 -- ==========================================
 INSERT INTO categories (name, description, icon, sort_order) VALUES
-  ('Camping Rental',         'Camping tents, sleeping bags, barbeque, life jackets and outdoor gear', '⛺', 1),
-  ('Home Appliances Rental', 'Washing machines, fridges, AC and LED TV on monthly rent',              '🏠', 2),
-  ('Event Rental',           'Cradles, oonjal swings, chairs, sofa, urli and more for functions',    '🎉', 3),
-  ('Backdrop Rental',        'Beautiful backdrops and decoration setups for all events',              '🖼️', 4),
-  ('Birthday Rental',        'Cake stands, combos, baby car and props for birthday parties',          '🎂', 5),
-  ('Baby Props Rental',      'Baby car seats, strollers, cribs, high chairs and kids cars',          '👶', 6),
-  ('Kids Toys on Rent',      'Kids slides, swings, remote cars and jeeps on rent',                   '🧸', 7),
-  ('Games Rental',           'Tug of war rope, moonwalk and team building games for events',         '🎯', 8);
+  ('Event Rental',           'Cradles, oonjal swings, chairs, sofa, urli and more for functions',    '🎉', 1),
+  ('Backdrop Rental',        'Beautiful backdrops and decoration setups for all events',              '🖼️', 2),
+  ('Birthday Rental',        'Cake stands, combos, baby car and props for birthday parties',          '🎂', 3),
+  ('Baby Props Rental',      'Baby car seats, strollers, cribs, high chairs and kids cars',          '👶', 4),
+  ('Kids Toys on Rent',      'Kids slides, swings, remote cars and jeeps on rent',                   '🧸', 5),
+  ('Games Rental',           'Tug of war rope, moonwalk and team building games for events',         '🎯', 6),
+  ('Camping Rental',         'Camping tents, sleeping bags, barbeque, life jackets and outdoor gear', '⛺', 7),
+  ('Home Appliances Rental', 'Washing machines, fridges, AC and LED TV on monthly rent',              '🏠', 8);
 
 -- ==========================================
 -- SEED: PRODUCTS

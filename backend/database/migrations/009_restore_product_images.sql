@@ -83,15 +83,9 @@ UPDATE products SET images = '[
 ]'::jsonb
 WHERE name ILIKE '%Crown%Cradle%' OR name = 'Crown Baby Cradle';
 
-UPDATE products SET images = '[
-  "/uploads/products/event/silver_cradle/img_01.jpg",
-  "/uploads/products/event/silver_cradle/img_02.jpg",
-  "/uploads/products/event/silver_cradle/img_03.jpg",
-  "/uploads/products/event/silver_cradle/img_05.jpg"
-]'::jsonb
-WHERE name ILIKE '%cradle%'
-  AND name NOT ILIKE '%crown%'
-  AND name NOT ILIKE '%grand moon%';
+-- Per-product cradle images live in Supabase Storage (products/event_rental/{slug}/).
+-- Do NOT use a broad %cradle% rule — it assigns the same generic image to every cradle.
+-- After migrations, run: npm run relink:images
 
 UPDATE products SET images = '[
   "/uploads/products/event/golden_oonjal/img_01.png"

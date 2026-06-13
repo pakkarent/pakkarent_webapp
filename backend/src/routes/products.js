@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
   if (city) { conditions.push(`(p.city = $${idx} OR p.city = 'all')`); params.push(city); idx++; }
 
   if (subcategory_id) {
-    conditions.push(`(p.subcategory_id = $${idx} OR p.category_id = $${idx})`);
+    conditions.push(`p.subcategory_id = $${idx}`);
     params.push(subcategory_id);
     idx++;
   } else if (category_id) {

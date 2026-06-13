@@ -7,7 +7,6 @@ import './InfoPage.css';
 const PAGE_PATHS = {
   about: '/about',
   'how-it-works': '/how-it-works',
-  blog: '/blog',
   contact: '/contact',
   faq: '/faq',
   delivery: '/delivery-info',

@@ -15,7 +15,7 @@ router.get('/admin-list', authenticate, adminOnly, async (req, res) => {
          WHERE child.parent_id = c.id AND child.is_active = true) AS subcategory_count
        FROM categories c
        LEFT JOIN categories pc ON pc.id = c.parent_id
-       ORDER BY COALESCE(c.parent_id, c.id), c.parent_id NULLS FIRST, c.sort_order, c.name`
+       ORDER BY COALESCE(pc.sort_order, c.sort_order), c.parent_id NULLS FIRST, c.sort_order, c.name`
     );
     res.json({ success: true, categories: result.rows });
   } catch (err) {
@@ -63,7 +63,7 @@ router.get('/', async (req, res) => {
        FROM categories c
        LEFT JOIN categories pc ON pc.id = c.parent_id
        ${where}
-       ORDER BY COALESCE(c.parent_id, c.id), c.parent_id NULLS FIRST, c.sort_order, c.name`,
+       ORDER BY COALESCE(pc.sort_order, c.sort_order), c.parent_id NULLS FIRST, c.sort_order, c.name`,
       params
     );
 
@@ -82,11 +82,20 @@ router.get('/', async (req, res) => {
         [missingParentIds]
       );
       categories = [...parents.rows, ...categories];
+      const parentById = new Map(
+        [...parents.rows, ...categories].filter((row) => !row.parent_id).map((row) => [row.id, row])
+      );
+      const groupOrder = (cat) => {
+        if (cat.parent_id) {
+          return Number(parentById.get(cat.parent_id)?.sort_order ?? cat.sort_order ?? 0);
+        }
+        return Number(cat.sort_order ?? 0);
+      };
       categories.sort(
         (a, b) =>
-          (a.parent_id || a.id) - (b.parent_id || b.id)
+          groupOrder(a) - groupOrder(b)
           || (a.parent_id ? 1 : 0) - (b.parent_id ? 1 : 0)
-          || (a.sort_order || 0) - (b.sort_order || 0)
+          || Number(a.sort_order || 0) - Number(b.sort_order || 0)
           || a.name.localeCompare(b.name)
       );
     }

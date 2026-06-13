@@ -84,14 +84,14 @@ function seedMemoryDB(db) {
 
   // ── Categories ─────────────────────────────────────────────────────────────
   const cats = [
-    [1,'Camping Rental','Camping tents, sleeping bags, barbeque, life jackets and outdoor gear','⛺',1],
-    [2,'Home Appliances Rental','Washing machines, fridges, AC and LED TV on monthly rent','🏠',2],
-    [3,'Event Rental','Cradles, oonjal swings, chairs, sofa, urli and more for functions','🎉',3],
-    [4,'Backdrop Rental','Beautiful backdrops and decoration setups for all events','🖼',4],
-    [5,'Birthday Rental','Cake stands, combos, baby car and props for birthday parties','🎂',5],
-    [6,'Baby Props Rental','Baby car seats, strollers, cribs, high chairs and kids cars','👶',6],
-    [7,'Kids Toys on Rent','Kids slides, swings, remote cars and jeeps on rent','🧸',7],
-    [8,'Games Rental','Tug of war rope, moonwalk and team building games for events','🎯',8],
+    [1,'Camping Rental','Camping tents, sleeping bags, barbeque, life jackets and outdoor gear','⛺',7],
+    [2,'Home Appliances Rental','Washing machines, fridges, AC and LED TV on monthly rent','🏠',8],
+    [3,'Event Rental','Cradles, oonjal swings, chairs, sofa, urli and more for functions','🎉',1],
+    [4,'Backdrop Rental','Beautiful backdrops and decoration setups for all events','🖼',2],
+    [5,'Birthday Rental','Cake stands, combos, baby car and props for birthday parties','🎂',3],
+    [6,'Baby Props Rental','Baby car seats, strollers, cribs, high chairs and kids cars','👶',4],
+    [7,'Kids Toys on Rent','Kids slides, swings, remote cars and jeeps on rent','🧸',5],
+    [8,'Games Rental','Tug of war rope, moonwalk and team building games for events','🎯',6],
   ];
   for (const [id,name,desc,icon,sort] of cats) {
     run(`INSERT INTO categories (id,name,description,icon,sort_order)
