@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCity } from '../context/CityContext';
+import HoneypotField from '../components/common/HoneypotField';
 import useSEO from '../hooks/useSEO';
 import './Auth.css';
 
 export default function Register() {
   const [mode, setMode] = useState('email');
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', city: 'Chennai' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', city: 'Chennai', website: '' });
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [normalizedPhone, setNormalizedPhone] = useState('');
@@ -115,6 +116,10 @@ export default function Register() {
 
           {mode === 'email' ? (
             <form onSubmit={handleEmailSubmit}>
+              <HoneypotField
+                value={formData.website}
+                onChange={(e) => setFormData((prev) => ({ ...prev, website: e.target.value }))}
+              />
               <div className="form-group">
                 <label>Full Name</label>
                 <input type="text" name="name" value={formData.name} onChange={handleChange} required />

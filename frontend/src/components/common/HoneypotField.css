@@ -1,0 +1,11 @@
+/* Off-screen honeypot — avoid display:none (some bots skip hidden fields) */
+.hp-field {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}

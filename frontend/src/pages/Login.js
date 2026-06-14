@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import HoneypotField from '../components/common/HoneypotField';
 import useSEO from '../hooks/useSEO';
 import './Auth.css';
 
@@ -8,6 +9,7 @@ export default function Login() {
   const [mode, setMode] = useState('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [website, setWebsite] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -29,7 +31,7 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, website);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
@@ -102,6 +104,7 @@ export default function Login() {
 
           {mode === 'email' ? (
             <form onSubmit={handleEmailSubmit}>
+              <HoneypotField value={website} onChange={(e) => setWebsite(e.target.value)} />
               <div className="form-group">
                 <label>Email Address</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />

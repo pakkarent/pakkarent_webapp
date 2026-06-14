@@ -83,8 +83,8 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [clearLocalAuth]);
 
-  const login = async (email, password) => {
-    const res = await authAPI.login({ email, password });
+  const login = async (email, password, website = '') => {
+    const res = await authAPI.login({ email, password, website });
     const { token, user: appUser } = res.data;
     localStorage.setItem('pakkarent_token', token);
     setSupabaseAccessToken(null);

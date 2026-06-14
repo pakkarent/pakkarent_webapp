@@ -4,13 +4,14 @@ import { useCart } from '../../context/CartContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../../utils/pricingDisplay';
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../../utils/media';
 import { formatCategoryLabel } from '../../utils/categoryUtils';
+import { uniqueProductImages } from '../../utils/productSpecs';
 import './ProductCard.css';
 
 const PLACEHOLDER_IMG = 'https://via.placeholder.com/300x200?text=PakkaRent';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
-  const images = safeJsonArray(product.images);
+  const images = uniqueProductImages(safeJsonArray(product.images));
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [hovered, setHovered] = useState(false);

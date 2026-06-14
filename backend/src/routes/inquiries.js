@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { sendInquiryEmail } = require('../utils/mail');
+const { inquiryLimiter } = require('../middleware/rateLimit');
+const { rejectHoneypot } = require('../middleware/honeypot');
 
-router.post('/', async (req, res) => {
+router.post('/', inquiryLimiter, rejectHoneypot({ fakeSuccess: true }), async (req, res) => {
   const { name, phone, email, address, city, items, rentalSummary } = req.body;
 
   if (!address?.trim()) {

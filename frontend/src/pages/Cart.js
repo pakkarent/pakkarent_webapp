@@ -8,6 +8,7 @@ import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../utils/
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
 import { cartUsesMonthlyPricing, rentalDaysInclusive } from '../utils/rentalModel';
 import { buildInquiryWhatsAppUrl, buildMapLink, openWhatsAppUrl } from '../utils/whatsappInquiry';
+import HoneypotField, { isHoneypotFilled } from '../components/common/HoneypotField';
 import DeliveryMapPicker from '../components/common/DeliveryMapPicker';
 import useSEO from '../hooks/useSEO';
 import 'leaflet/dist/leaflet.css';
@@ -39,6 +40,7 @@ export default function Cart() {
     email: '',
     address: '',
     city: siteCity,
+    website: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -113,6 +115,9 @@ export default function Cart() {
     : `${rentalDays} day${rentalDays !== 1 ? 's' : ''} (${rentStart} to ${rentEnd})`;
 
   const handlePlaceOrder = async () => {
+    if (isHoneypotFilled(formData.website)) {
+      return;
+    }
     if (!monthlyCart && rentalDays < 1) {
       showToast('Please choose valid rental from and to dates.', { type: 'error' });
       return;
@@ -293,6 +298,10 @@ export default function Cart() {
 
               <div className="cart-delivery-form">
                 <h4>Delivery details</h4>
+                <HoneypotField
+                  value={formData.website}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, website: e.target.value }))}
+                />
                 <p className="cart-guest-note">No login required — your order is sent to us on WhatsApp and we will call you to confirm.</p>
                 <label>
                   Name

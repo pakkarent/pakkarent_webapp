@@ -5,9 +5,11 @@ const jwt = require('jsonwebtoken');
 const pool = require('../models/db');
 const { getSupabase } = require('../utils/supabase');
 const { findOrCreateAppUser } = require('../utils/authUser');
+const { loginLimiter, registerLimiter } = require('../middleware/rateLimit');
+const { rejectHoneypot } = require('../middleware/honeypot');
 
 // Legacy email/password register
-router.post('/register', async (req, res) => {
+router.post('/register', registerLimiter, rejectHoneypot(), async (req, res) => {
   const { name, email, password, phone, city } = req.body;
   try {
     const exists = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
@@ -32,7 +34,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Legacy email/password login (demo admin)
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, rejectHoneypot(), async (req, res) => {
   const { email, password } = req.body;
   try {
     const result = await pool.query('SELECT * FROM users WHERE email=$1', [email]);

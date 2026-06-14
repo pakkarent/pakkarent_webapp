@@ -8,8 +8,9 @@ import {
   offerPriceForTenure,
   effectivePriceForTenure,
 } from '../utils/pricingDisplay';
-import { resolveImageUrl, resolveThumbnailUrl, safeJsonArray, safeJsonObject, imageErrorFallback } from '../utils/media';
+import { resolveImageUrl, resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
 import { formatCategoryLabel } from '../utils/categoryUtils';
+import { getDisplaySpecs, uniqueProductImages } from '../utils/productSpecs';
 import {
   isMonthlyRentalProduct,
   rentalDaysInclusive,
@@ -77,7 +78,6 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [quantity, setQuantity] = useState(1);
   const [selectedTenure, setSelectedTenure] = useState(1);
   const [detailRentStart, setDetailRentStart] = useState('');
   const [detailRentEnd, setDetailRentEnd] = useState('');
@@ -106,7 +106,7 @@ export default function ProductDetail() {
     setDetailRentEnd(addDaysYMD(rs, 1));
   }, [product?.id]);
 
-  const safeImages = product ? safeJsonArray(product.images) : [];
+  const safeImages = product ? uniqueProductImages(safeJsonArray(product.images)) : [];
   const seoImage = product
     ? (resolveImageUrl(safeImages[0]) || '/og-image.svg')
     : '/og-image.svg';
@@ -183,7 +183,7 @@ export default function ProductDetail() {
   if (!product)  return <div className="error-msg">Product not found</div>;
 
   const images = safeImages;
-  const specs = safeJsonObject(product.specs);
+  const displaySpecs = getDisplaySpecs(product);
   const monthlyProduct = isMonthlyRentalProduct(product);
 
   const getPrice = () => {
@@ -206,9 +206,9 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (monthlyProduct) {
       setTenure(selectedTenure);
-      addToCart(product, quantity);
+      addToCart(product, 1);
     } else {
-      addToCart(product, quantity, {
+      addToCart(product, 1, {
         rentStart: detailRentStart,
         rentEnd: detailRentEnd,
       });
@@ -343,12 +343,6 @@ export default function ProductDetail() {
                       />
                     </label>
                   </div>
-                  {rentalDaysInclusive(detailRentStart, detailRentEnd) > 0 && (
-                    <p className="rental-days-hint">
-                      {rentalDaysInclusive(detailRentStart, detailRentEnd)} day
-                      {rentalDaysInclusive(detailRentStart, detailRentEnd) !== 1 ? 's' : ''} selected
-                    </p>
-                  )}
                 </div>
               )}
 
@@ -375,17 +369,6 @@ export default function ProductDetail() {
                   <span className="price-value">₹{(Number(getPrice()) + Number(product.security_deposit || 0)).toFixed(2)}</span>
                 </div>
               </div>
-            </div>
-
-            <div className="quantity-section">
-              <h4>Quantity</h4>
-              <div className="quantity-control">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>−</button>
-                <input type="number" value={quantity}
-                  onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))} />
-                <button onClick={() => setQuantity(quantity + 1)}>+</button>
-              </div>
-              <p className="stock-info">Stock available: {product.stock}</p>
             </div>
 
             <div className="action-buttons">
@@ -416,19 +399,23 @@ export default function ProductDetail() {
         </div>
 
         {/* Specs */}
-        {specs && Object.keys(specs).length > 0 && (
+        {displaySpecs.length > 0 && (
           <div className="specs-section">
             <h2 className="section-title">Product Specifications</h2>
-            <table className="specs-table">
-              <tbody>
-                {Object.entries(specs).map(([key, val]) => (
-                  <tr key={key}>
-                    <td className="spec-key">{key}</td>
-                    <td className="spec-val">{val}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ul className="specs-list">
+              {displaySpecs.map((row, idx) => (
+                <li key={idx} className={row.label ? 'specs-list-row' : 'specs-list-bullet'}>
+                  {row.label ? (
+                    <>
+                      <span className="spec-label">{row.label}</span>
+                      <span className="spec-value">{row.value}</span>
+                    </>
+                  ) : (
+                    <span className="spec-bullet">{row.value}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
