@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { trustedServiceLabel } from '../../utils/company';
+import FooterLocations from './FooterLocations';
 import './Footer.css';
 
 export default function Footer() {
@@ -54,15 +55,9 @@ export default function Footer() {
             <Link to="/terms">Terms of Service</Link>
             <Link to="/privacy">Privacy Policy</Link>
           </div>
-
-          <div className="footer-col">
-            <h4>Cities</h4>
-            <p>📍 Chennai</p>
-            <p>📍 Bangalore</p>
-            <p>📍 Hyderabad</p>
-            <p className="more-cities">More cities coming soon!</p>
-          </div>
         </div>
+
+        <FooterLocations />
 
         <div className="footer-bottom">
           <p>© {new Date().getFullYear()} PakkaRent. All rights reserved.</p>
