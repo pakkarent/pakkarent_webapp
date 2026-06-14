@@ -122,7 +122,6 @@ export default function Profile() {
                 <li><a href="/my-orders">View Orders</a></li>
                 <li><a href="/products">Browse Products</a></li>
                 <li><a href="#contact">Contact Support</a></li>
-                {user?.role === 'admin' && <li><a href="/admin">Admin Panel</a></li>}
               </ul>
             </div>
           </aside>

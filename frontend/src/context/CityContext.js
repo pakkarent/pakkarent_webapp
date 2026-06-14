@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   CITIES,
   hasConfirmedCity,
@@ -9,14 +10,25 @@ import {
 const CityContext = createContext(null);
 
 export const CityProvider = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [city, setCity] = useState(getStoredCity);
   const [showCityPicker, setShowCityPicker] = useState(() => !hasConfirmedCity());
 
   const changeCity = useCallback((newCity) => {
+    if (newCity === city) {
+      setShowCityPicker(false);
+      return;
+    }
     setCity(newCity);
     markCityConfirmed(newCity);
     setShowCityPicker(false);
-  }, []);
+    if (location.pathname !== '/') {
+      navigate('/');
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [city, location.pathname, navigate]);
 
   const dismissCityPicker = useCallback(() => {
     markCityConfirmed(city);

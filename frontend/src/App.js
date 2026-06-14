@@ -48,6 +48,7 @@ const AdminRoute = ({ children }) => {
 function AppContent() {
   return (
     <BrowserRouter>
+      <CityProvider>
       <ScrollToTop />
       <CityPickerModal />
       <Navbar />
@@ -82,6 +83,7 @@ function AppContent() {
       </Routes></main>
       <Footer />
       <WhatsAppFab />
+      </CityProvider>
     </BrowserRouter>
   );
 }
@@ -90,11 +92,9 @@ export default function App() {
   return (
     <ToastProvider>
       <AuthProvider>
-        <CityProvider>
           <CartProvider>
             <AppContent />
           </CartProvider>
-        </CityProvider>
       </AuthProvider>
     </ToastProvider>
   );

@@ -270,9 +270,6 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link to="/my-orders" className="nav-link">My Orders</Link>
-                {user.role === 'admin' && (
-                  <Link to="/admin" className="nav-link admin-link">Admin</Link>
-                )}
                 <button onClick={handleLogout} className="nav-link">Logout</button>
               </>
             ) : (
@@ -309,9 +306,6 @@ export default function Navbar() {
             <>
               <Link to="/my-orders" onClick={() => setMenuOpen(false)}>My Orders</Link>
               <Link to="/profile"   onClick={() => setMenuOpen(false)}>Profile</Link>
-              {user.role === 'admin' && (
-                <Link to="/admin" onClick={() => setMenuOpen(false)}>Admin Panel</Link>
-              )}
               <button onClick={handleLogout}>Logout</button>
             </>
           ) : (

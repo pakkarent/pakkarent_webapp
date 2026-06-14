@@ -161,12 +161,6 @@ export default function Login() {
           <div className="auth-footer">
             <p>Don&apos;t have an account? <Link to="/register">Create one</Link></p>
           </div>
-
-          <div className="demo-credentials">
-            <p><strong>Admin demo (email login):</strong></p>
-            <p>Email: admin@pakkarent.com</p>
-            <p>Password: Admin@123</p>
-          </div>
         </div>
       </div>
     </div>
