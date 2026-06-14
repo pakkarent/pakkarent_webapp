@@ -151,7 +151,6 @@ export default function Home() {
           <div className="hero-categories">
             <h2 className="rm-heading">
               Explore <span className="accent">our Top Categories</span>
-              <span className="dash" />
             </h2>
 
             <div className="cat-tiles-grid">
@@ -222,7 +221,6 @@ export default function Home() {
           <div className="trending-header">
             <h2 className="rm-heading">
               Latest &amp;<span className="accent">Trending</span>
-              <span className="dash" />
             </h2>
             <Link to="/products" className="see-all-link">See all →</Link>
           </div>
@@ -250,7 +248,6 @@ export default function Home() {
         <div className="container">
           <h2 className="rm-heading center-heading">
             How It<span className="accent"> Works</span>
-            <span className="dash" />
           </h2>
           <div className="how-grid">
             {STEPS.map((s, i) => (
@@ -275,7 +272,6 @@ export default function Home() {
         <div className="container">
           <h2 className="rm-heading center-heading">
             Why Choose<span className="accent"> PakkaRent</span>
-            <span className="dash" />
           </h2>
           <div className="why-grid">
             {[
@@ -301,7 +297,6 @@ export default function Home() {
         <div className="container">
           <h2 className="rm-heading center-heading">
             Customer<span className="accent"> Reviews</span>
-            <span className="dash" />
           </h2>
           <div className="reviews-grid">
             {TESTIMONIALS.map((t, i) => (
