@@ -7,6 +7,7 @@ import { ToastProvider } from './context/ToastContext';
 
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+import ScrollToTop from './components/common/ScrollToTop';
 import WhatsAppFab from './components/common/WhatsAppFab';
 import CityPickerModal from './components/common/CityPickerModal';
 import Home from './pages/Home';
@@ -47,6 +48,7 @@ const AdminRoute = ({ children }) => {
 function AppContent() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <CityPickerModal />
       <Navbar />
       <main id="main-content"><Routes>
