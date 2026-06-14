@@ -7,6 +7,7 @@
   transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s;
   display: flex;
   flex-direction: column;
+  height: 100%;
   cursor: pointer;
 }
 .product-card:hover {
@@ -19,14 +20,19 @@
 .card-img-wrap {
   position: relative;
   display: block;
-  aspect-ratio: 4/3;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  flex-shrink: 0;
   overflow: hidden;
   background: #F7F7F7;
 }
 .card-img-wrap img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 0.4s ease;
 }
 .card-img-wrap img.zoomed {
@@ -135,6 +141,7 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  min-height: 0;
 }
 .card-category {
   font-size: 11px;
@@ -153,6 +160,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 2px;
+  min-height: calc(1.35em * 2);
 }
 .card-title:hover { color: var(--primary); }
 .card-city {
@@ -169,6 +177,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 4px;
+  min-height: 54px;
 }
 .price-main { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
 .price-original {
@@ -190,6 +199,7 @@
   font-size: 11px;
   color: var(--gray-2);
   margin-top: 2px;
+  min-height: 1.2em;
 }
 
 .card-plans {
@@ -197,6 +207,8 @@
   gap: 5px;
   flex-wrap: wrap;
   margin-top: 2px;
+  min-height: 22px;
+  align-items: flex-start;
 }
 .plan-badge {
   background: var(--primary-container);
@@ -210,7 +222,7 @@
 /* Add to cart btn */
 .card-btn {
   width: 100%;
-  margin-top: 10px;
+  margin-top: auto;
   padding: 9px;
   font-size: 13px;
   border-radius: var(--radius-sm);
@@ -221,7 +233,7 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .card-body { padding: 10px 12px 12px; gap: 3px; }
-  .card-title { font-size: 13px; }
+  .card-title { font-size: 13px; min-height: calc(1.35em * 2); }
   .card-category { font-size: 10px; }
   .card-city { font-size: 10px; }
   .price-amt { font-size: 17px; }
@@ -246,7 +258,7 @@
 }
 
 @media (max-width: 380px) {
-  .card-title { font-size: 12px; -webkit-line-clamp: 2; }
+  .card-title { font-size: 12px; -webkit-line-clamp: 2; min-height: calc(1.35em * 2); }
   .price-amt { font-size: 15px; }
   .card-pricing { padding-top: 8px; }
 }

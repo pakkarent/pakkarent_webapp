@@ -114,8 +114,10 @@ export default function ProductCard({ product }) {
               )}
               <span className="price-unit">/mo</span>
             </div>
-            {product.security_deposit > 0 && (
+        {product.security_deposit > 0 ? (
               <div className="price-deposit">+ ₹{product.security_deposit} deposit</div>
+            ) : (
+              <div className="price-deposit price-deposit-empty" aria-hidden="true">&nbsp;</div>
             )}
           </div>
           <div className="price-monthly-label">Monthly<br />rent</div>
