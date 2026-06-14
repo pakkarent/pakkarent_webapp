@@ -4,6 +4,7 @@ import { productAPI, categoryAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
 import useSEO from '../hooks/useSEO';
+import { getCategoryProductsPath } from '../utils/categoryUtils';
 import { trustedServiceLabel } from '../utils/company';
 import './Home.css';
 
@@ -15,6 +16,15 @@ const CAT_IMGS = {
   event:      'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
   backdrop:   'https://images.unsplash.com/photo-1478147427282-58a87a433049?w=220&h=180&fit=crop&q=75',
   birthday:   'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
+  cradle:     'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
+  swing:      'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
+  oonjal:     'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
+  chair:      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=220&h=180&fit=crop&q=75',
+  furniture:  'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=220&h=180&fit=crop&q=75',
+  decor:      'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
+  urli:       'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
+  prop:       'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
+  stand:      'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
   baby:       'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
   kids:       'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=220&h=180&fit=crop&q=75',
   toy:        'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=220&h=180&fit=crop&q=75',
@@ -148,7 +158,7 @@ export default function Home() {
               {visibleCats.map((cat, idx) => (
                 <Link
                   key={cat.id}
-                  to={`/products?category_id=${cat.id}`}
+                  to={getCategoryProductsPath(cat)}
                   className="cat-tile"
                 >
                   <div className="cat-tile-img">

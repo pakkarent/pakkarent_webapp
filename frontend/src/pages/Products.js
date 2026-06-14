@@ -122,6 +122,28 @@ export default function Products() {
     }
   }, [category_id, subcategory_id, search, featured, confirmCityForCatalog]);
 
+  // Normalize old/wrong links that use a subcategory id as category_id
+  useEffect(() => {
+    if (!category_id || subcategory_id) return;
+    const isParent = parentCategories.some((c) => c.id.toString() === category_id);
+    if (isParent) return;
+
+    const cityFilter = city !== 'all' ? city : undefined;
+    categoryAPI
+      .getAll({ city: cityFilter })
+      .then((res) => {
+        const match = (res.data.categories || []).find(
+          (c) => c.id.toString() === category_id && c.parent_id
+        );
+        if (!match) return;
+        const params = new URLSearchParams(searchParams);
+        params.set('category_id', String(match.parent_id));
+        params.set('subcategory_id', String(match.id));
+        setSearchParams(params, { replace: true });
+      })
+      .catch(() => {});
+  }, [category_id, subcategory_id, parentCategories, city, searchParams, setSearchParams]);
+
   // Reset pagination when URL filters change
   useEffect(() => {
     setPage(1);

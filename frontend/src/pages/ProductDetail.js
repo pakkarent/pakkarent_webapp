@@ -384,7 +384,7 @@ export default function ProductDetail() {
             <div className="info-cards">
               <div className="info-card">
                 <span className="info-icon">🚚</span>
-                <span className="info-text">Free Delivery</span>
+                <span className="info-text">Delivery applicable for some products</span>
               </div>
               <div className="info-card">
                 <span className="info-icon">🔒</span>

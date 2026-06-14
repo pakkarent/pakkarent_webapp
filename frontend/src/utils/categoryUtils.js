@@ -20,6 +20,15 @@ export function hasSubcategories(categories, parentId) {
   return getSubcategories(categories, parentId).length > 0;
 }
 
+/** Products page URL for a category or subcategory row from the API. */
+export function getCategoryProductsPath(cat) {
+  if (!cat?.id) return '/products';
+  if (cat.parent_id) {
+    return `/products?category_id=${cat.parent_id}&subcategory_id=${cat.id}`;
+  }
+  return `/products?category_id=${cat.id}`;
+}
+
 export function formatCategoryLabel(product) {
   if (product?.subcategory_name) {
     return `${product.category_name} › ${product.subcategory_name}`;
