@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../models/db');
 const { authenticate, adminOnly } = require('../middleware/auth');
 const { loadActivePricingRules, enrichProduct } = require('../utils/pricing');
+const { cachePublic } = require('../middleware/cachePublic');
 
 const PRODUCT_SELECT = `
   SELECT p.*,
@@ -16,7 +17,7 @@ const PRODUCT_SELECT = `
 `;
 
 // Get all products with filters
-router.get('/', async (req, res) => {
+router.get('/', cachePublic(60), async (req, res) => {
   const { city, category_id, subcategory_id, min_price, max_price, search, page = 1, limit = 12, featured } = req.query;
   const offset = (page - 1) * limit;
   let conditions = ['p.is_active = true'];
@@ -62,7 +63,10 @@ router.get('/', async (req, res) => {
       [...params, limit, offset]
     );
     const rules = await loadActivePricingRules(pool);
-    const products = result.rows.map((row) => enrichProduct(row, rules));
+    const products = result.rows.map((row) => {
+      const { description, ...rest } = row;
+      return enrichProduct(rest, rules);
+    });
     res.json({ success: true, products, total: parseInt(countResult.rows[0].count), page: parseInt(page), limit: parseInt(limit) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -70,7 +74,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get single product
-router.get('/:id', async (req, res) => {
+router.get('/:id', cachePublic(120), async (req, res) => {
   try {
     const result = await pool.query(
       `${PRODUCT_SELECT} WHERE p.id=$1`,

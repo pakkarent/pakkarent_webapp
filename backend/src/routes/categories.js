@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../models/db');
 const { authenticate, adminOnly } = require('../middleware/auth');
+const { cachePublic } = require('../middleware/cachePublic');
 
 // Admin: all categories including inactive (no city filter)
 router.get('/admin-list', authenticate, adminOnly, async (req, res) => {
@@ -23,7 +24,7 @@ router.get('/admin-list', authenticate, adminOnly, async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', cachePublic(300), async (req, res) => {
   const { city, parent_id, parents_only } = req.query;
   try {
     let conditions = ['c.is_active = true'];
