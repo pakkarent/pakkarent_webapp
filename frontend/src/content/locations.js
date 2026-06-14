@@ -8,7 +8,7 @@ export const PAKKARENT_LOCATIONS = [
       {
         name: 'Velachery',
         hint: 'Main showroom',
-        mapUrl: 'https://share.google/7OOswFd4FAbG6cOgN',
+        mapUrl: 'https://share.google/NKPINmnonZHBhwIa9',
       },
       {
         name: 'Kelambakkam',
