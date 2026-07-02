@@ -58,7 +58,7 @@ router.get('/', cachePublic(60), async (req, res) => {
     const result = await pool.query(
       `${PRODUCT_SELECT}
        ${where}
-       ORDER BY p.created_at DESC
+       ORDER BY p.is_featured DESC, p.created_at DESC
        LIMIT $${idx} OFFSET $${idx + 1}`,
       [...params, limit, offset]
     );
