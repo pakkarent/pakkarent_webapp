@@ -149,6 +149,10 @@ export default function Products() {
     setPage(1);
   }, [category_id, subcategory_id]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page]);
+
   // Load subcategories for the selected parent category
   useEffect(() => {
     if (!category_id) {

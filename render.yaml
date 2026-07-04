@@ -73,3 +73,5 @@ services:
           envVarKey: RENDER_EXTERNAL_URL
       - key: REACT_APP_WHATSAPP_NUMBER
         value: "919361432697"
+      - key: SITE_URL
+        value: https://pakkarent.com

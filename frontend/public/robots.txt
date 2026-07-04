@@ -1,7 +1,6 @@
 User-agent: *
 Allow: /
 
-# Don't index transient / private routes
 Disallow: /cart
 Disallow: /checkout
 Disallow: /login
@@ -10,8 +9,6 @@ Disallow: /profile
 Disallow: /my-orders
 Disallow: /admin
 Disallow: /admin/
+Disallow: /auth/
 
-# Crawl-delay friendly to small sites
-Crawl-delay: 1
-
-Sitemap: https://frontend-production-27c02.up.railway.app/sitemap.xml
+Sitemap: https://pakkarent.com/sitemap.xml
