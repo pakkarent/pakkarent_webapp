@@ -15,6 +15,7 @@ const uploadRoutes = require('./src/routes/uploads');
 const inquiryRoutes = require('./src/routes/inquiries');
 const { runMigrations } = require('./src/utils/migrations');
 const { trustProxy } = require('./src/middleware/rateLimit');
+const { corsOptions } = require('./src/config/cors');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,7 +23,7 @@ const PORT = process.env.PORT || 5000;
 trustProxy(app);
 
 app.use(compression());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));
+app.use(cors(corsOptions()));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
