@@ -6,12 +6,16 @@ import './CityPickerModal.css';
 
 const PICKER_DELAY_MS = 2000;
 
+const SKIP_CITY_PICKER =
+  /^\/(cart|checkout|admin)(\/|$)|^\/rent\/|^\/products\/[^/]+\/[^/]+$/;
+
 export default function CityPickerModal() {
   const location = useLocation();
   const { showCityPicker, changeCity, dismissCityPicker, ensureCityPickerIfNeeded } = useCity();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (SKIP_CITY_PICKER.test(location.pathname)) return;
     ensureCityPickerIfNeeded();
   }, [location.pathname, ensureCityPickerIfNeeded]);
 

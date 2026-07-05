@@ -30,7 +30,7 @@ export default function Cart() {
     getItemPrice,
   } = useCart();
   const { user } = useAuth();
-  const { city: siteCity, cities } = useCity();
+  const { city: siteCity, cities, confirmCityForCatalog } = useCity();
   const { showToast } = useToast();
   const monthlyCart = cartUsesMonthlyPricing(cart);
   const rentalDays = rentalDaysInclusive(rentStart, rentEnd);
@@ -59,6 +59,10 @@ export default function Cart() {
       email: prev.email || user?.email || '',
     }));
   }, [user, siteCity]);
+
+  useEffect(() => {
+    confirmCityForCatalog();
+  }, [confirmCityForCatalog]);
 
   useSEO({
     title: cart.length ? `Shopping Cart (${cart.length})` : 'Shopping Cart',

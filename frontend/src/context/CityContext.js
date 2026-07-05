@@ -17,6 +17,7 @@ export const CityProvider = ({ children }) => {
 
   const changeCity = useCallback((newCity) => {
     if (newCity === city) {
+      markCityConfirmed(newCity);
       setShowCityPicker(false);
       return;
     }
