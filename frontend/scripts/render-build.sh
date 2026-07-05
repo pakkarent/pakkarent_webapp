@@ -12,6 +12,7 @@ npm run build
 
 echo "▶ Generating sitemap.xml..."
 export SITE_URL="${SITE_URL:-https://pakkarent.com}"
+rm -rf .build-cache
 node scripts/generate-sitemap.js
 
 echo "▶ Generating product ID redirects..."

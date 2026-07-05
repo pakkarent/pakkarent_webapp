@@ -7,7 +7,10 @@ const path = require('path');
 const { fetchAllProducts, productPath } = require('./seo-utils');
 
 async function main() {
-  const products = await fetchAllProducts();
+  const products = await fetchAllProducts().catch((err) => {
+    console.warn(`Redirects: product fetch failed (${err.message}) — keeping existing ID rules only`);
+    return [];
+  });
   const productRedirects = products
     .filter((p) => p.id && p.slug && productPath(p)?.startsWith('/rent/'))
     .map((p) => ({

@@ -1,6 +1,10 @@
 /** Shared helpers for sitemap, prerender, and redirect generation. */
+const fs = require('fs');
+const path = require('path');
+
 const SITE_URL = (process.env.SITE_URL || 'https://pakkarent.com').replace(/\/$/, '');
 const API_URL = (process.env.REACT_APP_API_URL || process.env.API_URL || 'https://pakkarent-api.onrender.com').replace(/\/$/, '');
+const PRODUCT_CACHE_FILE = path.join(__dirname, '..', '.build-cache', 'products.json');
 
 const CITY_SEGMENTS = ['chennai', 'bangalore', 'hyderabad'];
 
@@ -121,24 +125,81 @@ function productMeta(product) {
   };
 }
 
-async function fetchAllProducts() {
-  if (!API_URL) return [];
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchJsonWithRetry(url, attempt = 0) {
+  const maxAttempts = 6;
+  const res = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(30000),
+  });
+
+  if (res.ok) return res.json();
+
+  if ((res.status === 429 || res.status === 502 || res.status === 503) && attempt < maxAttempts) {
+    const retryAfterSec = Number(res.headers.get('retry-after'));
+    const waitMs = Number.isFinite(retryAfterSec) && retryAfterSec > 0
+      ? retryAfterSec * 1000
+      : Math.min(30000, 1500 * 2 ** attempt);
+    console.warn(`API ${res.status} for ${url} — retry ${attempt + 1}/${maxAttempts} in ${waitMs}ms`);
+    await sleep(waitMs);
+    return fetchJsonWithRetry(url, attempt + 1);
+  }
+
+  throw new Error(`HTTP ${res.status}`);
+}
+
+function readProductCache() {
+  try {
+    if (!fs.existsSync(PRODUCT_CACHE_FILE)) return null;
+    const data = JSON.parse(fs.readFileSync(PRODUCT_CACHE_FILE, 'utf8'));
+    if (Array.isArray(data.products) && data.products.length > 0) return data.products;
+  } catch {
+    // ignore corrupt cache
+  }
+  return null;
+}
+
+function writeProductCache(products) {
+  if (!products.length) return;
+  fs.mkdirSync(path.dirname(PRODUCT_CACHE_FILE), { recursive: true });
+  fs.writeFileSync(
+    PRODUCT_CACHE_FILE,
+    JSON.stringify({ fetchedAt: new Date().toISOString(), products }),
+    'utf8'
+  );
+}
+
+async function fetchAllProductsFromApi() {
   const products = [];
   let page = 1;
-  const limit = 100;
+  const limit = 200;
   while (page <= 50) {
-    const res = await fetch(`${API_URL}/api/products?limit=${limit}&page=${page}`, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(20000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const data = await fetchJsonWithRetry(`${API_URL}/api/products?limit=${limit}&page=${page}`);
     const batch = data.products || [];
     products.push(...batch);
     const total = Number(data.total) || 0;
     if (batch.length < limit || products.length >= total) break;
     page += 1;
+    await sleep(400);
   }
+  return products;
+}
+
+async function fetchAllProducts() {
+  if (!API_URL) return [];
+
+  const cached = readProductCache();
+  if (cached) {
+    console.log(`Products: using build cache (${cached.length} items)`);
+    return cached;
+  }
+
+  const products = await fetchAllProductsFromApi();
+  writeProductCache(products);
+  console.log(`Products: fetched ${products.length} items from API`);
   return products;
 }
 

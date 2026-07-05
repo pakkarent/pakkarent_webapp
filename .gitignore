@@ -12,6 +12,7 @@ frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
 frontend/build/
+frontend/.build-cache/
 frontend/.DS_Store
 
 # IDE
