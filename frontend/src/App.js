@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -10,43 +10,45 @@ import Footer from './components/common/Footer';
 import ScrollToTop from './components/common/ScrollToTop';
 import WhatsAppFab from './components/common/WhatsAppFab';
 import CityPickerModal from './components/common/CityPickerModal';
-import Home from './pages/Home';
-import Products from './pages/Products';
-import ProductDetail from './pages/ProductDetail';
-import ProductIdRedirect from './pages/ProductIdRedirect';
-import LegacyProductRoute from './pages/LegacyProductRoute';
-import LegacyStoreRoute from './pages/LegacyStoreRoute';
-import NotFoundRedirect from './pages/NotFoundRedirect';
-import ProductsSlugRouter from './pages/ProductsSlugRouter';
-import CityLanding from './pages/CityLanding';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import AuthCallback from './pages/AuthCallback';
-import MyOrders from './pages/MyOrders';
-import Profile from './pages/Profile';
-import Blog from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import InfoPage from './pages/InfoPage';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminProducts from './pages/admin/AdminProducts';
-import AdminOrders from './pages/admin/AdminOrders';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminProductForm from './pages/admin/AdminProductForm';
-import AdminPricing from './pages/admin/AdminPricing';
-import AdminCategories from './pages/admin/AdminCategories';
+import PageLoader from './components/common/PageLoader';
 import AdminSeo from './components/common/AdminSeo';
+
+const Home = React.lazy(() => import('./pages/Home'));
+const Products = React.lazy(() => import('./pages/Products'));
+const ProductDetail = React.lazy(() => import('./pages/ProductDetail'));
+const ProductIdRedirect = React.lazy(() => import('./pages/ProductIdRedirect'));
+const LegacyProductRoute = React.lazy(() => import('./pages/LegacyProductRoute'));
+const LegacyStoreRoute = React.lazy(() => import('./pages/LegacyStoreRoute'));
+const NotFoundRedirect = React.lazy(() => import('./pages/NotFoundRedirect'));
+const ProductsSlugRouter = React.lazy(() => import('./pages/ProductsSlugRouter'));
+const CityLanding = React.lazy(() => import('./pages/CityLanding'));
+const Cart = React.lazy(() => import('./pages/Cart'));
+const Checkout = React.lazy(() => import('./pages/Checkout'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Register = React.lazy(() => import('./pages/Register'));
+const AuthCallback = React.lazy(() => import('./pages/AuthCallback'));
+const MyOrders = React.lazy(() => import('./pages/MyOrders'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Blog = React.lazy(() => import('./pages/Blog'));
+const BlogPost = React.lazy(() => import('./pages/BlogPost'));
+const InfoPage = React.lazy(() => import('./pages/InfoPage'));
+const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminProducts = React.lazy(() => import('./pages/admin/AdminProducts'));
+const AdminOrders = React.lazy(() => import('./pages/admin/AdminOrders'));
+const AdminUsers = React.lazy(() => import('./pages/admin/AdminUsers'));
+const AdminProductForm = React.lazy(() => import('./pages/admin/AdminProductForm'));
+const AdminPricing = React.lazy(() => import('./pages/admin/AdminPricing'));
+const AdminCategories = React.lazy(() => import('./pages/admin/AdminCategories'));
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading) return <PageLoader />;
   return user ? children : <Navigate to="/login" />;
 };
 
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading) return <PageLoader />;
   if (!user) return <Navigate to="/login" />;
   if (user.role !== 'admin') return <Navigate to="/" />;
   return (
@@ -64,7 +66,9 @@ function AppContent() {
       <ScrollToTop />
       <CityPickerModal />
       <Navbar />
-      <main id="main-content"><Routes>
+      <main id="main-content">
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/chennai" element={<CityLanding />} />
         <Route path="/bangalore" element={<CityLanding />} />
@@ -100,7 +104,9 @@ function AppContent() {
         <Route path="/admin/pricing" element={<AdminRoute><AdminPricing /></AdminRoute>} />
         <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
         <Route path="*" element={<NotFoundRedirect />} />
-      </Routes></main>
+          </Routes>
+        </Suspense>
+      </main>
       <Footer />
       <WhatsAppFab />
       </CityProvider>

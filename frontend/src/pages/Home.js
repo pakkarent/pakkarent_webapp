@@ -8,68 +8,13 @@ import JsonLd from '../components/common/JsonLd';
 import { PAKKARENT_REVIEWS, buildReviewsSchema } from '../content/reviews';
 import { getCategoryProductsPath } from '../utils/categoryUtils';
 import { trustedServiceLabel } from '../utils/company';
+import {
+  HERO_IMAGE,
+  PROMO_BANNERS,
+  CATEGORY_FALLBACKS,
+  getCategoryImage,
+} from '../content/siteImages';
 import './Home.css';
-
-/* ── Category → Unsplash image map (keyword-based) ── */
-const CAT_IMGS = {
-  camping:    'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=220&h=180&fit=crop&q=75',
-  appliance:  'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=220&h=180&fit=crop&q=75',
-  home:       'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=220&h=180&fit=crop&q=75',
-  event:      'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
-  backdrop:   'https://images.unsplash.com/photo-1478147427282-58a87a433049?w=220&h=180&fit=crop&q=75',
-  birthday:   'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
-  cradle:     'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
-  swing:      'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
-  oonjal:     'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
-  chair:      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=220&h=180&fit=crop&q=75',
-  furniture:  'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=220&h=180&fit=crop&q=75',
-  decor:      'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
-  urli:       'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
-  prop:       'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
-  stand:      'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
-  baby:       'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75',
-  kids:       'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=220&h=180&fit=crop&q=75',
-  toy:        'https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=220&h=180&fit=crop&q=75',
-  game:       'https://images.unsplash.com/photo-1612404730960-5c71577fca11?w=220&h=180&fit=crop&q=75',
-};
-const FALLBACK_IMGS = [
-  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=220&h=180&fit=crop&q=75',
-  'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75',
-  'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=220&h=180&fit=crop&q=75',
-  'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75',
-];
-
-function getCategoryImage(catName, idx) {
-  const name = (catName || '').toLowerCase();
-  for (const [key, url] of Object.entries(CAT_IMGS)) {
-    if (name.includes(key)) return url;
-  }
-  return FALLBACK_IMGS[idx % FALLBACK_IMGS.length];
-}
-
-/* ── Static promo banners ── */
-const PROMO_BANNERS = [
-  {
-    tag: 'Most Popular',
-    heading: 'Birthday &',
-    headingAccent: 'Party Rentals',
-    sub: 'Decorations, props, backdrops & more',
-    cta: 'Explore now',
-    link: '/products?category_id=5',
-    img: 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=600&h=340&fit=crop&q=80',
-    bg: '#FFF3E0',
-  },
-  {
-    tag: 'Top Rated',
-    heading: 'Baby &',
-    headingAccent: 'Kids Essentials',
-    sub: 'Strollers, cribs, toys & gear on rent',
-    cta: 'Rent now',
-    link: '/products?category_id=6',
-    img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=340&fit=crop&q=80',
-    bg: '#E8F5E9',
-  },
-];
 
 /* ── Testimonials (also used in Review schema — see content/reviews.js) ── */
 const TESTIMONIALS = PAKKARENT_REVIEWS.map((r) => ({
@@ -139,8 +84,12 @@ export default function Home() {
           <div className="hero-panel">
             <div className="hero-panel-img">
               <img
-                src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=560&h=600&fit=crop&q=80"
+                src={HERO_IMAGE}
                 alt="Rent for events"
+                width="560"
+                height="600"
+                fetchPriority="high"
+                decoding="async"
               />
               <div className="hero-panel-overlay">
                 <p className="hero-panel-tag">{yearsLabel}</p>
@@ -159,7 +108,14 @@ export default function Home() {
             </h2>
 
             <div className="cat-tiles-grid">
-              {visibleCats.map((cat, idx) => (
+              {loading && visibleCats.length === 0
+                ? [...Array(8)].map((_, i) => (
+                  <div key={i} className="cat-tile cat-tile--skeleton" aria-hidden="true">
+                    <div className="cat-tile-img" />
+                    <div className="cat-tile-label-skeleton" />
+                  </div>
+                ))
+                : visibleCats.map((cat, idx) => (
                 <Link
                   key={cat.id}
                   to={getCategoryProductsPath(cat, city)}
@@ -169,8 +125,11 @@ export default function Home() {
                     <img
                       src={getCategoryImage(cat.name, idx)}
                       alt={cat.name}
+                      width="220"
+                      height="110"
                       loading="lazy"
-                      onError={e => { e.target.src = FALLBACK_IMGS[idx % FALLBACK_IMGS.length]; }}
+                      decoding="async"
+                      onError={e => { e.target.src = CATEGORY_FALLBACKS[idx % CATEGORY_FALLBACKS.length]; }}
                     />
                   </div>
                   <p className="cat-tile-label">{cat.name}</p>
@@ -210,7 +169,7 @@ export default function Home() {
                   </Link>
                 </div>
                 <div className="promo-img-wrap">
-                  <img src={b.img} alt={b.headingAccent} loading="lazy" />
+                  <img src={b.img} alt={b.headingAccent} width="300" height="170" loading="lazy" decoding="async" />
                 </div>
               </div>
             ))}

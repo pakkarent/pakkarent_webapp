@@ -1,25 +1,37 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCity } from '../../context/CityContext';
 import { CITY_OPTIONS } from '../../utils/cities';
 import './CityPickerModal.css';
 
+const PICKER_DELAY_MS = 2000;
+
 export default function CityPickerModal() {
   const location = useLocation();
   const { showCityPicker, changeCity, dismissCityPicker, ensureCityPickerIfNeeded } = useCity();
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     ensureCityPickerIfNeeded();
   }, [location.pathname, ensureCityPickerIfNeeded]);
 
   useEffect(() => {
-    if (!showCityPicker) return undefined;
+    if (!showCityPicker) {
+      setVisible(false);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setVisible(true), PICKER_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [showCityPicker]);
+
+  useEffect(() => {
+    if (!visible) return undefined;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
-  }, [showCityPicker]);
+  }, [visible]);
 
-  if (!showCityPicker) return null;
+  if (!showCityPicker || !visible) return null;
 
   return (
     <div className="city-picker-overlay" role="presentation">
@@ -47,7 +59,14 @@ export default function CityPickerModal() {
               onClick={() => changeCity(option.name)}
             >
               <span className="city-picker-image-wrap">
-                <img src={option.image} alt="" loading="eager" />
+                <img
+                  src={option.image}
+                  alt=""
+                  width="320"
+                  height="200"
+                  loading="lazy"
+                  decoding="async"
+                />
               </span>
               <span className="city-picker-name">{option.name}</span>
               <span className="city-picker-tagline">{option.tagline}</span>

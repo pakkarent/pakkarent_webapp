@@ -6,6 +6,9 @@ cd "$(dirname "$0")/.."
 echo "▶ Installing dependencies..."
 npm install
 
+echo "▶ Fetching optimized site images..."
+node scripts/fetch-site-images.js
+
 echo "▶ Clean build..."
 rm -rf build
 npm run build
@@ -26,6 +29,7 @@ test -f build/sitemap.xml
 test -f build/index.html
 test -f build/manifest.json
 test -f build/og-image.png
+test -f build/images/home/hero.webp
 test -f build/favicon-32x32.png
 test -f build/apple-touch-icon.png
 test -f build/serve.json
