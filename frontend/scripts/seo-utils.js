@@ -99,11 +99,29 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;');
 }
 
+function getPricingTypeForProduct(product) {
+  const specs = product?.specs && typeof product.specs === 'object' ? product.specs : {};
+  const stored = specs.pricing_type;
+  if (stored === 'per_day_or_week') return 'per_day';
+  if (stored) return stored;
+  if (Number(product?.category_id) === 2) return 'per_month';
+  if (Number(product?.category_id) === 1) return 'per_day';
+  return 'per_event';
+}
+
+function priceUnitWord(product) {
+  const pt = getPricingTypeForProduct(product);
+  if (pt === 'per_month') return 'month';
+  if (pt === 'per_event') return 'event';
+  return 'day';
+}
+
 function productMeta(product) {
   const cityLabel = product.city === 'all' ? 'India' : product.city;
+  const unit = priceUnitWord(product);
   return {
     title: `${product.name} on Rent in ${cityLabel} | PakkaRent`,
-    description: `Rent ${product.name} in ${cityLabel} from ₹${product.monthly_price}/day or month. Free delivery and flexible rental on PakkaRent.`,
+    description: `Rent ${product.name} in ${cityLabel} from ₹${product.monthly_price}/${unit}. Free delivery and flexible rental on PakkaRent.`,
     path: productPath(product),
     body: `<h1>${escapeHtml(product.name)} on Rent in ${escapeHtml(cityLabel)}</h1><p>Rent ${escapeHtml(product.name)} in ${escapeHtml(cityLabel)} from PakkaRent. Category: ${escapeHtml(product.category_name || 'Rental')}.</p>`,
     jsonLd: {

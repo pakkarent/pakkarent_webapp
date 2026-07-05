@@ -6,6 +6,7 @@ import { useCity } from '../context/CityContext';
 import { useToast } from '../context/ToastContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../utils/pricingDisplay';
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
+import { priceUnitLabel } from '../utils/productPricing';
 import { cartUsesMonthlyPricing, rentalDaysInclusive } from '../utils/rentalModel';
 import { buildInquiryWhatsAppUrl, buildMapLink, openWhatsAppUrl } from '../utils/whatsappInquiry';
 import HoneypotField, { isHoneypotFilled } from '../components/common/HoneypotField';
@@ -238,7 +239,7 @@ export default function Cart() {
                         <span>₹{getItemPrice(item)}</span>
                       )}
                       <span className="tenure-label">
-                        {monthlyCart ? 'per month' : 'per day'}
+                        {priceUnitLabel(item)}
                       </span>
                     </div>
                   </div>

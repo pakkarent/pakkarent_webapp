@@ -8,6 +8,7 @@ import {
   originalPriceForTenure,
   offerPriceForTenure,
   effectivePriceForTenure,
+  displayUnitPrice,
 } from '../utils/pricingDisplay';
 import { resolveImageUrl, resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
 import { formatCategoryLabel } from '../utils/categoryUtils';
@@ -22,11 +23,8 @@ import useSEO from '../hooks/useSEO';
 import JsonLd from '../components/common/JsonLd';
 import Breadcrumb from '../components/common/Breadcrumb';
 import { getProductPath, getProductUrl, getCategoryPath } from '../utils/productUrls';
-import {
-  citySpecificDescription,
-  citySpecificMetaDescription,
-  schemaPriceUnit,
-} from '../utils/productSeo';
+import { rateLabel, schemaPriceUnit } from '../utils/productPricing';
+import { citySpecificDescription, citySpecificMetaDescription } from '../utils/productSeo';
 import './ProductDetail.css';
 
 const PLACEHOLDER_IMG = 'https://via.placeholder.com/400x400?text=PakkaRent';
@@ -141,7 +139,7 @@ export default function ProductDetail() {
   const productLd = useMemo(() => {
     if (!product) return null;
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const price = effectivePriceForTenure(product, 1) || product.monthly_price;
+    const price = displayUnitPrice(product, 1) || product.monthly_price;
     return {
       '@context': 'https://schema.org',
       '@type': 'Product',
@@ -200,10 +198,7 @@ export default function ProductDetail() {
   const displaySpecs = getDisplaySpecs(product);
   const monthlyProduct = isMonthlyRentalProduct(product);
 
-  const getPrice = () => {
-    if (monthlyProduct) return effectivePriceForTenure(product, selectedTenure);
-    return Number(product.monthly_price);
-  };
+  const getPrice = () => displayUnitPrice(product, selectedTenure);
 
   const tenurePriceDisplay = (months) => {
     const orig = originalPriceForTenure(product, months);
@@ -372,7 +367,7 @@ export default function ProductDetail() {
               <div className="price-info">
                 <div className="price-row">
                   <span>
-                    {monthlyProduct ? `Rate (${selectedTenure} mo plan):` : 'Rate (per day):'}
+                    {rateLabel(product, selectedTenure)}
                   </span>
                   <span className="price-value price-value-stack">
                     {monthlyProduct && hasOffer(product) && offerPriceForTenure(product, selectedTenure) != null && (

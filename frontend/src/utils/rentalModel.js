@@ -1,12 +1,7 @@
-import { safeJsonObject } from './media';
+export { isMonthlyRentalProduct } from './productPricing';
 
 export const MIXED_CART_MSG =
   'Cannot mix appliance monthly rentals with day-based rentals in one order.';
-
-export function isMonthlyRentalProduct(product) {
-  const specs = safeJsonObject(product?.specs);
-  return specs.pricing_type === 'per_month';
-}
 
 /** YYYY-MM-DD in local calendar */
 export function todayYMD() {

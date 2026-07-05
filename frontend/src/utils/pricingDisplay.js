@@ -1,3 +1,5 @@
+import { isMonthlyRentalProduct } from './productPricing';
+
 /**
  * Server sends base prices plus optional offer_* fields when a % discount applies.
  * Prices are unit rates — not multiplied by tenure months or rental days.
@@ -42,4 +44,10 @@ export function effectiveEventPrice(product) {
 
 export function hasOffer(product) {
   return (Number(product.offer_discount_percent) || 0) > 0;
+}
+
+/** Unit price shown on cards, search, and detail (before qty / tenure multiplication). */
+export function displayUnitPrice(product, tenure = 1) {
+  if (isMonthlyRentalProduct(product)) return effectivePriceForTenure(product, tenure);
+  return effectiveEventPrice(product);
 }

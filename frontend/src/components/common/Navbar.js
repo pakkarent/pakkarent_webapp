@@ -5,6 +5,8 @@ import { useCart } from '../../context/CartContext';
 import { useCity } from '../../context/CityContext';
 import { productAPI } from '../../services/api';
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../../utils/media';
+import { displayUnitPrice } from '../../utils/pricingDisplay';
+import { priceUnitSuffix } from '../../utils/productPricing';
 import { getProductPath } from '../../utils/productUrls';
 import { uniqueProductImages } from '../../utils/productSpecs';
 import { DesktopCategoryNav, MobileCategoryNav } from './CategoryNav';
@@ -165,8 +167,8 @@ function SearchBar({ city }) {
                   <span className="ac-meta">{p.category_name} · {p.city === 'all' ? 'All Cities' : p.city}</span>
                 </div>
                 <div className="ac-price">
-                  <span className="ac-price-amt">₹{p.monthly_price}</span>
-                  <span className="ac-price-unit">/mo</span>
+                  <span className="ac-price-amt">₹{displayUnitPrice(p, 1)}</span>
+                  <span className="ac-price-unit">{priceUnitSuffix(p)}</span>
                 </div>
               </button>
             );

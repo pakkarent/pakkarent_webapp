@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../../utils/pricingDisplay';
+import { displayUnitPrice, hasOffer, originalPriceForTenure, unitDayPrice } from '../../utils/pricingDisplay';
+import { isMonthlyRentalProduct, pricePeriodHeading, priceUnitSuffix } from '../../utils/productPricing';
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../../utils/media';
 import { formatCategoryLabel } from '../../utils/categoryUtils';
 import { getProductPath } from '../../utils/productUrls';
@@ -40,8 +41,11 @@ export default function ProductCard({ product }) {
   }, []);
 
   const showOffer = hasOffer(product);
-  const origMonthly = originalPriceForTenure(product, 1);
-  const offerMonthly = offerPriceForTenure(product, 1);
+  const monthlyProduct = isMonthlyRentalProduct(product);
+  const unitPrice = displayUnitPrice(product, 1);
+  const listPrice = monthlyProduct ? originalPriceForTenure(product, 1) : unitDayPrice(product);
+  const showStrike = showOffer && unitPrice < listPrice;
+  const [periodFirst, ...periodRest] = pricePeriodHeading(product).split(' ');
 
   return (
     <div
@@ -105,15 +109,15 @@ export default function ProductCard({ product }) {
         <div className="card-pricing">
           <div>
             <div className="price-main">
-              {showOffer && offerMonthly != null ? (
+              {showStrike ? (
                 <>
-                  <span className="price-original">₹{origMonthly}</span>
-                  <span className="price-amt">₹{offerMonthly}</span>
+                  <span className="price-original">₹{listPrice}</span>
+                  <span className="price-amt">₹{unitPrice}</span>
                 </>
               ) : (
-                <span className="price-amt">₹{product.monthly_price}</span>
+                <span className="price-amt">₹{unitPrice}</span>
               )}
-              <span className="price-unit">/mo</span>
+              <span className="price-unit">{priceUnitSuffix(product)}</span>
             </div>
         {product.security_deposit > 0 ? (
               <div className="price-deposit">+ ₹{product.security_deposit} deposit</div>
@@ -121,14 +125,16 @@ export default function ProductCard({ product }) {
               <div className="price-deposit price-deposit-empty" aria-hidden="true">&nbsp;</div>
             )}
           </div>
-          <div className="price-monthly-label">Monthly<br />rent</div>
+          <div className="price-monthly-label">{periodFirst}<br />{periodRest.join(' ')}</div>
         </div>
 
+        {monthlyProduct && (
         <div className="card-plans">
           {product.price_3month && <span className="plan-badge">3M</span>}
           {product.price_6month && <span className="plan-badge">6M</span>}
           {product.price_12month && <span className="plan-badge">12M</span>}
         </div>
+        )}
 
         <button className="btn btn-primary card-btn" onClick={() => addToCart(product)}>
           Add to Cart
