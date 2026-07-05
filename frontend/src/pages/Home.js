@@ -106,7 +106,7 @@ export default function Home() {
       try {
         const [prodRes, catRes] = await Promise.all([
           productAPI.getAll({ featured: true, limit: 12, city }),
-          categoryAPI.getAll({ city }),
+          categoryAPI.getAll({ parents_only: true }),
         ]);
         setFeatured(prodRes.data.products || []);
         setCategories(catRes.data.categories || []);

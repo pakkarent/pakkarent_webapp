@@ -187,7 +187,6 @@ export default function Products() {
           }),
           categoryAPI.getAll({
             parents_only: true,
-            city: cityFilter,
           }),
         ]);
         setProducts(prodRes.data.products);

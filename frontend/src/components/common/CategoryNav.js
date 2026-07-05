@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { categoryAPI } from '../../services/api';
-import { useCity } from '../../context/CityContext';
 import { getParentCategories, getSubcategories } from '../../utils/categoryUtils';
 
 function navShortLabel(cat) {
@@ -108,17 +107,16 @@ function CategoryDropdown({ category, subcategories }) {
 }
 
 export function DesktopCategoryNav() {
-  const { city } = useCity();
   const [categories, setCategories] = useState([]);
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get('category_id');
 
   useEffect(() => {
     categoryAPI
-      .getAll({ city })
+      .getAll()
       .then((res) => setCategories(res.data.categories || []))
       .catch(() => setCategories([]));
-  }, [city]);
+  }, []);
 
   const parents = getParentCategories(categories);
 
@@ -144,16 +142,15 @@ export function DesktopCategoryNav() {
 }
 
 export function MobileCategoryNav({ onNavigate }) {
-  const { city } = useCity();
   const [categories, setCategories] = useState([]);
   const location = useLocation();
 
   useEffect(() => {
     categoryAPI
-      .getAll({ city })
+      .getAll()
       .then((res) => setCategories(res.data.categories || []))
       .catch(() => setCategories([]));
-  }, [city]);
+  }, []);
 
   const parents = getParentCategories(categories);
   const params = new URLSearchParams(location.search);
