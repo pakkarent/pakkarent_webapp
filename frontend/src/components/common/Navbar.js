@@ -4,8 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useCity } from '../../context/CityContext';
 import { productAPI } from '../../services/api';
-import { resolveThumbnailUrl, safeJsonArray } from '../../utils/media';
+import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../../utils/media';
 import { getProductPath } from '../../utils/productUrls';
+import { uniqueProductImages } from '../../utils/productSpecs';
 import { DesktopCategoryNav, MobileCategoryNav } from './CategoryNav';
 import './Navbar.css';
 
@@ -101,9 +102,10 @@ function SearchBar({ city }) {
   }, []);
 
   /* ── Helpers ── */
-  const getImg = (product) => {
-    const imgs = safeJsonArray(product.images);
-    return resolveThumbnailUrl(imgs[0], 'search') || null;
+  const getProductThumb = (product) => {
+    const imgs = uniqueProductImages(safeJsonArray(product.images));
+    const src = imgs[0] || null;
+    return { src, url: resolveThumbnailUrl(src, 'search') };
   };
 
   return (
@@ -142,7 +144,7 @@ function SearchBar({ city }) {
           )}
 
           {!loading && results.map((p, idx) => {
-            const img = getImg(p);
+            const { src: thumbSrc, url: img } = getProductThumb(p);
             return (
               <button
                 key={p.id}
@@ -154,7 +156,7 @@ function SearchBar({ city }) {
               >
                 <div className="ac-thumb">
                   {img
-                    ? <img src={img} alt={p.name} />
+                    ? <img src={img} alt={p.name} onError={(e) => imageErrorFallback(e, thumbSrc)} />
                     : <span className="ac-thumb-placeholder">📦</span>
                   }
                 </div>

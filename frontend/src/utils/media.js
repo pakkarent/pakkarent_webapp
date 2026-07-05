@@ -67,17 +67,9 @@ export function resolveImageUrl(src) {
   return `${API_BASE}/${normalized}`;
 }
 
-/** CDN-resized thumbnail via Supabase Storage transforms. */
+/** Thumbnail URL — uses public object URLs (Supabase /render/image transforms need a paid plan). */
 export function resolveThumbnailUrl(src, preset = 'card') {
   if (!src) return null;
-  const normalized = String(src).replace(/\\/g, '/');
-  const transform = typeof preset === 'string' ? IMAGE_PRESETS[preset] : preset;
-
-  if (!transform || !SUPABASE_URL) return resolveImageUrl(src);
-
-  const key = extractStorageKey(normalized.startsWith('http') ? normalized : normalized);
-  if (key) return buildStorageUrl(key, transform);
-
   return resolveImageUrl(src);
 }
 
