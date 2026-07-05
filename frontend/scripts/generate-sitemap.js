@@ -77,13 +77,26 @@ function urlEntry(pathname, { changefreq = 'weekly', priority = '0.5', lastmod =
   </url>`;
 }
 
-async function fetchAllProductIds() {
+function cityUrlSegment(city) {
+  if (!city || city === 'all') return 'india';
+  return city.toLowerCase();
+}
+
+function productPath(product) {
+  if (product?.slug) {
+    return `/rent/${product.slug}/${cityUrlSegment(product.city)}`;
+  }
+  if (product?.id) return `/products/${product.id}`;
+  return null;
+}
+
+async function fetchAllProductPaths() {
   if (!API_URL) {
     console.warn('Sitemap: REACT_APP_API_URL not set — skipping product URLs');
     return [];
   }
 
-  const ids = new Set();
+  const paths = [];
   let page = 1;
   const limit = 100;
 
@@ -96,14 +109,15 @@ async function fetchAllProductIds() {
     const data = await res.json();
     const batch = data.products || [];
     for (const p of batch) {
-      if (p?.id) ids.add(p.id);
+      const path = productPath(p);
+      if (path) paths.push(path);
     }
     const total = Number(data.total) || 0;
-    if (batch.length < limit || ids.size >= total) break;
+    if (batch.length < limit || paths.length >= total) break;
     page += 1;
   }
 
-  return [...ids].sort((a, b) => a - b);
+  return [...new Set(paths)].sort();
 }
 
 async function main() {
@@ -122,11 +136,11 @@ async function main() {
   }
 
   try {
-    const productIds = await fetchAllProductIds();
-    for (const id of productIds) {
-      entries.push(urlEntry(`/products/${id}`, { changefreq: 'weekly', priority: '0.7' }));
+    const productPaths = await fetchAllProductPaths();
+    for (const path of productPaths) {
+      entries.push(urlEntry(path, { changefreq: 'weekly', priority: '0.7' }));
     }
-    console.log(`Sitemap: ${productIds.length} product URLs`);
+    console.log(`Sitemap: ${productPaths.length} product URLs`);
   } catch (err) {
     console.warn(`Sitemap: product fetch failed (${err.message}) — static URLs only`);
   }

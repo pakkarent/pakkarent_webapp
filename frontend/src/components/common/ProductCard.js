@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { hasOffer, originalPriceForTenure, offerPriceForTenure } from '../../utils/pricingDisplay';
 import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../../utils/media';
 import { formatCategoryLabel } from '../../utils/categoryUtils';
+import { getProductPath } from '../../utils/productUrls';
 import { uniqueProductImages } from '../../utils/productSpecs';
 import './ProductCard.css';
 
@@ -49,7 +50,7 @@ export default function ProductCard({ product }) {
       onMouseLeave={() => { setHovered(false); setActiveIdx(0); }}
     >
       {/* ── Image area ── */}
-      <Link to={`/products/${product.id}`} className="card-img-wrap">
+      <Link to={getProductPath(product)} className="card-img-wrap">
         {product.is_featured && <span className="featured-tag">⭐ Featured</span>}
         {showOffer && (
           <span className="offer-tag" aria-label={`${product.offer_discount_percent}% off`}>
@@ -96,7 +97,7 @@ export default function ProductCard({ product }) {
       {/* ── Card body ── */}
       <div className="card-body">
         <span className="card-category">{formatCategoryLabel(product)}</span>
-        <Link to={`/products/${product.id}`}>
+        <Link to={getProductPath(product)}>
           <h3 className="card-title">{product.name}</h3>
         </Link>
         <div className="card-city">📍 {product.city === 'all' ? 'All Cities' : product.city}</div>

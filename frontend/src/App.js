@@ -13,6 +13,8 @@ import CityPickerModal from './components/common/CityPickerModal';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import ProductIdRedirect from './pages/ProductIdRedirect';
+import LegacyProductRedirect from './pages/LegacyProductRedirect';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
@@ -55,7 +57,10 @@ function AppContent() {
       <main id="main-content"><Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/rent/:slug/:city" element={<ProductDetail />} />
+        <Route path="/:prefix/products/:category/:filename" element={<LegacyProductRedirect />} />
+        <Route path="/products/:category/:filename" element={<LegacyProductRedirect />} />
+        <Route path="/products/:id" element={<ProductIdRedirect />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/about" element={<InfoPage pageKey="about" />} />
         <Route path="/how-it-works" element={<InfoPage pageKey="how-it-works" />} />

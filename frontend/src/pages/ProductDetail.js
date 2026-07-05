@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productAPI } from '../services/api';
 import { useCart } from '../context/CartContext';
+import { useCity } from '../context/CityContext';
 import {
   hasOffer,
   originalPriceForTenure,
@@ -19,6 +20,7 @@ import {
 } from '../utils/rentalModel';
 import useSEO from '../hooks/useSEO';
 import JsonLd from '../components/common/JsonLd';
+import { getProductPath, getProductUrl } from '../utils/productUrls';
 import './ProductDetail.css';
 
 const PLACEHOLDER_IMG = 'https://via.placeholder.com/400x400?text=PakkaRent';
@@ -72,8 +74,9 @@ function Lightbox({ images, startIdx, onClose }) {
 
 // ── Product Detail page ───────────────────────────────────────────────────────
 export default function ProductDetail() {
-  const { id } = useParams();
+  const { slug, city: citySegment } = useParams();
   const navigate = useNavigate();
+  const { confirmCityForCatalog } = useCity();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -85,18 +88,21 @@ export default function ProductDetail() {
 
   useEffect(() => {
     const fetch = async () => {
+      setLoading(true);
       try {
-        const res = await productAPI.getOne(id);
+        const res = await productAPI.getBySlug(slug, citySegment);
         setProduct(res.data.product);
         setSelectedImage(0);
+        confirmCityForCatalog();
       } catch (err) {
         console.error('Error loading product:', err);
+        setProduct(null);
       } finally {
         setLoading(false);
       }
     };
     fetch();
-  }, [id]);
+  }, [slug, citySegment, confirmCityForCatalog]);
 
   useEffect(() => {
     if (!product) return;
@@ -111,6 +117,8 @@ export default function ProductDetail() {
     ? (resolveImageUrl(safeImages[0]) || '/og-image.svg')
     : '/og-image.svg';
 
+  const productPath = product ? getProductPath(product) : `/rent/${slug}/${citySegment}`;
+
   useSEO({
     title: product
       ? `${product.name} on Rent in ${product.city === 'all' ? 'India' : product.city}`
@@ -119,7 +127,7 @@ export default function ProductDetail() {
       ? `Rent ${product.name} in ${product.city === 'all' ? 'India' : product.city} starting at ₹${product.monthly_price}/month on PakkaRent. ${product.description?.slice(0, 120) || 'Free delivery, flexible tenures, 24x7 support.'}`
       : 'Browse rental products on PakkaRent.',
     image: seoImage,
-    canonical: `/products/${id}`,
+    canonical: productPath,
     type: 'product',
     noindex: !product,
   });
@@ -142,7 +150,7 @@ export default function ProductDetail() {
         .slice(0, 6),
       offers: {
         '@type': 'Offer',
-        url: `${origin}/products/${product.id}`,
+        url: getProductUrl(product, origin),
         priceCurrency: 'INR',
         price: String(price),
         priceSpecification: {
@@ -174,7 +182,7 @@ export default function ProductDetail() {
         { '@type': 'ListItem', position: 3, name: product.category_name || 'Category',
           item: `${origin}/products?category_id=${product.category_id}` },
         { '@type': 'ListItem', position: 4, name: product.name,
-          item: `${origin}/products/${product.id}` },
+          item: getProductUrl(product, origin) },
       ],
     };
   }, [product]);

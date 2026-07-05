@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useCity } from '../../context/CityContext';
 import { productAPI } from '../../services/api';
 import { resolveThumbnailUrl, safeJsonArray } from '../../utils/media';
+import { getProductPath } from '../../utils/productUrls';
 import { DesktopCategoryNav, MobileCategoryNav } from './CategoryNav';
 import './Navbar.css';
 
@@ -59,7 +60,7 @@ function SearchBar({ city }) {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (activeIdx >= 0 && results[activeIdx]) {
-        navigate(`/products/${results[activeIdx].id}`);
+        navigate(getProductPath(results[activeIdx]));
         closeDropdown();
       } else if (query.trim()) {
         navigate(`/products?search=${encodeURIComponent(query.trim())}`);
@@ -84,7 +85,7 @@ function SearchBar({ city }) {
   };
 
   const handleSelect = (product) => {
-    navigate(`/products/${product.id}`);
+    navigate(getProductPath(product));
     closeDropdown();
   };
 

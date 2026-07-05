@@ -5,6 +5,7 @@ import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
 import { getParentCategories } from '../utils/categoryUtils';
 import useSEO from '../hooks/useSEO';
+import { getProductUrl } from '../utils/productUrls';
 import JsonLd from '../components/common/JsonLd';
 import './Products.css';
 
@@ -109,7 +110,7 @@ export default function Products() {
       itemListElement: products.slice(0, 24).map((p, idx) => ({
         '@type': 'ListItem',
         position: idx + 1,
-        url: `${origin}/products/${p.id}`,
+        url: getProductUrl(p, origin),
         name: p.name,
       })),
     };

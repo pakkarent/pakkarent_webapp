@@ -4,6 +4,12 @@ const pool = require('../models/db');
 const { authenticate, adminOnly } = require('../middleware/auth');
 const { loadActivePricingRules, enrichProduct } = require('../utils/pricing');
 const { cachePublic } = require('../middleware/cachePublic');
+const {
+  slugifyProductName,
+  cityFromUrlSegment,
+  ensureUniqueSlug,
+} = require('../utils/slug');
+const { resolveLegacyRedirect, legacyRedirectUrl } = require('../utils/legacyRedirects');
 
 const PRODUCT_SELECT = `
   SELECT p.*,
@@ -15,6 +21,44 @@ const PRODUCT_SELECT = `
   LEFT JOIN categories c ON p.category_id = c.id
   LEFT JOIN categories sc ON p.subcategory_id = sc.id
 `;
+
+async function fetchProductBySlugCity(slug, city) {
+  const result = await pool.query(
+    `${PRODUCT_SELECT}
+     WHERE p.slug = $1 AND p.city = $2 AND p.is_active = true`,
+    [slug, city]
+  );
+  return result.rows[0] || null;
+}
+
+// Legacy HTML path → canonical rent URL
+router.get('/legacy-redirect', cachePublic(3600), (req, res) => {
+  const path = req.query.path;
+  const url = legacyRedirectUrl(path);
+  if (!url) {
+    return res.status(404).json({ success: false, message: 'Legacy path not found' });
+  }
+  return res.json({ success: true, url });
+});
+
+// Get product by slug + city (SEO URL)
+router.get('/slug/:slug/:citySegment', cachePublic(120), async (req, res) => {
+  const city = cityFromUrlSegment(req.params.citySegment);
+  if (!city) {
+    return res.status(400).json({ success: false, message: 'Invalid city' });
+  }
+  try {
+    const row = await fetchProductBySlugCity(req.params.slug, city);
+    if (!row) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    const rules = await loadActivePricingRules(pool);
+    const product = enrichProduct(row, rules);
+    return res.json({ success: true, product });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 // Get all products with filters
 router.get('/', cachePublic(60), async (req, res) => {
@@ -73,11 +117,14 @@ router.get('/', cachePublic(60), async (req, res) => {
   }
 });
 
-// Get single product
+// Get single product by numeric id
 router.get('/:id', cachePublic(120), async (req, res) => {
+  if (!/^\d+$/.test(req.params.id)) {
+    return res.status(400).json({ success: false, message: 'Invalid product id' });
+  }
   try {
     const result = await pool.query(
-      `${PRODUCT_SELECT} WHERE p.id=$1`,
+      `${PRODUCT_SELECT} WHERE p.id=$1 AND p.is_active = true`,
       [req.params.id]
     );
     if (!result.rows.length) return res.status(404).json({ success: false, message: 'Product not found' });
@@ -96,13 +143,15 @@ router.post('/', authenticate, adminOnly, async (req, res) => {
     price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured,
   } = req.body;
   try {
+    const baseSlug = slugifyProductName(name);
+    const slug = await ensureUniqueSlug(pool, baseSlug, city || 'Chennai');
     const result = await pool.query(
       `INSERT INTO products (
-         name, description, category_id, subcategory_id, city, monthly_price,
+         name, slug, description, category_id, subcategory_id, city, monthly_price,
          price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured
-       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *`,
       [
-        name, description, category_id, subcategory_id || null, city, monthly_price,
+        name, slug, description, category_id, subcategory_id || null, city, monthly_price,
         price_3month, price_6month, price_12month, security_deposit,
         JSON.stringify(images), JSON.stringify(specs), stock, is_featured || false,
       ]
@@ -120,15 +169,27 @@ router.put('/:id', authenticate, adminOnly, async (req, res) => {
     price_3month, price_6month, price_12month, security_deposit, images, specs, stock, is_featured, is_active,
   } = req.body;
   try {
+    const existing = await pool.query('SELECT slug, name, city FROM products WHERE id = $1', [req.params.id]);
+    if (!existing.rows.length) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    const prev = existing.rows[0];
+    const nextCity = city ?? prev.city;
+    let slug = prev.slug;
+    if (name && name !== prev.name) {
+      slug = await ensureUniqueSlug(pool, slugifyProductName(name), nextCity, req.params.id);
+    } else if (city && city !== prev.city) {
+      slug = await ensureUniqueSlug(pool, prev.slug || slugifyProductName(name || prev.name), nextCity, req.params.id);
+    }
     const result = await pool.query(
       `UPDATE products SET
-         name=$1, description=$2, category_id=$3, subcategory_id=$4, city=$5, monthly_price=$6,
-         price_3month=$7, price_6month=$8, price_12month=$9, security_deposit=$10,
-         images=$11, specs=$12, stock=$13, is_featured=$14,
-         is_active=COALESCE($15, is_active), updated_at=NOW()
-       WHERE id=$16 RETURNING *`,
+         name=$1, slug=$2, description=$3, category_id=$4, subcategory_id=$5, city=$6, monthly_price=$7,
+         price_3month=$8, price_6month=$9, price_12month=$10, security_deposit=$11,
+         images=$12, specs=$13, stock=$14, is_featured=$15,
+         is_active=COALESCE($16, is_active), updated_at=NOW()
+       WHERE id=$17 RETURNING *`,
       [
-        name, description, category_id, subcategory_id || null, city, monthly_price,
+        name, slug, description, category_id, subcategory_id || null, city, monthly_price,
         price_3month, price_6month, price_12month, security_deposit,
         JSON.stringify(images), JSON.stringify(specs), stock, is_featured, is_active, req.params.id,
       ]
