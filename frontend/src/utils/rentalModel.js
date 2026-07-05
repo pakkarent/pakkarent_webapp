@@ -1,4 +1,6 @@
-export { isMonthlyRentalProduct } from './productPricing';
+import { isMonthlyRentalProduct } from './productPricing';
+
+export { isMonthlyRentalProduct };
 
 export const MIXED_CART_MSG =
   'Cannot mix appliance monthly rentals with day-based rentals in one order.';
