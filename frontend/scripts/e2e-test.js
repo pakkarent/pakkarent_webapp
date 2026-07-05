@@ -3,7 +3,8 @@
  * End-to-end SEO & routing smoke tests.
  * Usage:
  *   REACT_APP_API_URL=https://pakkarent-api.onrender.com ./scripts/render-build.sh
- *   ./node_modules/.bin/serve build -l 3456   # do NOT use -s (breaks prerender)
+ *   PORT=3456 node server.js
+ *   BASE_URL=http://localhost:3456 API_URL=https://pakkarent-api.onrender.com node scripts/e2e-test.js
  */
 const BASE_URL = (process.env.BASE_URL || 'http://localhost:3456').replace(/\/$/, '');
 const API_URL = (process.env.API_URL || 'https://pakkarent-api.onrender.com').replace(/\/$/, '');
@@ -173,6 +174,34 @@ async function testStaticServer() {
     }
   } catch (e) {
     fail('301 legacy HTML redirect', e.message);
+  }
+
+  // Unknown URLs → homepage (custom server.js 404 handler)
+  for (const unknownPath of ['/store/backdrop', '/store/unknown-old-page', '/old-crawled-page.html']) {
+    try {
+      let url = `${BASE_URL}${unknownPath}`;
+      let hops = 0;
+      let finalLoc = '/';
+      while (hops < 5) {
+        const { res } = await fetchText(url);
+        const loc = res.headers.get('location');
+        if ((res.status === 301 || res.status === 302) && loc) {
+          finalLoc = loc;
+          url = loc.startsWith('http') ? loc : `${BASE_URL}${loc}`;
+          hops += 1;
+          if (loc === '/' || loc?.endsWith('/')) break;
+          continue;
+        }
+        break;
+      }
+      if (finalLoc === '/' || finalLoc?.endsWith('/')) {
+        pass(`404 → home ${unknownPath}`, `${hops} hop(s) → ${finalLoc}`);
+      } else {
+        fail(`404 → home ${unknownPath}`, `loc=${finalLoc}`);
+      }
+    } catch (e) {
+      fail(`404 → home ${unknownPath}`, e.message);
+    }
   }
 
   // SPA fallback for client routes

@@ -16,7 +16,7 @@ export default function LegacyProductRedirect() {
       .catch(() => setNotFound(true));
   }, [location.pathname]);
 
-  if (notFound) return <Navigate to="/products" replace />;
+  if (notFound) return <Navigate to="/" replace />;
   if (target) return <Navigate to={target} replace />;
   return <div className="loading">Redirecting…</div>;
 }

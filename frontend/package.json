@@ -16,7 +16,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "start:prod": "serve build -l ${PORT:-3000}"
+    "start:prod": "node server.js"
   },
   "browserslist": {
     "production": [

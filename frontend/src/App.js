@@ -15,6 +15,8 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import ProductIdRedirect from './pages/ProductIdRedirect';
 import LegacyProductRoute from './pages/LegacyProductRoute';
+import LegacyStoreRoute from './pages/LegacyStoreRoute';
+import NotFoundRedirect from './pages/NotFoundRedirect';
 import ProductsSlugRouter from './pages/ProductsSlugRouter';
 import CityLanding from './pages/CityLanding';
 import Cart from './pages/Cart';
@@ -70,6 +72,7 @@ function AppContent() {
         <Route path="/products" element={<Products />} />
         <Route path="/products/:a/:b" element={<ProductsSlugRouter />} />
         <Route path="/rent/:slug/:city" element={<ProductDetail />} />
+        <Route path="/store/*" element={<LegacyStoreRoute />} />
         <Route path="/:prefix/products/:category/:filename" element={<LegacyProductRoute />} />
         <Route path="/products/:id" element={<ProductIdRedirect />} />
         <Route path="/cart" element={<Cart />} />
@@ -96,6 +99,7 @@ function AppContent() {
         <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
         <Route path="/admin/pricing" element={<AdminRoute><AdminPricing /></AdminRoute>} />
         <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
+        <Route path="*" element={<NotFoundRedirect />} />
       </Routes></main>
       <Footer />
       <WhatsAppFab />

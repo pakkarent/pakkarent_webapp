@@ -20,7 +20,7 @@ export default function ProductIdRedirect() {
       .catch(() => setNotFound(true));
   }, [id]);
 
-  if (notFound) return <Navigate to="/products" replace />;
+  if (notFound) return <Navigate to="/" replace />;
   if (target) return <Navigate to={target} replace />;
   return <div className="loading">Redirecting…</div>;
 }

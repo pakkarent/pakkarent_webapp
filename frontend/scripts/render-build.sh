@@ -28,6 +28,7 @@ test -f build/og-image.png
 test -f build/favicon-32x32.png
 test -f build/apple-touch-icon.png
 test -f build/serve.json
+test -f server.js
 
 JS_FILE="$(ls build/static/js/main.*.js | head -1)"
 CSS_FILE="$(ls build/static/css/main.*.css | head -1)"
