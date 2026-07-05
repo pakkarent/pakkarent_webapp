@@ -87,7 +87,11 @@ router.get('/', cachePublic(60), async (req, res) => {
 
   if (min_price) { conditions.push(`p.monthly_price >= $${idx}`); params.push(min_price); idx++; }
   if (max_price) { conditions.push(`p.monthly_price <= $${idx}`); params.push(max_price); idx++; }
-  if (search) { conditions.push(`(p.name ILIKE $${idx} OR p.description ILIKE $${idx})`); params.push(`%${search}%`); idx++; }
+  if (search) {
+    conditions.push(`(p.name ILIKE $${idx} OR p.description ILIKE $${idx} OR p.specs::text ILIKE $${idx})`);
+    params.push(`%${search}%`);
+    idx++;
+  }
   if (featured === 'true') { conditions.push('p.is_featured = true'); }
 
   const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
