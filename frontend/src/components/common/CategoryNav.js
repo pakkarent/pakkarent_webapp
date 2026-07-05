@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { categoryAPI } from '../../services/api';
-import { getParentCategories, getSubcategories } from '../../utils/categoryUtils';
+import { useCity } from '../../context/CityContext';
+import { getParentCategories, getSubcategories, getCategoryProductsPath } from '../../utils/categoryUtils';
 
 function navShortLabel(cat) {
   const name = cat.name
@@ -12,7 +13,7 @@ function navShortLabel(cat) {
   return `${cat.icon || ''} ${name}`.trim();
 }
 
-function CategoryDropdown({ category, subcategories }) {
+function CategoryDropdown({ category, subcategories, city }) {
   const wrapRef = useRef(null);
   const closeTimer = useRef(null);
   const [open, setOpen] = useState(false);
@@ -69,7 +70,7 @@ function CategoryDropdown({ category, subcategories }) {
           {subcategories.map((sub) => (
             <Link
               key={sub.id}
-              to={`/products?category_id=${category.id}&subcategory_id=${sub.id}`}
+              to={getCategoryProductsPath(sub, city)}
               className={`cat-submenu-link${activeSub === String(sub.id) ? ' active' : ''}`}
               role="menuitem"
               onClick={() => setOpen(false)}
@@ -91,7 +92,7 @@ function CategoryDropdown({ category, subcategories }) {
       onMouseLeave={scheduleClose}
     >
       <Link
-        to={`/products?category_id=${category.id}`}
+        to={getCategoryProductsPath(category, city)}
         className={`cat-link cat-link-has-sub${isActive && !activeSub ? ' active' : ''}`}
         aria-haspopup="true"
         aria-expanded={open}
@@ -107,6 +108,7 @@ function CategoryDropdown({ category, subcategories }) {
 }
 
 export function DesktopCategoryNav() {
+  const { city } = useCity();
   const [categories, setCategories] = useState([]);
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get('category_id');
@@ -125,12 +127,12 @@ export function DesktopCategoryNav() {
       {parents.map((cat) => {
         const subs = getSubcategories(categories, cat.id);
         if (subs.length > 0) {
-          return <CategoryDropdown key={cat.id} category={cat} subcategories={subs} />;
+          return <CategoryDropdown key={cat.id} category={cat} subcategories={subs} city={city} />;
         }
         return (
           <Link
             key={cat.id}
-            to={`/products?category_id=${cat.id}`}
+            to={getCategoryProductsPath(cat, city)}
             className={`cat-link${activeCat === String(cat.id) ? ' active' : ''}`}
           >
             {navShortLabel(cat)}
@@ -142,6 +144,7 @@ export function DesktopCategoryNav() {
 }
 
 export function MobileCategoryNav({ onNavigate }) {
+  const { city } = useCity();
   const [categories, setCategories] = useState([]);
   const location = useLocation();
 
@@ -164,7 +167,7 @@ export function MobileCategoryNav({ onNavigate }) {
         return (
           <div key={cat.id} className="mobile-cat-group">
             <Link
-              to={`/products?category_id=${cat.id}`}
+              to={getCategoryProductsPath(cat, city)}
               className={`mobile-cat-link${activeCat === String(cat.id) && !activeSub ? ' active' : ''}`}
               onClick={onNavigate}
             >
@@ -175,7 +178,7 @@ export function MobileCategoryNav({ onNavigate }) {
                 {subs.map((sub) => (
                   <Link
                     key={sub.id}
-                    to={`/products?category_id=${cat.id}&subcategory_id=${sub.id}`}
+                    to={getCategoryProductsPath(sub, city)}
                     className={`mobile-sub-link${activeSub === String(sub.id) ? ' active' : ''}`}
                     onClick={onNavigate}
                   >

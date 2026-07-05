@@ -9,9 +9,17 @@
  */
 const fs = require('fs');
 const path = require('path');
+const {
+  SITE_URL,
+  API_URL,
+  CITY_SEGMENTS,
+  CATEGORY_SLUGS,
+  BLOG_SLUGS,
+  cityUrlSegment,
+  productPath,
+  fetchAllProducts,
+} = require('./seo-utils');
 
-const SITE_URL = (process.env.SITE_URL || 'https://pakkarent.com').replace(/\/$/, '');
-const API_URL = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
 const TODAY = new Date().toISOString().slice(0, 10);
 
 const STATIC_PAGES = [
@@ -27,34 +35,8 @@ const STATIC_PAGES = [
   { path: '/privacy', changefreq: 'yearly', priority: '0.3' },
 ];
 
-const CATALOG_PATHS = [
-  '/products?category_id=1',
-  '/products?category_id=2',
-  '/products?category_id=3',
-  '/products?category_id=4',
-  '/products?category_id=5',
-  '/products?category_id=6',
-  '/products?category_id=7',
-  '/products?category_id=8',
-  '/products?category_id=3&subcategory_id=10',
-  '/products?category_id=3&subcategory_id=13',
-  '/products?category_id=3&subcategory_id=11',
-  '/products?category_id=3&subcategory_id=9',
-  '/products?category_id=3&subcategory_id=12',
-];
 
-const BLOG_SLUGS = [
-  'naming-ceremony-cradle-rental-guide-chennai',
-  'silver-vs-golden-cradle-which-to-rent',
-  'haldi-ceremony-decoration-rental-ideas',
-  'oonjal-jhula-swing-rental-guide',
-  'event-backdrop-rental-guide',
-  'birthday-party-rental-ideas-budget',
-  'camping-gear-rental-checklist-chennai',
-  'rent-vs-buy-home-appliances-chennai',
-  'baby-props-rental-travel-guide',
-  'corporate-event-games-rental-team-building',
-];
+const EVENT_SUBCATEGORY_IDS = [10, 13, 11, 9, 12];
 
 function escapeXml(str) {
   return String(str)
@@ -77,47 +59,12 @@ function urlEntry(pathname, { changefreq = 'weekly', priority = '0.5', lastmod =
   </url>`;
 }
 
-function cityUrlSegment(city) {
-  if (!city || city === 'all') return 'india';
-  return city.toLowerCase();
-}
-
-function productPath(product) {
-  if (product?.slug) {
-    return `/rent/${product.slug}/${cityUrlSegment(product.city)}`;
-  }
-  if (product?.id) return `/products/${product.id}`;
-  return null;
-}
-
 async function fetchAllProductPaths() {
-  if (!API_URL) {
-    console.warn('Sitemap: REACT_APP_API_URL not set — skipping product URLs');
+  const products = await fetchAllProducts().catch((err) => {
+    console.warn(`Sitemap: product fetch failed (${err.message})`);
     return [];
-  }
-
-  const paths = [];
-  let page = 1;
-  const limit = 100;
-
-  while (page <= 50) {
-    const res = await fetch(`${API_URL}/api/products?limit=${limit}&page=${page}`, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(20000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const batch = data.products || [];
-    for (const p of batch) {
-      const path = productPath(p);
-      if (path) paths.push(path);
-    }
-    const total = Number(data.total) || 0;
-    if (batch.length < limit || paths.length >= total) break;
-    page += 1;
-  }
-
-  return [...new Set(paths)].sort();
+  });
+  return [...new Set(products.map(productPath).filter(Boolean))].sort();
 }
 
 async function main() {
@@ -127,8 +74,17 @@ async function main() {
     entries.push(urlEntry(page.path, page));
   }
 
-  for (const path of CATALOG_PATHS) {
-    entries.push(urlEntry(path, { changefreq: 'weekly', priority: '0.8' }));
+  for (const city of CITY_SEGMENTS) {
+    entries.push(urlEntry(`/${city}`, { changefreq: 'weekly', priority: '0.9' }));
+    for (const slug of CATEGORY_SLUGS) {
+      entries.push(urlEntry(`/products/${slug}/${city}`, { changefreq: 'weekly', priority: '0.8' }));
+    }
+    for (const subId of EVENT_SUBCATEGORY_IDS) {
+      entries.push(urlEntry(`/products/event-rental/${city}?subcategory_id=${subId}`, {
+        changefreq: 'weekly',
+        priority: '0.75',
+      }));
+    }
   }
 
   for (const slug of BLOG_SLUGS) {

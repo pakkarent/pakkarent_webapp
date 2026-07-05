@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
 import useSEO from '../hooks/useSEO';
+import JsonLd from '../components/common/JsonLd';
+import { PAKKARENT_REVIEWS, buildReviewsSchema } from '../content/reviews';
 import { getCategoryProductsPath } from '../utils/categoryUtils';
 import { trustedServiceLabel } from '../utils/company';
 import './Home.css';
@@ -69,15 +71,15 @@ const PROMO_BANNERS = [
   },
 ];
 
-/* ── Testimonials ── */
-const TESTIMONIALS = [
-  { name: 'Priya S.', loc: 'Chennai', init: 'P', color: '#E64A19',
-    text: 'Rented party decorations and they were delivered on time. Everything was perfect — saved us so much money!' },
-  { name: 'Rahul V.', loc: 'Bangalore', init: 'R', color: '#1565C0',
-    text: 'The baby crib and stroller were in great condition. Exactly what we needed for 3 months. Highly recommend.' },
-  { name: 'Anjali P.', loc: 'Hyderabad', init: 'A', color: '#2E7D32',
-    text: 'Camping gear was clean and well-maintained. Setup was quick. Will definitely rent from PakkaRent again!' },
-];
+/* ── Testimonials (also used in Review schema — see content/reviews.js) ── */
+const TESTIMONIALS = PAKKARENT_REVIEWS.map((r) => ({
+  name: r.name,
+  loc: r.location,
+  init: r.name.charAt(0),
+  color: r.location === 'Chennai' ? '#E64A19' : r.location === 'Bangalore' ? '#1565C0' : '#2E7D32',
+  text: r.text,
+  rating: r.rating,
+}));
 
 /* ── HOW IT WORKS ── */
 const STEPS = [
@@ -92,6 +94,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showAllCats, setShowAllCats] = useState(false);
   const { city } = useCity();
+
+  const reviewsLd = useMemo(() => buildReviewsSchema(), []);
 
   useSEO({
     title: `Rent Appliances, Furniture & Event Items in ${city}`,
@@ -123,6 +127,7 @@ export default function Home() {
 
   return (
     <div className="home">
+      <JsonLd data={reviewsLd} id="ld-reviews" />
 
       {/* ════════════════════════════════════════════════
           HERO — split layout: lifestyle image | category grid
@@ -157,7 +162,7 @@ export default function Home() {
               {visibleCats.map((cat, idx) => (
                 <Link
                   key={cat.id}
-                  to={getCategoryProductsPath(cat)}
+                  to={getCategoryProductsPath(cat, city)}
                   className="cat-tile"
                 >
                   <div className="cat-tile-img">
@@ -301,7 +306,9 @@ export default function Home() {
           <div className="reviews-grid">
             {TESTIMONIALS.map((t, i) => (
               <div key={i} className="review-card">
-                <div className="review-stars">★★★★★</div>
+                <div className="review-stars" aria-label={`${t.rating} out of 5 stars`}>
+                  {'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}
+                </div>
                 <p className="review-text">"{t.text}"</p>
                 <div className="review-author">
                   <span className="review-avatar" style={{ background: t.color }}>{t.init}</span>

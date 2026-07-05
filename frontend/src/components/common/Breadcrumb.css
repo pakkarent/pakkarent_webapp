@@ -1,0 +1,34 @@
+.breadcrumb-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--text-muted, #666);
+  margin-bottom: 1rem;
+}
+
+.breadcrumb-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.breadcrumb-sep {
+  color: var(--text-muted, #999);
+  user-select: none;
+}
+
+.breadcrumb-nav a {
+  color: var(--primary, #e64a19);
+  text-decoration: none;
+}
+
+.breadcrumb-nav a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-current {
+  color: var(--text, #333);
+  font-weight: 500;
+}

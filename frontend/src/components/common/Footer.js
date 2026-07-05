@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { trustedServiceLabel } from '../../utils/company';
+import { getCategoryPath } from '../../utils/productUrls';
+import { getCityLandingPath } from '../../utils/cityUrls';
 import FooterLocations from './FooterLocations';
 import './Footer.css';
 
@@ -34,10 +36,17 @@ export default function Footer() {
 
           <div className="footer-col">
             <h4>Categories</h4>
-            <Link to="/products?category_id=1">Appliances</Link>
-            <Link to="/products?category_id=2">Event Rentals</Link>
-            <Link to="/products?category_id=3">Kids & Baby</Link>
-            <Link to="/products?category_id=4">Furniture</Link>
+            <Link to={getCategoryPath(2, 'Chennai')}>Appliances</Link>
+            <Link to={getCategoryPath(3, 'Chennai')}>Event Rentals</Link>
+            <Link to={getCategoryPath(6, 'Chennai')}>Baby Props</Link>
+            <Link to={getCategoryPath(4, 'Chennai')}>Backdrops</Link>
+          </div>
+
+          <div className="footer-col">
+            <h4>Cities</h4>
+            <Link to={getCityLandingPath('Chennai')}>Chennai</Link>
+            <Link to={getCityLandingPath('Bangalore')}>Bangalore</Link>
+            <Link to={getCityLandingPath('Hyderabad')}>Hyderabad</Link>
           </div>
 
           <div className="footer-col">

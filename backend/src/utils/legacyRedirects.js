@@ -18,6 +18,16 @@ const LEGACY_ENTRIES = [
   { path: 'products/event/red_carpet_rental.html', name: 'Red Carpet', city: 'Chennai' },
   { path: 'products/event/balloondecor.html', name: 'LED Lights', city: 'Chennai' },
   { path: 'products/event/wooden_cake_stand_combo.html', name: 'Wooden Cake Stands', city: 'Chennai' },
+  { path: 'products/event/silver_cradle.html', name: 'Silver Grand Cradle', city: 'Chennai' },
+  { path: 'products/event/crown.html', name: 'Classic Crown Cradle', city: 'Chennai' },
+  { path: 'products/event/grand_moon_cradle_rental.html', name: 'Grand Moon Cradle', city: 'Chennai' },
+  { path: 'products/home_appliances/washing_machine.html', name: 'Washing Machine', city: 'Chennai' },
+  { path: 'products/home_appliances/fridge.html', name: 'Fridge', city: 'Chennai' },
+  { path: 'products/home_appliances/ac.html', name: 'Air Conditioner', city: 'Chennai' },
+  { path: 'products/camping/camping_tent.html', name: 'Camping Tents - Double Layer', city: 'Chennai' },
+  { path: 'products/baby/stroller.html', name: 'Baby Stroller', city: 'Chennai' },
+  { path: 'store/event/index.html', name: 'Event Rental', city: 'Chennai' },
+  { path: 'store/baby/baby.html', name: 'Baby Props Rental', city: 'Chennai' },
 ];
 
 function normalizeLegacyPath(rawPath) {

@@ -1,4 +1,19 @@
 {
+  "cleanUrls": true,
+  "renderSingle": true,
+  "rewrites": [
+    { "source": "/cart", "destination": "/index.html" },
+    { "source": "/checkout", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/register", "destination": "/index.html" },
+    { "source": "/auth/callback", "destination": "/index.html" },
+    { "source": "/my-orders", "destination": "/index.html" },
+    { "source": "/profile", "destination": "/index.html" },
+    { "source": "/terms", "destination": "/index.html" },
+    { "source": "/privacy", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/admin/**", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/static/(.*)",
@@ -24,5 +39,22 @@
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     }
+  ],
+  "redirects": [
+    { "source": "/products/event/golden_oonjal.html", "destination": "/rent/golden-jhula-swing/chennai", "type": 301 },
+    { "source": "/products/event/oonjal.html", "destination": "/rent/teak-jhula-swing/chennai", "type": 301 },
+    { "source": "/products/event/Rolu_Rokali.html", "destination": "/rent/silver-rolu-rokali/chennai", "type": 301 },
+    { "source": "/products/event/Royal_golden_sofa.html", "destination": "/rent/royal-golden-sofa/chennai", "type": 301 },
+    { "source": "/products/event/Chair_rent.html", "destination": "/rent/armless-chairs/chennai", "type": 301 },
+    { "source": "/products/event/Red_Carpet_Rental.html", "destination": "/rent/red-carpet/chennai", "type": 301 },
+    { "source": "/products/event/balloondecor.html", "destination": "/rent/led-lights/chennai", "type": 301 },
+    { "source": "/products/event/Wooden_Cake_Stand_Combo.html", "destination": "/rent/wooden-cake-stands/chennai", "type": 301 },
+    { "source": "/products/backdrop/BananaLeaf_Backdrop.html", "destination": "/rent/banana-leaf-backdrop/chennai", "type": 301 },
+    { "source": "/products/backdrop/Dreamy_Ring_Backdrop.html", "destination": "/rent/dreamy-ring-birthday-backdrop/chennai", "type": 301 },
+    { "source": "/products/backdrop/Flowerwall_Backdrop.html", "destination": "/rent/flower-wall-backdrop/chennai", "type": 301 },
+    { "source": "/products/backdrop/Pink_Rani_Backdrop.html", "destination": "/rent/pink-rani-backdrop/chennai", "type": 301 },
+    { "source": "/products/baby/Kids_Car_Rental.html", "destination": "/rent/baby-car-for-birthday/chennai", "type": 301 },
+    { "source": "/products/baby/Baby_Jeep_Rent.html", "destination": "/rent/baby-jeep-rental/chennai", "type": 301 },
+    { "source": "/Hyderabad/products/backdrop/Elegant_Greenish_backdrop_rental.html", "destination": "/rent/elegant-greenish-backdrop/hyderabad", "type": 301 }
   ]
 }

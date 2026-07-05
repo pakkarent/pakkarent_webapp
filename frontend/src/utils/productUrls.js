@@ -1,8 +1,5 @@
-/** City segment for SEO product URLs (/rent/:slug/:city). */
-export function cityUrlSegment(city) {
-  if (!city || city === 'all') return 'india';
-  return city.toLowerCase();
-}
+import { categorySlugFromId } from './categorySlugs';
+import { cityUrlSegment } from './cityUrls';
 
 /** Canonical product page path. Falls back to numeric id when slug missing. */
 export function getProductPath(product) {
@@ -14,8 +11,21 @@ export function getProductPath(product) {
   return '/products';
 }
 
+/** SEO category listing path: /products/baby-props-rental/bangalore */
+export function getCategoryPath(categoryId, city) {
+  const slug = categorySlugFromId(categoryId);
+  if (!slug || !city) return `/products?category_id=${categoryId}`;
+  return `/products/${slug}/${cityUrlSegment(city)}`;
+}
+
 /** Absolute product URL for schema / sharing. */
 export function getProductUrl(product, origin = '') {
   const base = origin || (typeof window !== 'undefined' ? window.location.origin : '');
   return `${base.replace(/\/$/, '')}${getProductPath(product)}`;
+}
+
+/** Absolute category URL for schema / sharing. */
+export function getCategoryUrl(categoryId, city, origin = '') {
+  const base = origin || (typeof window !== 'undefined' ? window.location.origin : '');
+  return `${base.replace(/\/$/, '')}${getCategoryPath(categoryId, city)}`;
 }

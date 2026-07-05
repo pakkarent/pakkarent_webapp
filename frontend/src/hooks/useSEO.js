@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 const DEFAULT_TITLE = 'PakkaRent — Rent Smarter, Live Better';
 const DEFAULT_DESC = 'Rent appliances, furniture, baby gear, camping kits and event items in Chennai, Bangalore & Hyderabad. Free delivery, flexible monthly tenures and 24x7 support.';
-const DEFAULT_OG_IMAGE = '/og-image.svg';
+const DEFAULT_OG_IMAGE = '/og-image.png';
 const SITE_NAME = 'PakkaRent';
 
 function setMetaByName(name, content) {

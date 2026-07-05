@@ -14,7 +14,9 @@ import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import ProductIdRedirect from './pages/ProductIdRedirect';
-import LegacyProductRedirect from './pages/LegacyProductRedirect';
+import LegacyProductRoute from './pages/LegacyProductRoute';
+import ProductsSlugRouter from './pages/ProductsSlugRouter';
+import CityLanding from './pages/CityLanding';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
@@ -32,6 +34,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminProductForm from './pages/admin/AdminProductForm';
 import AdminPricing from './pages/admin/AdminPricing';
 import AdminCategories from './pages/admin/AdminCategories';
+import AdminSeo from './components/common/AdminSeo';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -44,7 +47,12 @@ const AdminRoute = ({ children }) => {
   if (loading) return <div className="loading">Loading...</div>;
   if (!user) return <Navigate to="/login" />;
   if (user.role !== 'admin') return <Navigate to="/" />;
-  return children;
+  return (
+    <>
+      <AdminSeo />
+      {children}
+    </>
+  );
 };
 
 function AppContent() {
@@ -56,10 +64,13 @@ function AppContent() {
       <Navbar />
       <main id="main-content"><Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/chennai" element={<CityLanding />} />
+        <Route path="/bangalore" element={<CityLanding />} />
+        <Route path="/hyderabad" element={<CityLanding />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/products/:a/:b" element={<ProductsSlugRouter />} />
         <Route path="/rent/:slug/:city" element={<ProductDetail />} />
-        <Route path="/:prefix/products/:category/:filename" element={<LegacyProductRedirect />} />
-        <Route path="/products/:category/:filename" element={<LegacyProductRedirect />} />
+        <Route path="/:prefix/products/:category/:filename" element={<LegacyProductRoute />} />
         <Route path="/products/:id" element={<ProductIdRedirect />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/about" element={<InfoPage pageKey="about" />} />

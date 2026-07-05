@@ -20,7 +20,13 @@ import {
 } from '../utils/rentalModel';
 import useSEO from '../hooks/useSEO';
 import JsonLd from '../components/common/JsonLd';
-import { getProductPath, getProductUrl } from '../utils/productUrls';
+import Breadcrumb from '../components/common/Breadcrumb';
+import { getProductPath, getProductUrl, getCategoryPath } from '../utils/productUrls';
+import {
+  citySpecificDescription,
+  citySpecificMetaDescription,
+  schemaPriceUnit,
+} from '../utils/productSeo';
 import './ProductDetail.css';
 
 const PLACEHOLDER_IMG = 'https://via.placeholder.com/400x400?text=PakkaRent';
@@ -124,7 +130,7 @@ export default function ProductDetail() {
       ? `${product.name} on Rent in ${product.city === 'all' ? 'India' : product.city}`
       : 'Product',
     description: product
-      ? `Rent ${product.name} in ${product.city === 'all' ? 'India' : product.city} starting at ₹${product.monthly_price}/month on PakkaRent. ${product.description?.slice(0, 120) || 'Free delivery, flexible tenures, 24x7 support.'}`
+      ? citySpecificMetaDescription(product)
       : 'Browse rental products on PakkaRent.',
     image: seoImage,
     canonical: productPath,
@@ -140,7 +146,7 @@ export default function ProductDetail() {
       '@context': 'https://schema.org',
       '@type': 'Product',
       name: product.name,
-      description: product.description || `${product.name} available on rent at PakkaRent.`,
+      description: citySpecificDescription(product),
       sku: `PAKKA-${product.id}`,
       brand: { '@type': 'Brand', name: 'PakkaRent' },
       category: product.category_name || 'Rental',
@@ -157,7 +163,7 @@ export default function ProductDetail() {
           '@type': 'UnitPriceSpecification',
           price: String(price),
           priceCurrency: 'INR',
-          unitText: 'MONTH',
+          unitText: schemaPriceUnit(product),
         },
         availability: (product.stock ?? 1) > 0
           ? 'https://schema.org/InStock'
@@ -180,7 +186,7 @@ export default function ProductDetail() {
         { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
         { '@type': 'ListItem', position: 2, name: 'Products', item: `${origin}/products` },
         { '@type': 'ListItem', position: 3, name: product.category_name || 'Category',
-          item: `${origin}/products?category_id=${product.category_id}` },
+          item: `${origin}${getCategoryPath(product.category_id, product.city)}` },
         { '@type': 'ListItem', position: 4, name: product.name,
           item: getProductUrl(product, origin) },
       ],
@@ -232,6 +238,15 @@ export default function ProductDetail() {
       {productLd && <JsonLd data={productLd} id="ld-product" />}
       {breadcrumbLd && <JsonLd data={breadcrumbLd} id="ld-breadcrumb" />}
       <div className="container">
+        <Breadcrumb items={[
+          { label: 'Home', to: '/' },
+          { label: 'Products', to: '/products' },
+          ...(product.category_name ? [{
+            label: product.category_name,
+            to: getCategoryPath(product.category_id, product.city),
+          }] : []),
+          { label: product.name },
+        ]} />
         <div className="detail-grid">
 
           {/* ── Gallery ── */}
@@ -294,7 +309,7 @@ export default function ProductDetail() {
               )}
             </div>
             <h1 className="product-name">{product.name}</h1>
-            <p className="product-description">{product.description}</p>
+            <p className="product-description">{citySpecificDescription(product)}</p>
 
             <div className="pricing-section">
               {monthlyProduct ? (

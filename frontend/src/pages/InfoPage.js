@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_PAGES } from '../content/sitePages';
 import useSEO from '../hooks/useSEO';
+import JsonLd from '../components/common/JsonLd';
 import './InfoPage.css';
 
 const PAGE_PATHS = {
@@ -18,6 +19,24 @@ export default function InfoPage({ pageKey }) {
   const page = SITE_PAGES[pageKey];
   if (!page) return null;
 
+  const faqLd = useMemo(() => {
+    if (pageKey !== 'faq' || !page.faqs?.length) return null;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: page.faqs.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.a,
+        },
+      })),
+      url: `${origin}/faq`,
+    };
+  }, [pageKey, page.faqs]);
+
   useSEO({
     title: page.title,
     description: page.seoDescription,
@@ -26,6 +45,7 @@ export default function InfoPage({ pageKey }) {
 
   return (
     <div className="info-page">
+      {faqLd && <JsonLd data={faqLd} id="ld-faq" />}
       <div className="info-hero">
         <div className="container">
           <h1>{page.title}</h1>

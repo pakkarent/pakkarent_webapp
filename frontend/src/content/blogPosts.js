@@ -443,6 +443,201 @@ export const BLOG_POSTS = [
       ]},
     ],
   },
+  {
+    slug: 'washing-machine-on-rent-bangalore-guide',
+    title: 'Washing Machine on Rent in Bangalore — Plans, Brands & Delivery',
+    excerpt:
+      'Moving to Bangalore? Compare fully automatic washing machine rental plans, monthly pricing and doorstep delivery options before you book.',
+    seoDescription:
+      'Washing machine on rent in Bangalore — monthly plans, top-load fully automatic models, delivery and maintenance included. Book on PakkaRent.',
+    keywords: 'washing machine on rent Bangalore, rent washing machine Bangalore, laundry machine rental Bangalore, appliance rental Bangalore',
+    topic: 'appliances',
+    publishedAt: '2026-04-01',
+    readMinutes: 5,
+    featured: true,
+    relatedSlugs: ['rent-vs-buy-home-appliances-chennai', 'baby-props-rental-travel-guide'],
+    catalogLinks: [
+      { label: 'Home appliances', to: L.appliances },
+      { label: 'Bangalore rentals', to: '/bangalore' },
+      { label: 'How it works', to: L.howItWorks },
+    ],
+    blocks: [
+      { type: 'p', parts: [
+        { type: 'text', value: 'Relocating to Bangalore for work or studies? Buying a washing machine ties up capital and creates a resale headache when you move. ' },
+        { type: 'link', to: L.appliances, label: 'Renting a washing machine' },
+        { type: 'text', value: ' gives you a fully automatic top-load model with maintenance included — ideal for 3–12 month stays.' },
+      ]},
+      { type: 'h3', text: 'What to expect from Bangalore appliance rental' },
+      { type: 'ul', items: [
+        'Top-load fully automatic 6–6.5 kg models from branded manufacturers',
+        'Monthly plans with lower per-month rates on longer tenures (3, 6 or 12 months)',
+        'Doorstep delivery and pickup across Bangalore',
+        'Maintenance handled by PakkaRent during the rental period',
+      ]},
+      { type: 'p', parts: [
+        { type: 'text', value: 'Browse ' },
+        { type: 'link', to: '/products/home-appliances-rental/bangalore', label: 'home appliances in Bangalore' },
+        { type: 'text', value: ' or read our ' },
+        { type: 'link', to: '/blog/rent-vs-buy-home-appliances-chennai', label: 'rent vs buy guide' },
+        { type: 'text', value: ' before deciding.' },
+      ]},
+    ],
+  },
+  {
+    slug: 'baby-stroller-rent-hyderabad-guide',
+    title: 'Baby Stroller on Rent in Hyderabad — Travel & Short-Term Guide',
+    excerpt:
+      'Visiting family in Hyderabad or need a stroller for a few weeks? How to rent a safe, comfortable baby stroller with doorstep delivery.',
+    seoDescription:
+      'Baby stroller on rent in Hyderabad — premium strollers for travel and short stays. Safe, comfortable and delivered to your door by PakkaRent.',
+    keywords: 'baby stroller rent Hyderabad, stroller on rent Hyderabad, baby gear rental Hyderabad, baby props rent Hyderabad',
+    topic: 'baby',
+    publishedAt: '2026-04-05',
+    readMinutes: 4,
+    featured: true,
+    relatedSlugs: ['baby-props-rental-travel-guide', 'birthday-party-rental-ideas-budget'],
+    catalogLinks: [
+      { label: 'Baby props', to: L.babyProps },
+      { label: 'Hyderabad rentals', to: '/hyderabad' },
+      { label: 'Delivery info', to: L.delivery },
+    ],
+    blocks: [
+      { type: 'p', parts: [
+        { type: 'text', value: 'Travelling to Hyderabad with a baby or hosting visiting grandparents? A rented stroller is far easier than hauling yours on a flight. PakkaRent offers ' },
+        { type: 'link', to: L.babyProps, label: 'baby strollers and car seats' },
+        { type: 'text', value: ' for short-term rental with delivery across Hyderabad.' },
+      ]},
+      { type: 'h3', text: 'Why rent instead of buy?' },
+      { type: 'ul', items: [
+        'Ideal for 1–4 week visits or trial before buying',
+        'Premium brands maintained and safety-checked before each delivery',
+        'Pair with a high chair or car seat for a complete travel kit',
+        'Pickup arranged when your rental period ends',
+      ]},
+      { type: 'p', parts: [
+        { type: 'text', value: 'See all ' },
+        { type: 'link', to: '/products/baby-props-rental/hyderabad', label: 'baby props in Hyderabad' },
+        { type: 'text', value: ' including strollers, cribs and high chairs.' },
+      ]},
+    ],
+  },
+  {
+    slug: 'ac-on-rent-chennai-summer-guide',
+    title: 'AC on Rent in Chennai — Beat the Heat Without Buying',
+    excerpt:
+      'Chennai summers demand good cooling. Compare split and window AC rental plans, installation and monthly pricing for your home.',
+    seoDescription:
+      'AC on rent in Chennai — split and window air conditioners with installation. Flexible monthly rental plans from PakkaRent.',
+    keywords: 'AC on rent Chennai, air conditioner rental Chennai, split AC rent Chennai, appliance rental Chennai summer',
+    topic: 'appliances',
+    publishedAt: '2026-04-08',
+    readMinutes: 5,
+    relatedSlugs: ['rent-vs-buy-home-appliances-chennai', 'washing-machine-on-rent-bangalore-guide'],
+    catalogLinks: [
+      { label: 'Home appliances', to: L.appliances },
+      { label: 'Chennai rentals', to: '/chennai' },
+      { label: 'Contact us', to: L.contact },
+    ],
+    blocks: [
+      { type: 'p', parts: [
+        { type: 'text', value: 'Chennai\'s heat and humidity make air conditioning essential for comfortable living. If you are in the city for a limited period, ' },
+        { type: 'link', to: L.appliances, label: 'renting an AC' },
+        { type: 'text', value: ' avoids the upfront cost of purchase and installation that you cannot take with you when you leave.' },
+      ]},
+      { type: 'h3', text: 'AC rental basics' },
+      { type: 'ul', items: [
+        'Branded split and window AC units with professional installation',
+        'Monthly rental with lower rates on 6 and 12-month tenures',
+        'Maintenance support during the rental period',
+        'Available for delivery across Chennai',
+      ]},
+      { type: 'p', parts: [
+        { type: 'text', value: 'Browse ' },
+        { type: 'link', to: '/products/home-appliances-rental/chennai', label: 'appliances in Chennai' },
+        { type: 'text', value: ' or WhatsApp us for availability on your preferred move-in date.' },
+      ]},
+    ],
+  },
+  {
+    slug: 'backdrop-rental-bangalore-ideas',
+    title: 'Backdrop Rental Ideas in Bangalore — Birthdays, Haldi & Corporate Events',
+    excerpt:
+      'From floral walls to ring backdrops — trending backdrop rental ideas in Bangalore for birthdays, haldi ceremonies and office events.',
+    seoDescription:
+      'Backdrop rental Bangalore — floral walls, ring backdrops and haldi setups for birthdays and functions. Rent on PakkaRent with delivery.',
+    keywords: 'backdrop rental Bangalore, birthday backdrop rent Bangalore, haldi backdrop Bangalore, event decoration rental Bangalore',
+    topic: 'backdrop',
+    publishedAt: '2026-04-10',
+    readMinutes: 6,
+    relatedSlugs: ['event-backdrop-rental-guide', 'birthday-party-rental-ideas-budget'],
+    catalogLinks: [
+      { label: 'Backdrop rentals', to: L.backdrop },
+      { label: 'Birthday rentals', to: L.birthday },
+      { label: 'Bangalore catalogue', to: '/bangalore' },
+    ],
+    blocks: [
+      { type: 'p', parts: [
+        { type: 'text', value: 'Bangalore hosts countless birthdays, haldi functions and corporate celebrations every weekend. A statement ' },
+        { type: 'link', to: L.backdrop, label: 'backdrop' },
+        { type: 'text', value: ' transforms any venue into an Instagram-ready stage without the cost of custom fabrication.' },
+      ]},
+      { type: 'h3', text: 'Popular backdrop styles' },
+      { type: 'ul', items: [
+        'Floral wall backdrops for weddings and receptions',
+        'Ring and arch backdrops for milestone birthdays',
+        'Banana leaf and traditional setups for haldi and seemantham',
+        'Corporate step-and-repeat panels for office events',
+      ]},
+      { type: 'p', parts: [
+        { type: 'text', value: 'Explore ' },
+        { type: 'link', to: '/products/backdrop-rental/bangalore', label: 'backdrops in Bangalore' },
+        { type: 'text', value: ' and pair with props from our ' },
+        { type: 'link', to: L.birthday, label: 'birthday rental' },
+        { type: 'text', value: ' category.' },
+      ]},
+    ],
+  },
+  {
+    slug: 'wedding-event-rental-checklist-hyderabad',
+    title: 'Wedding & Event Rental Checklist for Hyderabad Functions',
+    excerpt:
+      'Planning a wedding or reception in Hyderabad? A complete checklist of cradles, oonjal, chairs, urli and décor items to rent.',
+    seoDescription:
+      'Wedding event rental checklist Hyderabad — cradles, oonjal swings, chairs, urli and décor on rent. Plan your function with PakkaRent.',
+    keywords: 'wedding rental Hyderabad, event rental Hyderabad, oonjal rent Hyderabad, cradle rental Hyderabad, function decoration rent',
+    topic: 'event',
+    publishedAt: '2026-04-12',
+    readMinutes: 7,
+    featured: true,
+    relatedSlugs: ['oonjal-jhula-swing-rental-guide', 'haldi-ceremony-decoration-rental-ideas'],
+    catalogLinks: [
+      { label: 'Event rentals', to: L.event },
+      { label: 'Cradle collection', to: L.cradle },
+      { label: 'Hyderabad rentals', to: '/hyderabad' },
+    ],
+    blocks: [
+      { type: 'p', parts: [
+        { type: 'text', value: 'Hyderabad weddings blend tradition with grandeur — and the rental list can be long. Use this checklist to plan your ' },
+        { type: 'link', to: L.event, label: 'event rentals' },
+        { type: 'text', value: ' and book early for peak season dates.' },
+      ]},
+      { type: 'h3', text: 'Essential items to rent' },
+      { type: 'ul', items: [
+        'Silver or golden cradle for naming ceremony (Naamakaran)',
+        'Teak or golden oonjal / jhula for baby shower or engagement',
+        'Lotus urli and haldi décor props',
+        'Royal chairs, sofa and red carpet for stage seating',
+        'Backdrop stand with floral or traditional panel',
+      ]},
+      { type: 'p', parts: [
+        { type: 'text', value: 'Browse the full ' },
+        { type: 'link', to: '/products/event-rental/hyderabad', label: 'event catalogue in Hyderabad' },
+        { type: 'text', value: ' or read our ' },
+        { type: 'link', to: '/blog/oonjal-jhula-swing-rental-guide', label: 'oonjal rental guide' },
+        { type: 'text', value: ' for swing options.' },
+      ]},
+    ],
+  },
 ];
 
 export function getBlogPost(slug) {

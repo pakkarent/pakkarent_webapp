@@ -14,11 +14,17 @@ echo "▶ Generating sitemap.xml..."
 export SITE_URL="${SITE_URL:-https://pakkarent.com}"
 node scripts/generate-sitemap.js
 
+echo "▶ Generating product ID redirects..."
+node scripts/generate-redirects.js
+
+echo "▶ Prerendering SEO HTML pages..."
+node scripts/prerender-pages.js
+
 echo "▶ Verifying build output..."
 test -f build/sitemap.xml
 test -f build/index.html
 test -f build/manifest.json
-test -f build/favicon.svg
+test -f build/og-image.png
 test -f build/favicon-32x32.png
 test -f build/apple-touch-icon.png
 test -f build/serve.json

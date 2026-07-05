@@ -48,10 +48,19 @@ export const CityProvider = ({ children }) => {
     }
   }, []);
 
+  /** Set city from a deep link without redirecting (city landing / category slug pages). */
+  const syncCityFromRoute = useCallback((newCity) => {
+    if (!newCity) return;
+    setCity(newCity);
+    markCityConfirmed(newCity);
+    setShowCityPicker(false);
+  }, []);
+
   return (
     <CityContext.Provider value={{
       city,
       changeCity,
+      syncCityFromRoute,
       cities: CITIES,
       showCityPicker,
       dismissCityPicker,

@@ -1,0 +1,98 @@
+.city-landing-hero {
+  background: linear-gradient(135deg, #fff8f5 0%, #fff 60%);
+  padding: 2.5rem 0 3rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.city-landing-hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin: 0.5rem 0 1rem;
+  color: var(--text, #1a1a1a);
+}
+
+.city-landing-sub {
+  font-size: 1.05rem;
+  color: var(--text-muted, #555);
+  max-width: 42rem;
+  line-height: 1.6;
+}
+
+.city-landing-highlights {
+  margin: 1.25rem 0;
+  padding-left: 1.25rem;
+  color: var(--text, #333);
+}
+
+.city-landing-highlights li {
+  margin-bottom: 0.35rem;
+}
+
+.city-landing-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.city-landing-body {
+  padding: 2.5rem 0 3rem;
+}
+
+.city-landing-body h2 {
+  font-size: 1.35rem;
+  margin-bottom: 1rem;
+}
+
+.city-cat-grid,
+.city-store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.city-cat-card,
+.city-store-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.city-cat-card:hover,
+.city-store-card:hover {
+  border-color: var(--primary, #e64a19);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.city-store-link {
+  color: var(--primary, #e64a19);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.city-featured-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.city-featured-header a {
+  color: var(--primary, #e64a19);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.city-featured .products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}

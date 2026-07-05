@@ -1,41 +1,69 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { productAPI, categoryAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
+import Breadcrumb from '../components/common/Breadcrumb';
 import { getParentCategories } from '../utils/categoryUtils';
+import { categoryIdFromSlug, isCategorySlug } from '../utils/categorySlugs';
+import { cityFromUrlSegment, isCityUrlSegment } from '../utils/cityUrls';
 import useSEO from '../hooks/useSEO';
-import { getProductUrl } from '../utils/productUrls';
+import { getCategoryPath, getCategoryUrl, getProductUrl } from '../utils/productUrls';
 import JsonLd from '../components/common/JsonLd';
 import './Products.css';
 
 export default function Products() {
+  const { a: categorySlug, b: citySegment } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const { city, showCityPicker, confirmCityForCatalog } = useCity();
+  const { city, showCityPicker, confirmCityForCatalog, syncCityFromRoute } = useCity();
 
-  const category_id = searchParams.get('category_id') || '';
+  const routeCategoryId = categorySlug && isCategorySlug(categorySlug)
+    ? categoryIdFromSlug(categorySlug)
+    : null;
+  const routeCity = citySegment && isCityUrlSegment(citySegment)
+    ? cityFromUrlSegment(citySegment)
+    : null;
+
+  const queryCategoryId = searchParams.get('category_id') || '';
+  const category_id = routeCategoryId ? String(routeCategoryId) : queryCategoryId;
   const subcategory_id = searchParams.get('subcategory_id') || '';
   const search = searchParams.get('search');
   const featured = searchParams.get('featured');
+  const effectiveCity = routeCity || city;
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [filterSubcategories, setFilterSubcategories] = useState([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const setCategoryFilters = (catId, subId) => {
-    const params = new URLSearchParams(searchParams);
-    if (catId) params.set('category_id', catId);
-    else params.delete('category_id');
-    if (subId) params.set('subcategory_id', subId);
-    else params.delete('subcategory_id');
-    setSearchParams(params);
     setPage(1);
+    if (!catId) {
+      navigate('/products');
+      return;
+    }
+    const path = getCategoryPath(catId, effectiveCity);
+    const qs = subId ? `?subcategory_id=${subId}` : '';
+    navigate(`${path}${qs}`);
   };
+
+  useEffect(() => {
+    if (routeCity) syncCityFromRoute(routeCity);
+  }, [routeCity, syncCityFromRoute]);
+
+  // Redirect ?category_id= to slug URL for cleaner canonicals
+  useEffect(() => {
+    if (routeCategoryId || search || featured) return;
+    if (!queryCategoryId) return;
+    const slugPath = getCategoryPath(queryCategoryId, effectiveCity);
+    const qs = subcategory_id ? `?subcategory_id=${subcategory_id}` : '';
+    navigate(`${slugPath}${qs}`, { replace: true });
+  }, [queryCategoryId, subcategory_id, search, featured, routeCategoryId, effectiveCity, navigate]);
 
   const parentCategories = getParentCategories(categories);
 
@@ -51,28 +79,39 @@ export default function Products() {
       : '';
 
   const seoTitle = (() => {
-    if (search) return `Search results for "${search}" in ${city}`;
-    if (activeCategoryName) return `${activeCategoryName} on Rent in ${city}`;
-    if (featured) return `Featured Rentals in ${city}`;
-    return `All Rentals in ${city}`;
+    if (search) return `Search results for "${search}" in ${effectiveCity}`;
+    if (activeCategoryName) return `${activeCategoryName} on Rent in ${effectiveCity}`;
+    if (featured) return `Featured Rentals in ${effectiveCity}`;
+    return `All Rentals in ${effectiveCity}`;
   })();
 
   const seoDesc = (() => {
     const base = `${total || 'Hundreds of'} rental products`;
     if (activeCategoryName) {
-      return `${base} in ${activeCategoryName} available on rent in ${city}. Free delivery, flexible monthly tenures, 24x7 support — only on PakkaRent.`;
+      return `${base} in ${activeCategoryName} available on rent in ${effectiveCity}. Free delivery, flexible monthly tenures, 24x7 support — only on PakkaRent.`;
     }
     if (search) {
-      return `Find rentals matching "${search}" in ${city} on PakkaRent. Compare prices, plans and book in minutes.`;
+      return `Find rentals matching "${search}" in ${effectiveCity} on PakkaRent. Compare prices, plans and book in minutes.`;
     }
-    return `${base} — appliances, furniture, baby gear, camping and event items in ${city}. Free delivery, flexible tenures, 24x7 support.`;
+    return `${base} — appliances, furniture, baby gear, camping and event items in ${effectiveCity}. Free delivery, flexible tenures, 24x7 support.`;
+  })();
+
+  const canonicalPath = (() => {
+    if (routeCategoryId && routeCity && !search && !featured) {
+      const base = getCategoryPath(routeCategoryId, routeCity);
+      return subcategory_id ? `${base}?subcategory_id=${subcategory_id}` : base;
+    }
+    if (typeof window !== 'undefined') {
+      return window.location.pathname + window.location.search;
+    }
+    return '/products';
   })();
 
   useSEO({
     title: seoTitle,
     description: seoDesc,
-    keywords: `${activeCategoryName ? activeCategoryName + ' on rent, ' : ''}rentals ${city}, monthly rental ${city}, appliances on rent, furniture on rent, baby gear rental, event rentals, PakkaRent`,
-    canonical: typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/products',
+    keywords: `${activeCategoryName ? activeCategoryName + ' on rent, ' : ''}rentals ${effectiveCity}, monthly rental ${effectiveCity}, appliances on rent, furniture on rent, baby gear rental, event rentals, PakkaRent`,
+    canonical: canonicalPath,
   });
 
   const breadcrumbLd = useMemo(() => {
@@ -81,10 +120,11 @@ export default function Products() {
       { name: 'Home', url: `${origin}/` },
       { name: 'Products', url: `${origin}/products` },
     ];
-    if (activeCategoryName) {
+    if (activeCategoryName && category_id) {
       items.push({
         name: activeCategoryName,
-        url: `${origin}/products?category_id=${category_id}${subcategory_id ? `&subcategory_id=${subcategory_id}` : ''}`,
+        url: getCategoryUrl(Number(category_id), effectiveCity, origin)
+          + (subcategory_id ? `?subcategory_id=${subcategory_id}` : ''),
       });
     }
     return {
@@ -97,7 +137,7 @@ export default function Products() {
         item: it.url,
       })),
     };
-  }, [activeCategoryName, category_id, subcategory_id]);
+  }, [activeCategoryName, category_id, subcategory_id, effectiveCity]);
 
   const itemListLd = useMemo(() => {
     if (!products.length) return null;
@@ -129,7 +169,7 @@ export default function Products() {
     const isParent = parentCategories.some((c) => c.id.toString() === category_id);
     if (isParent) return;
 
-    const cityFilter = city !== 'all' ? city : undefined;
+    const cityFilter = effectiveCity !== 'all' ? effectiveCity : undefined;
     categoryAPI
       .getAll({ city: cityFilter })
       .then((res) => {
@@ -143,7 +183,7 @@ export default function Products() {
         setSearchParams(params, { replace: true });
       })
       .catch(() => {});
-  }, [category_id, subcategory_id, parentCategories, city, searchParams, setSearchParams]);
+  }, [category_id, subcategory_id, parentCategories, effectiveCity, searchParams, setSearchParams]);
 
   // Reset pagination when URL filters change
   useEffect(() => {
@@ -163,17 +203,17 @@ export default function Products() {
     categoryAPI
       .getAll({
         parent_id: category_id,
-        city: city !== 'all' ? city : undefined,
+        city: effectiveCity !== 'all' ? effectiveCity : undefined,
       })
       .then((res) => setFilterSubcategories(res.data.categories || []))
       .catch(() => setFilterSubcategories([]));
-  }, [category_id, city]);
+  }, [category_id, effectiveCity]);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const cityFilter = city !== 'all' ? city : undefined;
+        const cityFilter = effectiveCity !== 'all' ? effectiveCity : undefined;
         const [prodRes, catRes] = await Promise.all([
           productAPI.getAll({
             city: cityFilter,
@@ -200,7 +240,7 @@ export default function Products() {
       }
     };
     fetchData();
-  }, [city, category_id, subcategory_id, minPrice, maxPrice, search, featured, page, showCityPicker]);
+  }, [effectiveCity, category_id, subcategory_id, minPrice, maxPrice, search, featured, page, showCityPicker]);
 
   const totalPages = Math.ceil(total / 12);
   const visiblePages = (() => {
@@ -220,9 +260,14 @@ export default function Products() {
       <JsonLd data={breadcrumbLd} id="ld-breadcrumb" />
       {itemListLd && <JsonLd data={itemListLd} id="ld-itemlist" />}
       <div className="container">
+        <Breadcrumb items={[
+          { label: 'Home', to: '/' },
+          { label: 'Products', to: '/products' },
+          ...(activeCategoryName ? [{ label: activeCategoryName }] : []),
+        ]} />
         <div className="products-header">
-          <h1>Products</h1>
-          <p>{total} items found</p>
+          <h1>{activeCategoryName ? `${activeCategoryName} on Rent` : 'Products'}</h1>
+          <p>{total} items found in {effectiveCity}</p>
         </div>
 
         <button
@@ -299,7 +344,7 @@ export default function Products() {
 
             <div className="filter-group">
               <h4>Location</h4>
-              <p className="current-city">Showing products in: <strong>{city}</strong></p>
+              <p className="current-city">Showing products in: <strong>{effectiveCity}</strong></p>
             </div>
           </aside>
 
