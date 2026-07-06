@@ -23,7 +23,7 @@ const IMAGES = [
   { file: 'home/promo-baby.webp', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=340&fit=crop&q=75&auto=format' },
   { file: 'cities/chennai.webp', url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=320&h=200&fit=crop&q=75&auto=format' },
   { file: 'cities/bangalore.webp', url: 'https://images.unsplash.com/photo-1685392348279-34fe7a2ea624?w=320&h=200&fit=crop&q=75&auto=format' },
-  { file: 'cities/hyderabad.webp', url: 'https://images.unsplash.com/photo-1596178060810-fb4bd4ada2ba?w=320&h=200&fit=crop&q=75&auto=format', fallback: 'cities/chennai.webp' },
+  { file: 'cities/hyderabad.webp', url: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=320&h=200&fit=crop&q=75&auto=format', fallback: 'cities/bangalore.webp' },
 ];
 
 async function downloadOne({ file, url, fallback }) {
