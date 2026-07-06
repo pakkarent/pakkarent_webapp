@@ -123,7 +123,7 @@ export default function Home() {
                 >
                   <div className="cat-tile-img">
                     <img
-                      src={getCategoryImage(cat.name, idx)}
+                      src={getCategoryImage(cat, idx)}
                       alt={cat.name}
                       width="220"
                       height="110"

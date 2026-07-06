@@ -13,7 +13,7 @@ const IMAGES = [
   { file: 'home/appliance.webp', url: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=220&h=180&fit=crop&q=75&auto=format' },
   { file: 'home/home-appliance.webp', url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=220&h=180&fit=crop&q=75&auto=format' },
   { file: 'home/event.webp', url: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=220&h=180&fit=crop&q=75&auto=format' },
-  { file: 'home/backdrop.webp', url: 'https://images.unsplash.com/photo-1478147427282-58a87a433049?w=220&h=180&fit=crop&q=75&auto=format', fallback: 'home/event.webp' },
+  { file: 'home/backdrop.webp', url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=220&h=180&fit=crop&q=75&auto=format', fallback: 'home/furniture.webp' },
   { file: 'home/birthday.webp', url: 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=220&h=180&fit=crop&q=75&auto=format' },
   { file: 'home/baby.webp', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=220&h=180&fit=crop&q=75&auto=format' },
   { file: 'home/furniture.webp', url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=220&h=180&fit=crop&q=75&auto=format' },

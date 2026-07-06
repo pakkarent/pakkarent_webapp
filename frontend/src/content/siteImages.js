@@ -4,6 +4,18 @@ const C = '/images/cities';
 
 export const HERO_IMAGE = `${H}/hero.webp`;
 
+/** Parent category ids from schema — preferred for home tiles (avoids fuzzy name matches). */
+export const CATEGORY_ID_IMAGES = {
+  1: `${H}/camping.webp`,
+  2: `${H}/home-appliance.webp`,
+  3: `${H}/event.webp`,
+  4: `${H}/backdrop.webp`,
+  5: `${H}/birthday.webp`,
+  6: `${H}/baby.webp`,
+  7: `${H}/kids.webp`,
+  8: `${H}/games.webp`,
+};
+
 export const CATEGORY_IMAGES = {
   camping: `${H}/camping.webp`,
   appliance: `${H}/appliance.webp`,
@@ -18,8 +30,6 @@ export const CATEGORY_IMAGES = {
   furniture: `${H}/furniture.webp`,
   decor: `${H}/event.webp`,
   urli: `${H}/event.webp`,
-  prop: `${H}/birthday.webp`,
-  stand: `${H}/birthday.webp`,
   baby: `${H}/baby.webp`,
   kids: `${H}/kids.webp`,
   toy: `${H}/kids.webp`,
@@ -62,8 +72,12 @@ export const CITY_IMAGES = {
   Hyderabad: `${C}/hyderabad.webp`,
 };
 
-export function getCategoryImage(catName, idx) {
-  const name = (catName || '').toLowerCase();
+export function getCategoryImage(category, idx = 0) {
+  const id = typeof category === 'object' ? category?.id : null;
+  const name = (typeof category === 'string' ? category : category?.name || '').toLowerCase();
+
+  if (id && CATEGORY_ID_IMAGES[id]) return CATEGORY_ID_IMAGES[id];
+
   for (const [key, url] of Object.entries(CATEGORY_IMAGES)) {
     if (name.includes(key)) return url;
   }
