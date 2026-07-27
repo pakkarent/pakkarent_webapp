@@ -4,7 +4,7 @@ import { useCity } from '../../context/CityContext';
 import { CITY_OPTIONS } from '../../utils/cities';
 import './CityPickerModal.css';
 
-const PICKER_DELAY_MS = 2000;
+const PICKER_DELAY_MS = 0;
 
 const SKIP_CITY_PICKER =
   /^\/(cart|checkout|admin)(\/|$)|^\/rent\/|^\/products\/[^/]+\/[^/]+$/;
@@ -27,13 +27,6 @@ export default function CityPickerModal() {
     const timer = window.setTimeout(() => setVisible(true), PICKER_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [showCityPicker]);
-
-  useEffect(() => {
-    if (!visible) return undefined;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, [visible]);
 
   if (!showCityPicker || !visible) return null;
 

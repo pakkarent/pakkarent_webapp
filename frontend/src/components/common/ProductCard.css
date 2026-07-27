@@ -16,6 +16,13 @@
   border-color: #ddd;
 }
 
+@media (hover: none) {
+  .product-card:hover {
+    transform: none;
+    box-shadow: var(--shadow);
+  }
+}
+
 /* ── Image area ── */
 .card-img-wrap {
   position: relative;

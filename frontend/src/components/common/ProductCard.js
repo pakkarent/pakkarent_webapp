@@ -65,7 +65,10 @@ export default function ProductCard({ product }) {
         <img
           src={mainImg}
           alt={product.name}
+          width="400"
+          height="300"
           loading="lazy"
+          decoding="async"
           className={hovered ? 'zoomed' : ''}
           onError={(e) => imageErrorFallback(e, images[activeIdx])}
         />

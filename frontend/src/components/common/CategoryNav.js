@@ -124,7 +124,11 @@ export function DesktopCategoryNav() {
 
   return (
     <nav className="navbar-categories" aria-label="Product categories">
-      {parents.map((cat) => {
+      {parents.length === 0
+        ? Array.from({ length: 8 }).map((_, i) => (
+            <span key={i} className="cat-link cat-link--skeleton" aria-hidden="true">&nbsp;</span>
+          ))
+        : parents.map((cat) => {
         const subs = getSubcategories(categories, cat.id);
         if (subs.length > 0) {
           return <CategoryDropdown key={cat.id} category={cat} subcategories={subs} city={city} />;
