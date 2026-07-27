@@ -13,7 +13,7 @@ echo "▶ Clean build..."
 rm -rf build
 npm run build
 
-echo "▶ Generating sitemap.xml..."
+echo "▶ Generating sitemaps (index + city)..."
 export SITE_URL="${SITE_URL:-https://pakkarent.com}"
 rm -rf .build-cache
 node scripts/generate-sitemap.js
@@ -26,6 +26,10 @@ node scripts/prerender-pages.js
 
 echo "▶ Verifying build output..."
 test -f build/sitemap.xml
+test -f build/sitemap-pages.xml
+test -f build/sitemap-chennai.xml
+test -f build/sitemap-bangalore.xml
+test -f build/sitemap-hyderabad.xml
 test -f build/index.html
 test -f build/manifest.json
 test -f build/og-image.png

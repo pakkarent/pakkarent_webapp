@@ -12,3 +12,7 @@ Disallow: /admin/
 Disallow: /auth/
 
 Sitemap: https://pakkarent.com/sitemap.xml
+Sitemap: https://pakkarent.com/sitemap-bangalore.xml
+Sitemap: https://pakkarent.com/sitemap-hyderabad.xml
+Sitemap: https://pakkarent.com/sitemap-chennai.xml
+Sitemap: https://pakkarent.com/sitemap-pages.xml

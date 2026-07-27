@@ -216,18 +216,32 @@ async function testStaticServer() {
     fail('SPA fallback /cart', e.message);
   }
 
-  // Sitemap
+  // Sitemap index + city sitemaps
   try {
     const { res, text } = await fetchText(`${BASE_URL}/sitemap.xml`);
-    const rentCount = (text.match(/\/rent\//g) || []).length;
-    const cityCount = (text.match(/\/chennai<\//g) || []).length;
-    if (res.status === 200 && rentCount > 50 && cityCount >= 1) {
-      pass('Sitemap.xml', `${rentCount} rent URLs`);
+    const hasIndex = text.includes('<sitemapindex') && text.includes('sitemap-bangalore.xml');
+    if (res.status === 200 && hasIndex) {
+      pass('Sitemap.xml', 'index with city sitemaps');
     } else {
-      fail('Sitemap.xml', `rent=${rentCount}`);
+      fail('Sitemap.xml', 'missing sitemap index');
     }
   } catch (e) {
     fail('Sitemap.xml', e.message);
+  }
+
+  for (const city of ['bangalore', 'hyderabad', 'chennai']) {
+    try {
+      const { res, text } = await fetchText(`${BASE_URL}/sitemap-${city}.xml`);
+      const rentCount = (text.match(/\/rent\//g) || []).length;
+      const cityCount = (text.match(new RegExp(`/${city}(<|\\?)`, 'g')) || []).length;
+      if (res.status === 200 && rentCount >= 1 && cityCount >= 1) {
+        pass(`Sitemap-${city}.xml`, `${rentCount} rent URLs`);
+      } else {
+        fail(`Sitemap-${city}.xml`, `rent=${rentCount} city=${cityCount}`);
+      }
+    } catch (e) {
+      fail(`Sitemap-${city}.xml`, e.message);
+    }
   }
 
   // robots.txt
