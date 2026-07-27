@@ -26,7 +26,7 @@ export default function Blog() {
   });
 
   const blogListLd = useMemo(() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pakkarent.com';
     return {
       '@context': 'https://schema.org',
       '@type': 'Blog',
@@ -37,6 +37,7 @@ export default function Blog() {
         '@type': 'BlogPosting',
         headline: p.title,
         description: p.excerpt,
+        image: [`${origin}/og-image.png`],
         datePublished: p.publishedAt,
         url: `${origin}/blog/${p.slug}`,
       })),

@@ -118,8 +118,8 @@ export default function ProductDetail() {
 
   const safeImages = product ? uniqueProductImages(safeJsonArray(product.images)) : [];
   const seoImage = product
-    ? (resolveImageUrl(safeImages[0]) || '/og-image.svg')
-    : '/og-image.svg';
+    ? (resolveImageUrl(safeImages[0]) || '/og-image.png')
+    : '/og-image.png';
 
   const productPath = product ? getProductPath(product) : `/rent/${slug}/${citySegment}`;
 
@@ -138,8 +138,20 @@ export default function ProductDetail() {
 
   const productLd = useMemo(() => {
     if (!product) return null;
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pakkarent.com';
     const price = displayUnitPrice(product, 1) || product.monthly_price;
+    const toAbsolute = (url) => {
+      if (!url) return null;
+      if (String(url).startsWith('http')) return String(url).split('?')[0];
+      if (String(url).startsWith('/')) return `${origin}${url}`;
+      return null;
+    };
+    const images = safeImages
+      .map((img) => toAbsolute(resolveImageUrl(img)))
+      .filter(Boolean)
+      .slice(0, 6);
+    if (!images.length) images.push(`${origin}/og-image.png`);
+
     return {
       '@context': 'https://schema.org',
       '@type': 'Product',
@@ -148,10 +160,7 @@ export default function ProductDetail() {
       sku: `PAKKA-${product.id}`,
       brand: { '@type': 'Brand', name: 'PakkaRent' },
       category: product.category_name || 'Rental',
-      image: safeImages
-        .map(img => resolveImageUrl(img))
-        .filter(Boolean)
-        .slice(0, 6),
+      image: images,
       offers: {
         '@type': 'Offer',
         url: getProductUrl(product, origin),

@@ -22,15 +22,20 @@ export default function BlogPost() {
 
   const articleLd = useMemo(() => {
     if (!post) return null;
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://pakkarent.com';
     return {
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       headline: post.title,
       description: post.seoDescription || post.excerpt,
+      image: [`${origin}/og-image.png`],
       datePublished: post.publishedAt,
       author: { '@type': 'Organization', name: 'PakkaRent' },
-      publisher: { '@type': 'Organization', name: 'PakkaRent' },
+      publisher: {
+        '@type': 'Organization',
+        name: 'PakkaRent',
+        logo: { '@type': 'ImageObject', url: `${origin}/og-image.png` },
+      },
       mainEntityOfPage: `${origin}/blog/${post.slug}`,
       url: `${origin}/blog/${post.slug}`,
     };

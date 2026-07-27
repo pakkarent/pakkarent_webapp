@@ -116,9 +116,24 @@ function priceUnitWord(product) {
   return 'day';
 }
 
+function productImageUrls(product) {
+  const images = Array.isArray(product?.images) ? product.images : [];
+  const urls = images
+    .map((src) => {
+      if (!src) return null;
+      const s = String(src).split('?')[0];
+      if (s.startsWith('http')) return s;
+      if (s.startsWith('/')) return `${SITE_URL}${s}`;
+      return null;
+    })
+    .filter(Boolean);
+  return urls.length ? urls.slice(0, 6) : [`${SITE_URL}/og-image.png`];
+}
+
 function productMeta(product) {
   const cityLabel = product.city === 'all' ? 'India' : product.city;
   const unit = priceUnitWord(product);
+  const images = productImageUrls(product);
   return {
     title: `${product.name} on Rent in ${cityLabel} | PakkaRent`,
     description: `Rent ${product.name} in ${cityLabel} from ₹${product.monthly_price}/${unit}. Flexible rental on PakkaRent.`,
@@ -132,6 +147,7 @@ function productMeta(product) {
       sku: `PAKKA-${product.id}`,
       brand: { '@type': 'Brand', name: 'PakkaRent' },
       category: product.category_name || 'Rental',
+      image: images,
       offers: {
         '@type': 'Offer',
         url: `${SITE_URL}${productPath(product)}`,
