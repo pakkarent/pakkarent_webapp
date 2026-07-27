@@ -20,7 +20,7 @@ export default function Register() {
 
   useSEO({
     title: 'Create Account',
-    description: 'Sign up for free on PakkaRent to rent appliances, furniture and event items in Chennai, Bangalore and Hyderabad with free delivery.',
+    description: 'Sign up for free on PakkaRent to rent appliances, furniture and event items in Chennai, Bangalore and Hyderabad.',
     canonical: '/register',
     noindex: true,
   });

@@ -15,7 +15,7 @@ export const CITY_LANDING = {
     highlights: [
       'Trusted since 2014 with showrooms in Velachery & Kelambakkam',
       'Naming ceremony cradles, oonjal, backdrops & birthday props',
-      'Monthly appliance rentals with free doorstep delivery',
+      'Monthly appliance rentals with flexible tenure plans',
     ],
   },
   bangalore: {

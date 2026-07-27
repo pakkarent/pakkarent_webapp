@@ -51,7 +51,7 @@ export const BLOG_POSTS = [
       ]},
       { type: 'h3', text: 'How much does cradle rental cost?' },
       { type: 'p', parts: [
-        { type: 'text', value: 'Event cradles are priced per function. Silver cradles typically range from ₹5,500–₹7,000, golden cradles from ₹2,500–₹3,500, and teak wood cradles from ₹2,200–₹3,800 depending on city. Many items include free transport up to 10 km from Velachery, Chennai. Check individual product pages and ' },
+        { type: 'text', value: 'Event cradles are priced per function. Silver cradles typically range from ₹5,500–₹7,000, golden cradles from ₹2,500–₹3,500, and teak wood cradles from ₹2,200–₹3,800 depending on city. Transport charges depend on location — check individual product pages and ' },
         { type: 'link', to: L.delivery, label: 'delivery details' },
         { type: 'text', value: '.' },
       ]},

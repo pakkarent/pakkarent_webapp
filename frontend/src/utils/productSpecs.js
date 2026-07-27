@@ -19,7 +19,18 @@ const HIDDEN_KEYS = new Set([
   'rate_3_6_months',
   'rate_6_plus_months',
   'extra_coal_per_kg',
+  'transport',
+  'aliases',
 ]);
+
+const FREE_TRANSPORT_RE = /\b(free\s+(transport(ation)?|delivery)|hassle[-\s]?free\s+transport)/i;
+
+function sanitizeDisplayText(text) {
+  const raw = String(text || '').trim();
+  if (!raw) return '';
+  if (FREE_TRANSPORT_RE.test(raw)) return '';
+  return raw;
+}
 
 const KEY_LABELS = {
   material: 'Material',
@@ -77,7 +88,7 @@ export function getDisplaySpecs(product) {
   // Prefer legacy-style detail bullets when present
   if (Array.isArray(specs.details) && specs.details.length) {
     for (const line of specs.details) {
-      const text = String(line || '').trim();
+      const text = sanitizeDisplayText(line);
       if (text) rows.push({ label: null, value: text });
     }
     const occasions = specs.occasions;
@@ -93,7 +104,8 @@ export function getDisplaySpecs(product) {
 
   const features = specs.features;
   if (Array.isArray(features) && features.length) {
-    rows.push({ label: 'Highlights', value: features.join(' · ') });
+    const cleaned = features.map(sanitizeDisplayText).filter(Boolean);
+    if (cleaned.length) rows.push({ label: 'Highlights', value: cleaned.join(' · ') });
   }
 
   const occasions = specs.occasions;
@@ -109,7 +121,7 @@ export function getDisplaySpecs(product) {
   for (const [key, val] of Object.entries(specs)) {
     if (HIDDEN_KEYS.has(key)) continue;
     if (['details', 'features', 'occasions', 'includes'].includes(key)) continue;
-    const formatted = formatValue(val);
+    const formatted = sanitizeDisplayText(formatValue(val));
     if (!formatted) continue;
     rows.push({
       label: KEY_LABELS[key] || titleCase(key),

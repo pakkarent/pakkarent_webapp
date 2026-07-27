@@ -257,18 +257,18 @@ VALUES
 -- Silver Cradles
 (
   'Silver Grand Cradle',
-  'Pure German Silver cradle for naming ceremony. 4 Ft Height × 3.5 Ft Length. Designed by experts. Free transportation up to 10 km from Velachery. Spacious for the baby.',
+  'Pure German Silver cradle for naming ceremony. 4 Ft Height × 3.5 Ft Length. Designed by experts. Spacious for the baby.',
   3, 'Chennai', 7000, NULL, NULL, NULL, 7000,
   '["/uploads/products/event/silver_cradle/img_01.jpg","/uploads/products/event/silver_cradle/img_02.jpg","/uploads/products/event/silver_cradle/img_03.jpg","/uploads/products/event/silver_cradle/img_05.jpg"]',
-  '{"pricing_type":"per_event","material":"Pure German Silver","dimensions":"4 Ft Height x 3.5 Ft Length","transport":"Free upto 10 km from Velachery","occasions":["Naming ceremony","Baby shower"],"features":["Expert design","Spacious for baby"]}',
+  '{"pricing_type":"per_event","material":"Pure German Silver","dimensions":"4 Ft Height x 3.5 Ft Length","occasions":["Naming ceremony","Baby shower"],"features":["Expert design","Spacious for baby"]}',
   2, true
 ),
 (
   'Silver Peacock Cradle',
-  'Elegant peacock-motif silver cradle for naming ceremony. Beautiful peacock design in pure silver. Includes free transport within 10 km from Velachery.',
+  'Elegant peacock-motif silver cradle for naming ceremony. Beautiful peacock design in pure silver. ',
   3, 'Chennai', 7000, NULL, NULL, NULL, 7000,
   '[]',
-  '{"pricing_type":"per_event","material":"Silver","design":"Peacock motif","transport":"Free upto 10 km from Velachery","occasions":["Naming ceremony","Baby shower"],"features":["Peacock design","Premium silver"]}',
+  '{"pricing_type":"per_event","material":"Silver","design":"Peacock motif","occasions":["Naming ceremony","Baby shower"],"features":["Peacock design","Premium silver"]}',
   2, true
 ),
 (
@@ -276,7 +276,7 @@ VALUES
   'Grand moon cradle for naming ceremony. Total Height 7.5 Ft, Length 6 Ft, swing base diameter 2.5 Ft. Designed by experts for naming ceremony. Spacious for the baby. Available as combo with backdrop at ₹9500.',
   3, 'Chennai', 6500, NULL, NULL, NULL, 6500,
   '["/uploads/products/event/Grand_Moon_cradle_Rental/img_01.jpg"]',
-  '{"pricing_type":"per_event","dimensions":"7.5 Ft Height x 6 Ft Length x 2.5 Ft base diameter","transport":"Free upto 10 km from Velachery","combo_with_backdrop_price":9500,"occasions":["Naming ceremony","Baby shower"],"features":["Expert design","Grand size","Spacious for baby"]}',
+  '{"pricing_type":"per_event","dimensions":"7.5 Ft Height x 6 Ft Length x 2.5 Ft base diameter","combo_with_backdrop_price":9500,"occasions":["Naming ceremony","Baby shower"],"features":["Expert design","Grand size","Spacious for baby"]}',
   3, true
 ),
 (
@@ -331,10 +331,10 @@ VALUES
 -- Oonjal / Swings — Chennai
 (
   'Ivory Oonjal / Royal Swing',
-  'Ivory royal swing for weddings, baby showers and receptions. Dimensions: 6.5 Ft Height × 5 Ft Length × 4 Ft Breadth. 10 km free delivery from Velachery.',
+  'Ivory royal swing for weddings, baby showers and receptions. Dimensions: 6.5 Ft Height × 5 Ft Length × 4 Ft Breadth. ',
   3, 'Chennai', 5000, NULL, NULL, NULL, 5000,
   '[]',
-  '{"pricing_type":"per_event","dimensions":"6.5 Ft Height x 5 Ft Length x 4 Ft Breadth","transport":"Free upto 10 km from Velachery","occasions":["Wedding","Baby shower","Reception","Engagement"],"features":["Royal ivory design","Center of attraction","No decorations included"]}',
+  '{"pricing_type":"per_event","dimensions":"6.5 Ft Height x 5 Ft Length x 4 Ft Breadth","occasions":["Wedding","Baby shower","Reception","Engagement"],"features":["Royal ivory design","Center of attraction","No decorations included"]}',
   2, true
 ),
 (
@@ -373,7 +373,7 @@ VALUES
 ),
 (
   'Armless Chairs',
-  'Premium cream-coloured armless chairs for functions. Available for haldi, puberty and wedding functions. Sturdy and premium feel. Hassle-free transportation and delivery.',
+  'Premium cream-coloured armless chairs for functions. Available for haldi, puberty and wedding functions. Sturdy and premium feel. Delivery available.',
   3, 'Chennai', 500, NULL, NULL, NULL, 0,
   '[]',
   '{"pricing_type":"per_event","price_10_chairs":500,"price_20_chairs":800,"colour":"Cream","occasions":["Haldi","Puberty","Wedding"],"features":["Premium feel","Sturdy","Armless design","Transport included"]}',

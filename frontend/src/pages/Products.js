@@ -88,12 +88,12 @@ export default function Products() {
   const seoDesc = (() => {
     const base = `${total || 'Hundreds of'} rental products`;
     if (activeCategoryName) {
-      return `${base} in ${activeCategoryName} available on rent in ${effectiveCity}. Free delivery, flexible monthly tenures, 24x7 support — only on PakkaRent.`;
+      return `${base} in ${activeCategoryName} available on rent in ${effectiveCity}. Flexible monthly tenures, 24x7 support — only on PakkaRent.`;
     }
     if (search) {
       return `Find rentals matching "${search}" in ${effectiveCity} on PakkaRent. Compare prices, plans and book in minutes.`;
     }
-    return `${base} — appliances, furniture, baby gear, camping and event items in ${effectiveCity}. Free delivery, flexible tenures, 24x7 support.`;
+    return `${base} — appliances, furniture, baby gear, camping and event items in ${effectiveCity}. Flexible tenures, 24x7 support.`;
   })();
 
   const canonicalPath = (() => {

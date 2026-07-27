@@ -199,7 +199,7 @@ export default function Checkout() {
                 )}
                 <div className="summary-row">
                   <span>Delivery Charge:</span>
-                  <span className="free">FREE</span>
+                  <span>As applicable</span>
                 </div>
                 <div className="summary-row total">
                   <span>Total Amount:</span>
@@ -215,8 +215,8 @@ export default function Checkout() {
               <div className="policies">
                 <h4>Policies</h4>
                 <ul>
-                  <li>Free delivery in selected areas</li>
-                  <li>Free installation & setup</li>
+                  <li>Delivery available in selected areas</li>
+                  <li>Installation & setup where applicable</li>
                   <li>30-day return guarantee</li>
                   <li>24/7 customer support</li>
                 </ul>

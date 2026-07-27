@@ -45,7 +45,7 @@ export default function Home() {
   useSEO({
     title: `Rent Appliances, Furniture & Event Items in ${city}`,
     titleSuffix: false,
-    description: `PakkaRent makes it easy to rent home appliances, furniture, baby gear, camping kits and event items in ${city}. Free delivery, flexible monthly tenures, 24x7 support.`,
+    description: `PakkaRent makes it easy to rent home appliances, furniture, baby gear, camping kits and event items in ${city}. Flexible monthly tenures, 24x7 support.`,
     keywords: `rent appliances ${city}, washing machine on rent ${city}, AC on rent ${city}, baby cradle rental, event rentals, furniture on rent ${city}, refrigerator rental, monthly rental, PakkaRent`,
     canonical: '/',
   });
@@ -240,7 +240,7 @@ export default function Home() {
           <div className="why-grid">
             {[
               { icon: '✅', title: 'Verified & Sanitized',   desc: 'Every item goes through quality checks and deep cleaning before delivery' },
-              { icon: '🚚', title: 'Doorstep Delivery',      desc: 'Free delivery and pickup in Chennai, Bangalore & Hyderabad' },
+              { icon: '🚚', title: 'Doorstep Delivery',      desc: 'Delivery and pickup across Chennai, Bangalore & Hyderabad' },
               { icon: '💰', title: 'Save up to 70%',         desc: 'Renting beats buying — get premium items at a fraction of the cost' },
               { icon: '🔄', title: 'Hassle-free Returns',    desc: 'Simply call us, we pick up your items at the end of your rental period' },
             ].map((w, i) => (

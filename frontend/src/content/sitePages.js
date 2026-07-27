@@ -137,7 +137,7 @@ export const SITE_PAGES = {
     title: 'Delivery Info',
     subtitle: 'Doorstep delivery across Chennai, Bangalore & Hyderabad',
     seoDescription:
-      'PakkaRent delivery information — free delivery zones, transport charges and installation for rentals in South India.',
+      'PakkaRent delivery information — transport charges, installation and delivery areas for rentals in South India.',
     sections: [
       {
         heading: 'Delivery areas',
@@ -145,11 +145,11 @@ export const SITE_PAGES = {
       },
       {
         heading: 'Event & prop rentals',
-        body: `Many event items include free transport up to 10 km from Velachery, Chennai (as noted on individual products). For other locations, transport charges may apply — our team will confirm when you book.`,
+        body: `Transport charges apply based on location and item size — our team will confirm charges when you book.`,
       },
       {
         heading: 'Home appliances',
-        body: `Washing machines, fridges, AC and LED TVs include doorstep delivery. One-time transportation and installation charges may apply for certain appliances (e.g. AC installation). Monthly rental rates vary by tenure — shorter rentals may have higher per-month rates.`,
+        body: `Washing machines, fridges, AC and LED TVs can be delivered to your doorstep. One-time transportation and installation charges may apply for certain appliances (e.g. AC installation). Monthly rental rates vary by tenure — shorter rentals may have higher per-month rates.`,
       },
       {
         heading: 'Camping & outdoor gear',

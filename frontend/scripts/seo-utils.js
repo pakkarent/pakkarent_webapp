@@ -38,7 +38,7 @@ const STATIC_ROUTES = [
   { path: '/how-it-works', title: 'How It Works | PakkaRent', description: 'How PakkaRent works — browse, book and get doorstep delivery in Chennai, Bangalore or Hyderabad.' },
   { path: '/contact', title: 'Contact Us | PakkaRent', description: 'Contact PakkaRent — call +91 94038 90901 or WhatsApp for rentals in Chennai, Bangalore and Hyderabad.' },
   { path: '/faq', title: 'FAQs | PakkaRent', description: 'PakkaRent FAQs — booking, payments, delivery, cancellation and returns.' },
-  { path: '/delivery-info', title: 'Delivery Info | PakkaRent', description: 'PakkaRent delivery information — free delivery zones and transport charges across South India.' },
+  { path: '/delivery-info', title: 'Delivery Info | PakkaRent', description: 'PakkaRent delivery information — transport charges and installation across South India.' },
 ];
 
 const CITY_META = {
@@ -121,7 +121,7 @@ function productMeta(product) {
   const unit = priceUnitWord(product);
   return {
     title: `${product.name} on Rent in ${cityLabel} | PakkaRent`,
-    description: `Rent ${product.name} in ${cityLabel} from ₹${product.monthly_price}/${unit}. Free delivery and flexible rental on PakkaRent.`,
+    description: `Rent ${product.name} in ${cityLabel} from ₹${product.monthly_price}/${unit}. Flexible rental on PakkaRent.`,
     path: productPath(product),
     body: `<h1>${escapeHtml(product.name)} on Rent in ${escapeHtml(cityLabel)}</h1><p>Rent ${escapeHtml(product.name)} in ${escapeHtml(cityLabel)} from PakkaRent. Category: ${escapeHtml(product.category_name || 'Rental')}.</p>`,
     jsonLd: {
@@ -237,7 +237,7 @@ function collectPrerenderRoutes(products) {
       routes.push({
         path: `/products/${slug}/${city}`,
         title: `${name} on Rent in ${cityName} | PakkaRent`,
-        description: `Browse ${name} products available on rent in ${cityName}. Free delivery and flexible plans on PakkaRent.`,
+        description: `Browse ${name} products available on rent in ${cityName}. Flexible rental plans on PakkaRent.`,
         body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1>`,
       });
     }
