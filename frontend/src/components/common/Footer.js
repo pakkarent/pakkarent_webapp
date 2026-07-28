@@ -43,6 +43,14 @@ export default function Footer() {
           </div>
 
           <div className="footer-col">
+            <h4>Festive</h4>
+            <Link to="/festive/haldi">Haldi</Link>
+            <Link to="/festive/naming-ceremony">Naming Ceremony</Link>
+            <Link to="/festive/baby-shower">Baby Shower</Link>
+            <Link to="/festive/birthday-decoration">Birthday Decoration</Link>
+          </div>
+
+          <div className="footer-col">
             <h4>Cities</h4>
             <Link to={getCityLandingPath('Chennai')}>Chennai</Link>
             <Link to={getCityLandingPath('Bangalore')}>Bangalore</Link>

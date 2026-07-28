@@ -31,6 +31,7 @@ const MyOrders = React.lazy(() => import('./pages/MyOrders'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Blog = React.lazy(() => import('./pages/Blog'));
 const BlogPost = React.lazy(() => import('./pages/BlogPost'));
+const FestivePage = React.lazy(() => import('./pages/FestivePage'));
 const InfoPage = React.lazy(() => import('./pages/InfoPage'));
 const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminProducts = React.lazy(() => import('./pages/admin/AdminProducts'));
@@ -84,6 +85,7 @@ function AppContent() {
         <Route path="/how-it-works" element={<InfoPage pageKey="how-it-works" />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="/festive/:slug" element={<FestivePage />} />
         <Route path="/contact" element={<InfoPage pageKey="contact" />} />
         <Route path="/faq" element={<InfoPage pageKey="faq" />} />
         <Route path="/delivery-info" element={<InfoPage pageKey="delivery" />} />
