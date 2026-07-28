@@ -2,12 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { productAPI } from '../services/api';
 import { useCity } from '../context/CityContext';
-import ProductCard from '../components/common/ProductCard';
 import Breadcrumb from '../components/common/Breadcrumb';
 import JsonLd from '../components/common/JsonLd';
 import useSEO from '../hooks/useSEO';
 import { getFestiveLinks, getFestivePage } from '../content/festivePages';
-import { getCategoryPath, getProductUrl } from '../utils/productUrls';
+import { getCategoryPath, getProductPath, getProductUrl } from '../utils/productUrls';
+import { displayUnitPrice } from '../utils/pricingDisplay';
+import { priceUnitLabel } from '../utils/productPricing';
+import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
+import { uniqueProductImages } from '../utils/productSpecs';
 import './FestivePage.css';
 
 function uniqueById(items) {
@@ -17,6 +20,44 @@ function uniqueById(items) {
     seen.add(item.id);
     return true;
   });
+}
+
+function FestiveProductTile({ product }) {
+  const images = uniqueProductImages(safeJsonArray(product.images));
+  const image = resolveThumbnailUrl(images[0], 'card');
+  const price = displayUnitPrice(product, 1);
+
+  return (
+    <Link to={getProductPath(product)} className="festive-tile">
+      <div className="festive-tile-media">
+        {image ? (
+          <img
+            src={image}
+            alt={product.name}
+            width="400"
+            height="300"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => imageErrorFallback(e, images[0])}
+          />
+        ) : (
+          <div className="festive-tile-placeholder">PakkaRent</div>
+        )}
+        <span className="festive-tile-city">{product.city}</span>
+      </div>
+      <div className="festive-tile-body">
+        <div className="festive-tile-category">{product.category_name}</div>
+        <h3>{product.name}</h3>
+        <div className="festive-tile-footer">
+          <div className="festive-tile-price">
+            <strong>₹{price}</strong>
+            <span>{priceUnitLabel(product)}</span>
+          </div>
+          <span className="festive-tile-cta">View →</span>
+        </div>
+      </div>
+    </Link>
+  );
 }
 
 export default function FestivePage() {
@@ -148,9 +189,9 @@ export default function FestivePage() {
             {loading ? (
               <div className="loading">Loading products…</div>
             ) : section.products.length > 0 ? (
-              <div className="products-grid festive-products-grid">
+              <div className="festive-products-grid">
                 {section.products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <FestiveProductTile key={product.id} product={product} />
                 ))}
               </div>
             ) : (
