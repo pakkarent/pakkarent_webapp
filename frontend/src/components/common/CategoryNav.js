@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { categoryAPI } from '../../services/api';
+import { FESTIVE_NAV_LINKS } from '../../content/festivePages';
 import { useCity } from '../../context/CityContext';
 import { getParentCategories, getSubcategories, getCategoryProductsPath } from '../../utils/categoryUtils';
 
@@ -107,9 +108,100 @@ function CategoryDropdown({ category, subcategories, city }) {
   );
 }
 
+function SimpleDropdown({ label, to, items, active }) {
+  const wrapRef = useRef(null);
+  const closeTimer = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+
+  const syncCoords = () => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setCoords({ top: rect.bottom, left: rect.left });
+  };
+
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  };
+
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 120);
+  };
+
+  const showMenu = () => {
+    cancelClose();
+    syncCoords();
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onReposition = () => syncCoords();
+    window.addEventListener('scroll', onReposition, true);
+    window.addEventListener('resize', onReposition);
+    return () => {
+      window.removeEventListener('scroll', onReposition, true);
+      window.removeEventListener('resize', onReposition);
+    };
+  }, [open]);
+
+  useEffect(() => () => cancelClose(), []);
+
+  const submenu = open
+    ? createPortal(
+        <div
+          className="cat-submenu cat-submenu-portal"
+          role="menu"
+          style={{ top: coords.top, left: coords.left }}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
+        >
+          {items.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className="cat-submenu-link"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+            >
+              <span>{item.emoji}</span>
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <div
+      ref={wrapRef}
+      className="cat-dropdown-wrap"
+      onMouseEnter={showMenu}
+      onMouseLeave={scheduleClose}
+    >
+      <Link
+        to={to}
+        className={`cat-link cat-link-has-sub${active ? ' active' : ''}`}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onFocus={showMenu}
+        onBlur={scheduleClose}
+      >
+        {label}
+        <span className="cat-chevron" aria-hidden="true">▾</span>
+      </Link>
+      {submenu}
+    </div>
+  );
+}
+
 export function DesktopCategoryNav() {
   const { city } = useCity();
   const [categories, setCategories] = useState([]);
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get('category_id');
 
@@ -128,7 +220,15 @@ export function DesktopCategoryNav() {
         ? Array.from({ length: 8 }).map((_, i) => (
             <span key={i} className="cat-link cat-link--skeleton" aria-hidden="true">&nbsp;</span>
           ))
-        : parents.map((cat) => {
+        : [
+            <SimpleDropdown
+              key="festive"
+              label="✨ Festive"
+              to="/festive/haldi"
+              items={FESTIVE_NAV_LINKS}
+              active={location.pathname.startsWith('/festive/')}
+            />,
+            ...parents.map((cat) => {
         const subs = getSubcategories(categories, cat.id);
         if (subs.length > 0) {
           return <CategoryDropdown key={cat.id} category={cat} subcategories={subs} city={city} />;
@@ -142,7 +242,7 @@ export function DesktopCategoryNav() {
             {navShortLabel(cat)}
           </Link>
         );
-      })}
+      })]}
     </nav>
   );
 }
@@ -166,6 +266,27 @@ export function MobileCategoryNav({ onNavigate }) {
 
   return (
     <div className="mobile-cat-nav">
+      <div className="mobile-cat-group">
+        <Link
+          to="/festive/haldi"
+          className={`mobile-cat-link${location.pathname.startsWith('/festive/') ? ' active' : ''}`}
+          onClick={onNavigate}
+        >
+          ✨ Festive
+        </Link>
+        <div className="mobile-sub-links">
+          {FESTIVE_NAV_LINKS.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`mobile-sub-link${location.pathname === item.path ? ' active' : ''}`}
+              onClick={onNavigate}
+            >
+              {item.emoji} {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
       {parents.map((cat) => {
         const subs = getSubcategories(categories, cat.id);
         return (

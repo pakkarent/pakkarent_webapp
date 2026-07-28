@@ -180,3 +180,10 @@ export function getFestiveLinks(city) {
     { label: 'Event Rental', path: getCategoryPath(3, city || 'Chennai') },
   ];
 }
+
+export const FESTIVE_NAV_LINKS = [
+  { label: 'Haldi', path: '/festive/haldi', emoji: '🪔' },
+  { label: 'Naming Ceremony', path: '/festive/naming-ceremony', emoji: '👶' },
+  { label: 'Baby Shower', path: '/festive/baby-shower', emoji: '🌸' },
+  { label: 'Birthday Decoration', path: '/festive/birthday-decoration', emoji: '🎂' },
+];

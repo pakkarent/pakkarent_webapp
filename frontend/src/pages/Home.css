@@ -24,7 +24,6 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   height: 520px;
-  aspect-ratio: 14 / 15;
   background: var(--gray-light);
 }
 .hero-panel-img img {
