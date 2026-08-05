@@ -9,6 +9,7 @@ import { resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils
 import { priceUnitLabel } from '../utils/productPricing';
 import { cartUsesMonthlyPricing, rentalDaysInclusive } from '../utils/rentalModel';
 import { buildInquiryWhatsAppUrl, buildMapLink, openWhatsAppUrl } from '../utils/whatsappInquiry';
+import { orderAPI } from '../services/api';
 import HoneypotField, { isHoneypotFilled } from '../components/common/HoneypotField';
 import DeliveryMapPicker from '../components/common/DeliveryMapPicker';
 import useSEO from '../hooks/useSEO';
@@ -145,6 +146,7 @@ export default function Cart() {
     }
 
     const items = cart.map((item) => ({
+      product_id: item.id,
       name: item.name,
       quantity: item.quantity,
       lineTotal: (getItemPrice(item) * item.quantity).toFixed(2),
@@ -171,12 +173,29 @@ export default function Cart() {
 
     setSubmitting(true);
     try {
+      await orderAPI.createWhatsApp({
+        name: payload.name,
+        phone: payload.phone,
+        email: payload.email,
+        address: payload.address,
+        city: payload.city,
+        website: formData.website,
+        items: items.map(({ product_id, quantity }) => ({ product_id, quantity })),
+        tenure_months: monthlyCart ? tenure : null,
+        start_date: monthlyCart ? (rentStart || undefined) : rentStart,
+        end_date: monthlyCart ? undefined : rentEnd,
+        lat: payload.lat,
+        lng: payload.lng,
+        rentalSummary,
+      });
+
       openWhatsAppUrl(whatsappUrl);
       setConfirmWhatsAppUrl(whatsappUrl);
       setShowConfirm(true);
       clearCart();
-    } catch {
-      showToast('Could not open WhatsApp. Please try again.', { type: 'error' });
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Could not save your order. Please try again.';
+      showToast(msg, { type: 'error' });
     } finally {
       setSubmitting(false);
     }

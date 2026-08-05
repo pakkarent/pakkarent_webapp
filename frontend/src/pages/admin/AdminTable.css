@@ -53,6 +53,10 @@
 .admin-table th { padding: 16px; text-align: left; color: white; font-weight: 600; font-size: 13px; }
 .admin-table td { padding: 16px; border-bottom: 1px solid var(--gray-border); font-size: 13px; }
 .admin-table tbody tr:hover { background: var(--gray-light); }
+.admin-order-detail-row td { background: var(--gray-light); }
+.admin-order-detail { font-size: 13px; line-height: 1.5; }
+.admin-order-detail p { margin: 0 0 8px; }
+.admin-order-detail ul { margin: 8px 0 0; padding-left: 18px; }
 .product-name { font-weight: 600; color: var(--dark); }
 .product-name small { display: block; font-size: 11px; color: var(--gray); margin-top: 4px; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }

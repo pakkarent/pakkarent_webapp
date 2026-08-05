@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../models/db');
-const { authenticate, adminOnly } = require('../middleware/auth');
+const { authenticate, optionalAuthenticate, adminOnly } = require('../middleware/auth');
+const { inquiryLimiter } = require('../middleware/rateLimit');
+const { rejectHoneypot } = require('../middleware/honeypot');
 
 function specsObj(specs) {
   if (!specs) return {};
@@ -42,91 +44,215 @@ function dateToYMD(d) {
   return `${y}-${m}-${day}`;
 }
 
-// Create order
+function buildMapLink(lat, lng) {
+  if (lat == null || lng == null || Number.isNaN(Number(lat)) || Number.isNaN(Number(lng))) return '';
+  return `https://www.google.com/maps?q=${lat},${lng}`;
+}
+
+/**
+ * Shared order pricing / date validation.
+ * Returns { orderTenureMonths, orderStart, orderEnd, total_amount, total_deposit, lines }
+ * where lines = [{ product_id, quantity, unit_price }]
+ */
+async function prepareOrderLines(client, items, { tenure_months, start_date, end_date }) {
+  if (!items?.length) throw new Error('No items in order');
+
+  const rows = [];
+  for (const item of items) {
+    const productId = item.product_id ?? item.id;
+    const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
+    if (!productId) throw new Error('Each item needs a product_id');
+    const prod = await client.query('SELECT * FROM products WHERE id=$1 AND is_active=true', [productId]);
+    if (!prod.rows.length) throw new Error(`Product ${productId} not found`);
+    rows.push({ product_id: productId, quantity, p: prod.rows[0] });
+  }
+
+  let sawMonthly = null;
+  for (const { p } of rows) {
+    const m = isMonthlyProductRow(p);
+    if (sawMonthly === null) sawMonthly = m;
+    else if (sawMonthly !== m) throw new Error('Mixed monthly and day-based rental products are not allowed in one order');
+  }
+
+  const isMonthlyOrder = sawMonthly;
+  let orderTenureMonths = Number(tenure_months);
+  let orderStart = start_date;
+  let orderEnd = end_date;
+
+  if (isMonthlyOrder) {
+    if (!orderStart) throw new Error('Rental start date is required');
+    orderTenureMonths = Number(tenure_months);
+    if (![1, 3, 6, 12].includes(orderTenureMonths)) throw new Error('Invalid rental tenure');
+    const startD = new Date(orderStart);
+    if (Number.isNaN(startD.getTime())) throw new Error('Invalid start date');
+    const endD = new Date(startD);
+    endD.setMonth(endD.getMonth() + orderTenureMonths);
+    orderEnd = dateToYMD(endD);
+  } else {
+    orderTenureMonths = 0;
+    if (!orderStart || !orderEnd) throw new Error('Rental start and end dates are required');
+    const days = rentalDaysInclusive(orderStart, orderEnd);
+    if (days < 1) throw new Error('Invalid rental date range');
+  }
+
+  let total_amount = 0;
+  let total_deposit = 0;
+  const lines = [];
+
+  for (const { product_id, quantity, p } of rows) {
+    const price = isMonthlyProductRow(p)
+      ? linePriceMonthly(p, orderTenureMonths)
+      : Number(p.monthly_price);
+    total_amount += price * quantity;
+    total_deposit += Number(p.security_deposit || 0) * quantity;
+    lines.push({ product_id, quantity, unit_price: price });
+  }
+
+  return { orderTenureMonths, orderStart, orderEnd, total_amount, total_deposit, lines };
+}
+
+// WhatsApp cart inquiry → pending guest order (no login required)
+router.post(
+  '/whatsapp',
+  inquiryLimiter,
+  rejectHoneypot({ fakeSuccess: true }),
+  optionalAuthenticate,
+  async (req, res) => {
+    const {
+      name,
+      phone,
+      email,
+      address,
+      city,
+      items,
+      tenure_months,
+      start_date,
+      end_date,
+      lat,
+      lng,
+      rentalSummary,
+    } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({ success: false, message: 'Name is required' });
+    }
+    if (!phone?.trim()) {
+      return res.status(400).json({ success: false, message: 'Phone is required' });
+    }
+    if (!address?.trim()) {
+      return res.status(400).json({ success: false, message: 'Address is required' });
+    }
+    if (!city?.trim()) {
+      return res.status(400).json({ success: false, message: 'City is required' });
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: 'Cart is empty' });
+    }
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Monthly WhatsApp carts often omit start date — default to today for admin tracking
+      const isMonthlyPayload = tenure_months != null && Number(tenure_months) > 0;
+      let effectiveStart = start_date;
+      let effectiveTenure = tenure_months;
+      let effectiveEnd = end_date;
+      if (isMonthlyPayload) {
+        if (!effectiveStart) effectiveStart = dateToYMD(new Date());
+        if (![1, 3, 6, 12].includes(Number(effectiveTenure))) effectiveTenure = 1;
+      }
+
+      const prepared = await prepareOrderLines(client, items, {
+        tenure_months: effectiveTenure,
+        start_date: effectiveStart,
+        end_date: effectiveEnd,
+      });
+
+      const delivery_address = {
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email?.trim() || '',
+        address: address.trim(),
+        city: city.trim(),
+        channel: 'whatsapp',
+      };
+      if (lat != null && lng != null) {
+        delivery_address.lat = Number(lat);
+        delivery_address.lng = Number(lng);
+        delivery_address.mapLink = buildMapLink(lat, lng);
+      }
+
+      const notesParts = ['WhatsApp order'];
+      if (rentalSummary?.trim()) notesParts.push(rentalSummary.trim());
+
+      const orderResult = await client.query(
+        `INSERT INTO orders (user_id, status, total_amount, security_deposit, delivery_address, tenure_months, start_date, end_date, notes)
+         VALUES ($1,'pending',$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+        [
+          req.user?.id || null,
+          prepared.total_amount,
+          prepared.total_deposit,
+          JSON.stringify(delivery_address),
+          prepared.orderTenureMonths,
+          prepared.orderStart,
+          prepared.orderEnd,
+          notesParts.join(' — '),
+        ]
+      );
+      const order = orderResult.rows[0];
+
+      for (const line of prepared.lines) {
+        await client.query(
+          'INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES ($1,$2,$3,$4)',
+          [order.id, line.product_id, line.quantity, line.unit_price]
+        );
+      }
+
+      await client.query('COMMIT');
+      res.status(201).json({ success: true, order: { id: order.id, status: order.status, total_amount: order.total_amount } });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      res.status(400).json({ success: false, message: err.message });
+    } finally {
+      client.release();
+    }
+  }
+);
+
+// Create order (authenticated checkout)
 router.post('/', authenticate, async (req, res) => {
   const { items, delivery_address, tenure_months, start_date, end_date } = req.body;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    if (!items?.length) throw new Error('No items in order');
-
-    const rows = [];
-    for (const item of items) {
-      const prod = await client.query('SELECT * FROM products WHERE id=$1', [item.product_id]);
-      if (!prod.rows.length) throw new Error(`Product ${item.product_id} not found`);
-      rows.push({ item, p: prod.rows[0] });
-    }
-
-    let sawMonthly = null;
-    for (const { p } of rows) {
-      const m = isMonthlyProductRow(p);
-      if (sawMonthly === null) sawMonthly = m;
-      else if (sawMonthly !== m) throw new Error('Mixed monthly and day-based rental products are not allowed in one order');
-    }
-
-    const isMonthlyOrder = sawMonthly;
-    let orderTenureMonths = Number(tenure_months);
-    let orderStart = start_date;
-    let orderEnd = end_date;
-
-    if (isMonthlyOrder) {
-      if (!orderStart) throw new Error('Rental start date is required');
-      orderTenureMonths = Number(tenure_months);
-      if (![1, 3, 6, 12].includes(orderTenureMonths)) throw new Error('Invalid rental tenure');
-      const startD = new Date(orderStart);
-      if (Number.isNaN(startD.getTime())) throw new Error('Invalid start date');
-      const endD = new Date(startD);
-      endD.setMonth(endD.getMonth() + orderTenureMonths);
-      orderEnd = dateToYMD(endD);
-    } else {
-      orderTenureMonths = 0;
-      if (!orderStart || !orderEnd) throw new Error('Rental start and end dates are required');
-      const days = rentalDaysInclusive(orderStart, orderEnd);
-      if (days < 1) throw new Error('Invalid rental date range');
-    }
-
-    let total_amount = 0;
-    let total_deposit = 0;
-
-    for (const { item, p } of rows) {
-      let price;
-      if (isMonthlyProductRow(p)) {
-        price = linePriceMonthly(p, orderTenureMonths);
-      } else {
-        price = Number(p.monthly_price);
-      }
-      total_amount += price * item.quantity;
-      total_deposit += Number(p.security_deposit) * item.quantity;
-    }
+    const prepared = await prepareOrderLines(client, items, {
+      tenure_months,
+      start_date,
+      end_date,
+    });
 
     const orderResult = await client.query(
       `INSERT INTO orders (user_id, status, total_amount, security_deposit, delivery_address, tenure_months, start_date, end_date)
        VALUES ($1,'pending',$2,$3,$4,$5,$6,$7) RETURNING *`,
       [
         req.user.id,
-        total_amount,
-        total_deposit,
+        prepared.total_amount,
+        prepared.total_deposit,
         JSON.stringify(delivery_address),
-        orderTenureMonths,
-        orderStart,
-        orderEnd,
+        prepared.orderTenureMonths,
+        prepared.orderStart,
+        prepared.orderEnd,
       ]
     );
     const order = orderResult.rows[0];
 
-    for (const { item, p } of rows) {
-      let price;
-      if (isMonthlyProductRow(p)) {
-        price = linePriceMonthly(p, orderTenureMonths);
-      } else {
-        price = Number(p.monthly_price);
-      }
-
+    for (const line of prepared.lines) {
       await client.query(
         'INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES ($1,$2,$3,$4)',
-        [order.id, item.product_id, item.quantity, price]
+        [order.id, line.product_id, line.quantity, line.unit_price]
       );
-      await client.query('UPDATE products SET stock=stock-$1 WHERE id=$2', [item.quantity, item.product_id]);
+      await client.query('UPDATE products SET stock=stock-$1 WHERE id=$2', [line.quantity, line.product_id]);
     }
 
     await client.query('COMMIT');
@@ -163,8 +289,15 @@ router.get('/', authenticate, adminOnly, async (req, res) => {
   if (status) { where = 'WHERE o.status=$1'; params.push(status); }
   try {
     const result = await pool.query(
-      `SELECT o.*, u.name as user_name, u.email as user_email, u.phone as user_phone,
-       json_agg(json_build_object('product_name',p.name,'quantity',oi.quantity,'unit_price',oi.unit_price)) as items
+      `SELECT o.*,
+       COALESCE(u.name, o.delivery_address->>'name') as user_name,
+       COALESCE(u.email, NULLIF(o.delivery_address->>'email', '')) as user_email,
+       COALESCE(u.phone, o.delivery_address->>'phone') as user_phone,
+       o.delivery_address->>'city' as delivery_city,
+       o.delivery_address->>'address' as delivery_street,
+       o.delivery_address->>'channel' as order_channel,
+       json_agg(json_build_object('product_name',p.name,'quantity',oi.quantity,'unit_price',oi.unit_price))
+         FILTER (WHERE oi.id IS NOT NULL) as items
        FROM orders o LEFT JOIN users u ON o.user_id=u.id
        LEFT JOIN order_items oi ON o.id=oi.order_id LEFT JOIN products p ON oi.product_id=p.id
        ${where} GROUP BY o.id, u.name, u.email, u.phone ORDER BY o.created_at DESC LIMIT $${params.length+1} OFFSET $${params.length+2}`,

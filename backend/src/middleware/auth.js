@@ -44,6 +44,29 @@ const authenticate = async (req, res, next) => {
   }
 };
 
+/** Attach req.user when a valid token is present; otherwise continue as guest. */
+const optionalAuthenticate = async (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return next();
+
+  try {
+    const sbUser = await resolveSupabaseUser(token);
+    if (sbUser) {
+      req.user = sbUser;
+      return next();
+    }
+  } catch {
+    // fall through
+  }
+
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    // ignore invalid token for optional auth
+  }
+  next();
+};
+
 const adminOnly = (req, res, next) => {
   if (req.user?.role !== 'admin') {
     return res.status(403).json({ success: false, message: 'Admin access required' });
@@ -51,4 +74,4 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
-module.exports = { authenticate, adminOnly };
+module.exports = { authenticate, optionalAuthenticate, adminOnly };

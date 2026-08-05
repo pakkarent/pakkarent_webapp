@@ -2,21 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { orderAPI } from '../../services/api';
 import './AdminTable.css';
 
-const statusColors = {
-  pending: '#FFC107',
-  confirmed: '#2196F3',
-  delivered: '#FF9800',
-  active: '#4CAF50',
-  completed: '#8BC34A',
-  cancelled: '#f44336'
-};
-
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -79,31 +71,85 @@ export default function AdminOrders() {
               </tr>
             </thead>
             <tbody>
-              {orders.map(order => (
-                <tr key={order.id}>
-                  <td>#{order.id}</td>
-                  <td>
-                    <div>{order.user_name}</div>
-                    <small>{order.user_email}</small>
-                  </td>
-                  <td>{order.items ? order.items.length : 0} item{order.items && order.items.length > 1 ? 's' : ''}</td>
-                  <td>₹{parseFloat(order.total_amount).toFixed(2)}</td>
-                  <td>
-                    <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="status-select">
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="active">Active</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                  <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                  <td className="actions">
-                    <button className="btn-small btn-edit">View</button>
-                  </td>
-                </tr>
-              ))}
+              {orders.map(order => {
+                const items = Array.isArray(order.items) ? order.items.filter(Boolean) : [];
+                const isOpen = expandedId === order.id;
+                return (
+                  <React.Fragment key={order.id}>
+                    <tr>
+                      <td>
+                        #{order.id}
+                        {order.order_channel === 'whatsapp' && (
+                          <div><small>WhatsApp</small></div>
+                        )}
+                      </td>
+                      <td>
+                        <div>{order.user_name || 'Guest'}</div>
+                        {order.user_phone && <small>{order.user_phone}</small>}
+                        {order.user_email && <div><small>{order.user_email}</small></div>}
+                        {order.delivery_city && <div><small>{order.delivery_city}</small></div>}
+                      </td>
+                      <td>{items.length} item{items.length !== 1 ? 's' : ''}</td>
+                      <td>₹{parseFloat(order.total_amount).toFixed(2)}</td>
+                      <td>
+                        <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="status-select">
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="active">Active</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </td>
+                      <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                      <td className="actions">
+                        <button
+                          type="button"
+                          className="btn-small btn-edit"
+                          onClick={() => setExpandedId(isOpen ? null : order.id)}
+                        >
+                          {isOpen ? 'Hide' : 'View'}
+                        </button>
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="admin-order-detail-row">
+                        <td colSpan={7}>
+                          <div className="admin-order-detail">
+                            <p>
+                              <strong>Address:</strong>{' '}
+                              {order.delivery_street || order.delivery_address?.address || '—'}
+                              {order.delivery_city ? `, ${order.delivery_city}` : ''}
+                            </p>
+                            {order.delivery_address?.mapLink && (
+                              <p>
+                                <strong>Map:</strong>{' '}
+                                <a href={order.delivery_address.mapLink} target="_blank" rel="noreferrer">
+                                  Open location
+                                </a>
+                              </p>
+                            )}
+                            <p>
+                              <strong>Rental:</strong>{' '}
+                              {order.start_date || '—'}
+                              {order.end_date ? ` → ${order.end_date}` : ''}
+                              {order.tenure_months > 0 ? ` (${order.tenure_months} mo)` : ''}
+                            </p>
+                            {order.notes && <p><strong>Notes:</strong> {order.notes}</p>}
+                            <ul>
+                              {items.map((item, idx) => (
+                                <li key={idx}>
+                                  {item.product_name} × {item.quantity} — ₹{parseFloat(item.unit_price).toFixed(2)}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -122,9 +168,3 @@ export default function AdminOrders() {
     </div>
   );
 }
-
-const StatusSelect = ({ value, options, onChange }) => (
-  <select value={value} onChange={onChange} className="status-select">
-    {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-  </select>
-);

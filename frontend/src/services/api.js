@@ -51,6 +51,7 @@ export const categoryAPI = {
 
 export const orderAPI = {
   create: (data) => API.post('/orders', data),
+  createWhatsApp: (data) => API.post('/orders/whatsapp', data, { timeout: 15000 }),
   getMyOrders: () => API.get('/orders/my'),
   getAll: (params) => API.get('/orders', { params }),
   updateStatus: (id, status) => API.patch(`/orders/${id}/status`, { status }),
