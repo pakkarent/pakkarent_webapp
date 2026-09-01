@@ -40,18 +40,32 @@ app.use('/api/inquiries', inquiryRoutes);
 
 app.get('/api/health', async (req, res) => {
   const pool = require('./src/models/db');
+  const { isUsingMemoryDb } = require('./src/models/db');
   let db = 'unknown';
+  let productCount = null;
   try {
     await pool.query('SELECT 1');
-    db = /supabase\.(co|com)/i.test(process.env.DATABASE_URL || '') ? 'supabase' : 'postgres';
+    if (isUsingMemoryDb()) {
+      db = 'demo-memory';
+    } else {
+      db = /supabase\.(co|com)/i.test(process.env.DATABASE_URL || '') ? 'supabase' : 'postgres';
+      const count = await pool.query('SELECT COUNT(*)::int AS n FROM products WHERE is_active = true');
+      productCount = count.rows[0]?.n ?? null;
+    }
   } catch {
     db = 'unavailable';
   }
   res.json({
-    status: 'OK',
+    status: db === 'unavailable' ? 'degraded' : 'OK',
     message: 'PakkaRent API running',
     database: db,
+    active_products: productCount,
     supabase: Boolean(process.env.SUPABASE_URL),
+    warning: db === 'demo-memory'
+      ? 'API is serving demo data — fix DATABASE_URL on the host'
+      : productCount != null && productCount < 50
+        ? 'Very few active products — check DATABASE_URL points to the full catalog'
+        : undefined,
   });
 });
 

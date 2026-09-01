@@ -1,9 +1,13 @@
 /**
  * Database connection — Supabase PostgreSQL (or any Postgres URL).
- * Falls back to pg-mem if the connection fails (local demo mode).
+ * Falls back to pg-mem only in local development when the connection fails.
  */
 const { Pool } = require('pg');
 const { seedMemoryDB } = require('./seed-memory');
+
+let _pool = new Pool(poolConfig());
+let initPromise = null;
+let _usingMemoryDb = false;
 
 function poolConfig() {
   const connectionString = process.env.DATABASE_URL;
@@ -18,12 +22,15 @@ function poolConfig() {
   };
 }
 
-let _pool = new Pool(poolConfig());
-
-let initPromise = null;
+function isProduction() {
+  return process.env.NODE_ENV === 'production';
+}
 
 async function init() {
   if (!process.env.DATABASE_URL) {
+    if (isProduction()) {
+      throw new Error('DATABASE_URL is required in production');
+    }
     console.warn('⚠️  DATABASE_URL not set — using in-memory database (demo mode)...');
     return useMemoryDB();
   }
@@ -39,6 +46,10 @@ async function init() {
     console.log(`✅  Connected to ${label}`);
     return;
   } catch (err) {
+    if (isProduction()) {
+      console.error(`✗  PostgreSQL unavailable in production: ${err.message}`);
+      throw err;
+    }
     console.warn(`⚠️  PostgreSQL unavailable: ${err.message}`);
     console.warn('    Starting in-memory database (demo mode)...');
     return useMemoryDB();
@@ -51,7 +62,12 @@ function useMemoryDB() {
   seedMemoryDB(db);
   const { Pool: MemPool } = db.adapters.createPg();
   _pool = new MemPool();
+  _usingMemoryDb = true;
   console.log('✅  In-memory database ready (data resets on server restart)');
+}
+
+function isUsingMemoryDb() {
+  return _usingMemoryDb;
 }
 
 const pool = {
@@ -69,3 +85,4 @@ const pool = {
 };
 
 module.exports = pool;
+module.exports.isUsingMemoryDb = isUsingMemoryDb;
