@@ -19,7 +19,7 @@ const ProductDetail = React.lazy(() => import('./pages/ProductDetail'));
 const ProductIdRedirect = React.lazy(() => import('./pages/ProductIdRedirect'));
 const LegacyProductRoute = React.lazy(() => import('./pages/LegacyProductRoute'));
 const LegacyStoreRoute = React.lazy(() => import('./pages/LegacyStoreRoute'));
-const NotFoundRedirect = React.lazy(() => import('./pages/NotFoundRedirect'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
 const ProductsSlugRouter = React.lazy(() => import('./pages/ProductsSlugRouter'));
 const CityLanding = React.lazy(() => import('./pages/CityLanding'));
 const Cart = React.lazy(() => import('./pages/Cart'));
@@ -105,7 +105,7 @@ function AppContent() {
         <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
         <Route path="/admin/pricing" element={<AdminRoute><AdminPricing /></AdminRoute>} />
         <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />
-        <Route path="*" element={<NotFoundRedirect />} />
+        <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </main>

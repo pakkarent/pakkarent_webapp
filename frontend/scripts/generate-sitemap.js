@@ -44,8 +44,6 @@ const STATIC_PAGES = [
   { path: '/privacy', changefreq: 'yearly', priority: '0.3' },
 ];
 
-const EVENT_SUBCATEGORY_IDS = [10, 13, 11, 9, 12];
-
 const CITY_BLOG_SLUGS = {
   chennai: [
     'naming-ceremony-cradle-rental-guide-chennai',
@@ -110,12 +108,6 @@ function buildCityEntries(city, products) {
 
   for (const slug of CATEGORY_SLUGS) {
     entries.push(urlEntry(`/products/${slug}/${city}`, { changefreq: 'weekly', priority: '0.8' }));
-  }
-  for (const subId of EVENT_SUBCATEGORY_IDS) {
-    entries.push(urlEntry(`/products/event-rental/${city}?subcategory_id=${subId}`, {
-      changefreq: 'weekly',
-      priority: '0.75',
-    }));
   }
 
   for (const slug of CITY_BLOG_SLUGS[city] || []) {

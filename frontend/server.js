@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Production static server with global 404 → homepage redirect.
- * Uses serve-handler + build/serve.json (prerender-safe; no -s catch-all rewrite).
+ * Production static server.
+ * Unknown paths return HTTP 404 (not a homepage redirect) so Google does not
+ * classify dead product/legacy URLs as soft 404s.
  */
 const http = require('http');
 const path = require('path');
@@ -50,6 +51,8 @@ async function defaultSendError(absolutePath, response, acceptsJSON, current, ha
   if (stats) {
     const stream = await handlers.createReadStream(errorPage);
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
+    // Explicit status — serve-handler may have already set it, keep 404.
+    response.statusCode = statusCode;
     stream.pipe(response);
     return;
   }
@@ -63,11 +66,7 @@ const config = loadConfig();
 const server = http.createServer((request, response) => {
   handler(request, response, config, {
     sendError(absolutePath, res, acceptsJSON, current, handlers, cfg, spec) {
-      if (spec.statusCode === 404 && !acceptsJSON) {
-        res.writeHead(301, { Location: '/' });
-        res.end();
-        return;
-      }
+      // Real 404 for crawlers — do NOT 301 unknown URLs to homepage (soft 404).
       return defaultSendError(absolutePath, res, acceptsJSON, current, handlers, cfg, spec);
     },
   }).catch((err) => {

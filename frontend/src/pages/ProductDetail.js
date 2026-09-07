@@ -126,14 +126,14 @@ export default function ProductDetail() {
   useSEO({
     title: product
       ? `${product.name} on Rent in ${product.city === 'all' ? 'India' : product.city}`
-      : 'Product',
+      : 'Product not found',
     description: product
       ? citySpecificMetaDescription(product)
-      : 'Browse rental products on PakkaRent.',
+      : 'This product is not available on PakkaRent.',
     image: seoImage,
     canonical: productPath,
     type: 'product',
-    noindex: !product,
+    noindex: !loading && !product,
   });
 
   const productLd = useMemo(() => {
@@ -201,7 +201,21 @@ export default function ProductDetail() {
   }, [product]);
 
   if (loading) return <div className="loading">Loading product...</div>;
-  if (!product)  return <div className="error-msg">Product not found</div>;
+  if (!product) {
+    return (
+      <div className="container" style={{ maxWidth: 560, margin: '4rem auto', textAlign: 'center', padding: '0 1rem' }}>
+        <h1>Product not found</h1>
+        <p style={{ color: 'var(--gray, #666)', lineHeight: 1.6 }}>
+          This rental is not available. It may have been moved or removed from the catalog.
+        </p>
+        <p>
+          <button type="button" className="btn btn-primary" onClick={() => navigate('/products')}>
+            Browse rentals
+          </button>
+        </p>
+      </div>
+    );
+  }
 
   const images = safeImages;
   const displaySpecs = getDisplaySpecs(product);

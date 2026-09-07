@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { productAPI } from '../services/api';
 import { getProductPath } from '../utils/productUrls';
+import NotFound from './NotFound';
 
 /** Client redirect from /products/:id to /rent/:slug/:city */
 export default function ProductIdRedirect() {
@@ -20,7 +21,7 @@ export default function ProductIdRedirect() {
       .catch(() => setNotFound(true));
   }, [id]);
 
-  if (notFound) return <Navigate to="/" replace />;
+  if (notFound) return <NotFound />;
   if (target) return <Navigate to={target} replace />;
   return <div className="loading">Redirecting…</div>;
 }
