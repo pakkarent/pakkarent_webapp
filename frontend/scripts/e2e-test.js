@@ -102,7 +102,7 @@ async function testStaticServer() {
     { path: '/chennai', expectTitle: /Chennai/i },
     { path: '/bangalore', expectTitle: /Bangalore/i },
     { path: '/products/baby-props-rental/bangalore', expectTitle: /Baby Props/i },
-    { path: '/rent/baby-stroller/bangalore', expectTitle: /Baby Stroller/i },
+    { path: '/rent/bangalore/baby-stroller', expectTitle: /Baby Stroller/i },
     { path: '/blog/washing-machine-on-rent-bangalore-guide', expectTitle: /Washing Machine/i },
     { path: '/faq', expectTitle: /FAQ/i },
   ];
@@ -123,11 +123,11 @@ async function testStaticServer() {
 
   // Prerender meta on product page
   try {
-    const { text } = await fetchText(`${BASE_URL}/rent/baby-stroller/bangalore`);
+    const { text } = await fetchText(`${BASE_URL}/rent/bangalore/baby-stroller`);
     const canonical = extractMeta(text, /rel="canonical" href="([^"]+)"/i);
     const hasProductLd = text.includes('"@type":"Product"') || text.includes('"@type": "Product"');
     const hasNoscript = text.includes('prerender-content') || text.includes('Baby Stroller');
-    if (canonical?.includes('/rent/baby-stroller/bangalore') && hasNoscript) {
+    if (canonical?.includes('/rent/bangalore/baby-stroller') && hasNoscript) {
       pass('Prerender product meta', canonical);
     } else {
       fail('Prerender product meta', `canonical=${canonical}`);
@@ -141,7 +141,7 @@ async function testStaticServer() {
   try {
     const { res } = await fetchText(`${BASE_URL}/products/122`);
     const loc = res.headers.get('location');
-    if ((res.status === 301 || res.status === 302) && loc?.includes('/rent/baby-stroller/bangalore')) {
+    if ((res.status === 301 || res.status === 302) && loc?.includes('/rent/bangalore/baby-stroller')) {
       pass('301 /products/122 → slug URL', loc);
     } else {
       fail('301 /products/122 → slug URL', `status=${res.status} loc=${loc}`);
@@ -167,13 +167,26 @@ async function testStaticServer() {
       }
       break;
     }
-    if (finalLoc?.includes('/rent/golden-jhula-swing/chennai')) {
+    if (finalLoc?.includes('/rent/chennai/golden-jhula-swing')) {
       pass('301 legacy HTML redirect', `${hops} hop(s) → ${finalLoc}`);
     } else {
       fail('301 legacy HTML redirect', `loc=${finalLoc}`);
     }
   } catch (e) {
     fail('301 legacy HTML redirect', e.message);
+  }
+
+  // Old /rent/{slug}/{city} → new /rent/{city}/{slug}
+  try {
+    const { res } = await fetchText(`${BASE_URL}/rent/baby-stroller/bangalore`);
+    const loc = res.headers.get('location');
+    if ((res.status === 301 || res.status === 302) && loc?.includes('/rent/bangalore/baby-stroller')) {
+      pass('301 old rent URL → city-first', loc);
+    } else {
+      fail('301 old rent URL → city-first', `status=${res.status} loc=${loc}`);
+    }
+  } catch (e) {
+    fail('301 old rent URL → city-first', e.message);
   }
 
   // Unknown URLs → homepage (custom server.js 404 handler)

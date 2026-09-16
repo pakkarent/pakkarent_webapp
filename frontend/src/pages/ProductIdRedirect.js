@@ -4,7 +4,7 @@ import { productAPI } from '../services/api';
 import { getProductPath } from '../utils/productUrls';
 import NotFound from './NotFound';
 
-/** Client redirect from /products/:id to /rent/:slug/:city */
+/** Client redirect from /products/:id to /rent/:city/:slug */
 export default function ProductIdRedirect() {
   const { id } = useParams();
   const [target, setTarget] = useState(null);

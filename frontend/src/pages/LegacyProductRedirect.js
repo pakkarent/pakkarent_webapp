@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { productAPI } from '../services/api';
 
-/** Redirect old pakkarent.com HTML product paths to canonical /rent/:slug/:city URLs. */
+/** Redirect old pakkarent.com HTML product paths to canonical /rent/:city/:slug URLs. */
 export default function LegacyProductRedirect() {
   const location = useLocation();
   const [target, setTarget] = useState(null);

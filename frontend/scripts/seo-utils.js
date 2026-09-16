@@ -83,10 +83,17 @@ function cityUrlSegment(city) {
   return String(city).toLowerCase();
 }
 
+/** Canonical: /rent/{city}/{slug}. city=all → /rent/india/{slug}. */
 function productPath(product) {
-  if (product?.slug) return `/rent/${product.slug}/${cityUrlSegment(product.city)}`;
+  if (product?.slug) return `/rent/${cityUrlSegment(product.city)}/${product.slug}`;
   if (product?.id) return `/products/${product.id}`;
   return null;
+}
+
+/** Old format /rent/{slug}/{city} — for 301 redirects only. */
+function legacySlugCityProductPath(product) {
+  if (!product?.slug) return null;
+  return `/rent/${product.slug}/${cityUrlSegment(product.city)}`;
 }
 
 function escapeAttr(str) {
@@ -290,6 +297,7 @@ module.exports = {
   BLOG_SLUGS,
   cityUrlSegment,
   productPath,
+  legacySlugCityProductPath,
   escapeAttr,
   escapeHtml,
   fetchAllProducts,

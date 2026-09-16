@@ -15,7 +15,7 @@ import AdminSeo from './components/common/AdminSeo';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Products = React.lazy(() => import('./pages/Products'));
-const ProductDetail = React.lazy(() => import('./pages/ProductDetail'));
+const RentProductRoute = React.lazy(() => import('./pages/RentProductRoute'));
 const ProductIdRedirect = React.lazy(() => import('./pages/ProductIdRedirect'));
 const LegacyProductRoute = React.lazy(() => import('./pages/LegacyProductRoute'));
 const LegacyStoreRoute = React.lazy(() => import('./pages/LegacyStoreRoute'));
@@ -76,7 +76,7 @@ function AppContent() {
         <Route path="/hyderabad" element={<CityLanding />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:a/:b" element={<ProductsSlugRouter />} />
-        <Route path="/rent/:slug/:city" element={<ProductDetail />} />
+        <Route path="/rent/:city/:slug" element={<RentProductRoute />} />
         <Route path="/store/*" element={<LegacyStoreRoute />} />
         <Route path="/:prefix/products/:category/:filename" element={<LegacyProductRoute />} />
         <Route path="/products/:id" element={<ProductIdRedirect />} />

@@ -77,8 +77,10 @@ function Lightbox({ images, startIdx, onClose }) {
 }
 
 // ── Product Detail page ───────────────────────────────────────────────────────
-export default function ProductDetail() {
-  const { slug, city: citySegment } = useParams();
+export default function ProductDetail({ citySegment: cityProp, slug: slugProp } = {}) {
+  const params = useParams();
+  const slug = slugProp || params.slug;
+  const citySegment = cityProp || params.city;
   const navigate = useNavigate();
   const { confirmCityForCatalog } = useCity();
   const [product, setProduct] = useState(null);
@@ -105,7 +107,7 @@ export default function ProductDetail() {
         setLoading(false);
       }
     };
-    fetch();
+    if (slug && citySegment) fetch();
   }, [slug, citySegment, confirmCityForCatalog]);
 
   useEffect(() => {
@@ -121,7 +123,7 @@ export default function ProductDetail() {
     ? (resolveImageUrl(safeImages[0]) || '/og-image.png')
     : '/og-image.png';
 
-  const productPath = product ? getProductPath(product) : `/rent/${slug}/${citySegment}`;
+  const productPath = product ? getProductPath(product) : `/rent/${citySegment}/${slug}`;
 
   useSEO({
     title: product

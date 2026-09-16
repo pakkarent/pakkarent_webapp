@@ -64,7 +64,7 @@ function resolveLegacyRedirect(rawPath) {
 function legacyRedirectUrl(rawPath, origin = '') {
   const target = resolveLegacyRedirect(rawPath);
   if (!target) return null;
-  const path = `/rent/${target.slug}/${cityUrlSegment(target.city)}`;
+  const path = `/rent/${cityUrlSegment(target.city)}/${target.slug}`;
   return origin ? `${origin.replace(/\/$/, '')}${path}` : path;
 }
 
