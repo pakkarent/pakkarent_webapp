@@ -189,32 +189,30 @@ async function testStaticServer() {
     fail('301 old rent URL → city-first', e.message);
   }
 
-  // Unknown URLs → homepage (custom server.js 404 handler)
-  for (const unknownPath of ['/store/backdrop', '/store/unknown-old-page', '/old-crawled-page.html']) {
+  // Unknown junk URLs → real HTTP 404 (not soft-404 homepage redirect)
+  for (const unknownPath of ['/old-crawled-page.html', '/totally-fake-page-xyz']) {
     try {
-      let url = `${BASE_URL}${unknownPath}`;
-      let hops = 0;
-      let finalLoc = '/';
-      while (hops < 5) {
-        const { res } = await fetchText(url);
-        const loc = res.headers.get('location');
-        if ((res.status === 301 || res.status === 302) && loc) {
-          finalLoc = loc;
-          url = loc.startsWith('http') ? loc : `${BASE_URL}${loc}`;
-          hops += 1;
-          if (loc === '/' || loc?.endsWith('/')) break;
-          continue;
-        }
-        break;
-      }
-      if (finalLoc === '/' || finalLoc?.endsWith('/')) {
-        pass(`404 → home ${unknownPath}`, `${hops} hop(s) → ${finalLoc}`);
+      const { res } = await fetchText(`${BASE_URL}${unknownPath}`);
+      if (res.status === 404) {
+        pass(`404 ${unknownPath}`);
       } else {
-        fail(`404 → home ${unknownPath}`, `loc=${finalLoc}`);
+        fail(`404 ${unknownPath}`, `status=${res.status}`);
       }
     } catch (e) {
-      fail(`404 → home ${unknownPath}`, e.message);
+      fail(`404 ${unknownPath}`, e.message);
     }
+  }
+
+  // Catalog SPA fallback (no prerender file) still serves the app shell
+  try {
+    const { res, text } = await fetchText(`${BASE_URL}/rent/chennai/brand-new-product-not-prerendered-yet`);
+    if (res.status === 200 && text.includes('id="root"')) {
+      pass('SPA fallback missing prerender product', 'index.html served');
+    } else {
+      fail('SPA fallback missing prerender product', `status=${res.status}`);
+    }
+  } catch (e) {
+    fail('SPA fallback missing prerender product', e.message);
   }
 
   // SPA fallback for client routes
