@@ -10,8 +10,7 @@
     { "source": "/my-orders", "destination": "/index.html" },
     { "source": "/profile", "destination": "/index.html" },
     { "source": "/admin", "destination": "/index.html" },
-    { "source": "/admin/**", "destination": "/index.html" },
-    { "source": "/store/**", "destination": "/index.html" }
+    { "source": "/admin/**", "destination": "/index.html" }
   ],
   "headers": [
     {

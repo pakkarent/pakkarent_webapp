@@ -95,17 +95,26 @@ export default function ProductDetail({ citySegment: cityProp, slug: slugProp } 
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
-      try {
-        const res = await productAPI.getBySlug(slug, citySegment);
-        setProduct(res.data.product);
-        setSelectedImage(0);
-        confirmCityForCatalog();
-      } catch (err) {
-        console.error('Error loading product:', err);
-        setProduct(null);
-      } finally {
-        setLoading(false);
+      // Retry transient failures (e.g. API cold start) so crawlers and users
+      // don't get a "Product not found" + noindex page for a real product.
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          const res = await productAPI.getBySlug(slug, citySegment);
+          setProduct(res.data.product);
+          setSelectedImage(0);
+          confirmCityForCatalog();
+          break;
+        } catch (err) {
+          const status = err.response?.status;
+          if (status === 404 || status === 400 || attempt === 2) {
+            console.error('Error loading product:', err);
+            setProduct(null);
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+        }
       }
+      setLoading(false);
     };
     if (slug && citySegment) fetch();
   }, [slug, citySegment, confirmCityForCatalog]);

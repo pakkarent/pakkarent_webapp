@@ -141,6 +141,68 @@ function productImageUrls(product) {
   return urls.length ? urls.slice(0, 6) : [`${SITE_URL}/og-image.png`];
 }
 
+/** Category IDs 1–8 map to CATEGORY_SLUGS in order (stable seed IDs). */
+function categoryPath(product) {
+  const slug = CATEGORY_SLUGS[Number(product?.category_id) - 1];
+  if (!slug || product.city === 'all') return '/products';
+  return `/products/${slug}/${cityUrlSegment(product.city)}`;
+}
+
+function formatInr(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return String(value || '');
+  return n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+function productDetailItems(product) {
+  const specs = product?.specs && typeof product.specs === 'object' ? product.specs : {};
+  const raw = Array.isArray(specs.details) ? specs.details : String(specs.details || '').split(',');
+  return raw.map((s) => String(s).trim()).filter(Boolean).slice(0, 10);
+}
+
+/** Server-rendered product page body — visible to crawlers without JS. */
+function productBody(product, images) {
+  const name = escapeHtml(product.name);
+  const cityLabel = product.city === 'all' ? 'India' : product.city;
+  const city = escapeHtml(cityLabel);
+  const unit = priceUnitWord(product);
+  const category = escapeHtml(product.category_name || 'Rentals');
+  const cityHref = product.city === 'all' ? '/products' : `/${cityUrlSegment(product.city)}`;
+  const description = product.description
+    ? `<p>${escapeHtml(product.description)}</p>`
+    : `<p>Rent ${name} in ${city} from PakkaRent with doorstep delivery and pickup.</p>`;
+  const details = productDetailItems(product);
+  const deposit = Number(product.security_deposit) > 0
+    ? `<p>Refundable security deposit: ₹${formatInr(product.security_deposit)}</p>`
+    : '';
+  const tiers = [
+    ['3 months', product.price_3month],
+    ['6 months', product.price_6month],
+    ['12 months', product.price_12month],
+  ].filter(([, v]) => Number(v) > 0);
+  const tierList = tiers.length
+    ? `<ul>${tiers.map(([label, v]) => `<li>${label}: ₹${formatInr(v)}/month</li>`).join('')}</ul>`
+    : '';
+  const gallery = images
+    .filter((src) => !src.endsWith('/og-image.png'))
+    .slice(0, 4)
+    .map((src, i) => `<img src="${escapeAttr(src)}" alt="${escapeAttr(`${product.name} on rent in ${cityLabel}${i ? ` — photo ${i + 1}` : ''}`)}" width="400" height="400" style="width:100%;max-width:400px;height:auto;object-fit:cover;border-radius:8px"${i ? ' loading="lazy"' : ''}>`)
+    .join('');
+
+  return [
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="${cityHref}">${city}</a> › <a href="${categoryPath(product)}">${category}</a> › ${name}</nav>`,
+    `<h1>${name} on Rent in ${city}</h1>`,
+    gallery ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">${gallery}</div>` : '',
+    `<p><strong>₹${formatInr(product.monthly_price)} per ${unit}</strong></p>`,
+    tierList,
+    deposit,
+    description,
+    details.length ? `<h2>What's included</h2><ul>${details.map((d) => `<li>${escapeHtml(d)}</li>`).join('')}</ul>` : '',
+    `<p>Book on WhatsApp or call <a href="tel:+919403890901">+91 94038 90901</a>. Delivery across ${city}.</p>`,
+    `<p><a href="${categoryPath(product)}">More ${category} in ${city}</a> · <a href="/products">All rentals</a></p>`,
+  ].filter(Boolean).join('');
+}
+
 function productMeta(product) {
   const cityLabel = product.city === 'all' ? 'India' : product.city;
   const unit = priceUnitWord(product);
@@ -149,12 +211,12 @@ function productMeta(product) {
     title: `${product.name} on Rent in ${cityLabel} | PakkaRent`,
     description: `Rent ${product.name} in ${cityLabel} from ₹${product.monthly_price}/${unit}. Flexible rental on PakkaRent.`,
     path: productPath(product),
-    body: `<h1>${escapeHtml(product.name)} on Rent in ${escapeHtml(cityLabel)}</h1><p>Rent ${escapeHtml(product.name)} in ${escapeHtml(cityLabel)} from PakkaRent. Category: ${escapeHtml(product.category_name || 'Rental')}.</p>`,
+    body: productBody(product, images),
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'Product',
       name: product.name,
-      description: `Rent ${product.name} in ${cityLabel} on PakkaRent.`,
+      description: product.description || `Rent ${product.name} in ${cityLabel} on PakkaRent.`,
       sku: `PAKKA-${product.id}`,
       brand: { '@type': 'Brand', name: 'PakkaRent' },
       category: product.category_name || 'Rental',
@@ -255,19 +317,33 @@ function collectPrerenderRoutes(products) {
     routes.push({ path: page.path, title: page.title, description: page.description, body: `<h1>${escapeHtml(page.title.split('|')[0].trim())}</h1>` });
   }
 
+  const productLinks = (list) => (list.length
+    ? `<ul>${list.map((p) => `<li><a href="${productPath(p)}">${escapeHtml(p.name)}</a> — ₹${formatInr(p.monthly_price)}/${priceUnitWord(p)}</li>`).join('')}</ul>`
+    : '');
+
   for (const city of CITY_SEGMENTS) {
     const meta = CITY_META[city];
-    routes.push({ path: `/${city}`, title: meta.title, description: meta.description, body: `<h1>${escapeHtml(meta.title.split('|')[0].trim())}</h1>` });
-    for (const slug of CATEGORY_SLUGS) {
+    const cityName = city.charAt(0).toUpperCase() + city.slice(1);
+    const inCity = products.filter((p) => p.slug && cityUrlSegment(p.city) === city);
+    const categoryLinks = CATEGORY_SLUGS
+      .map((slug) => `<li><a href="/products/${slug}/${city}">${escapeHtml(CATEGORY_NAMES[slug])} in ${cityName}</a></li>`)
+      .join('');
+    routes.push({
+      path: `/${city}`,
+      title: meta.title,
+      description: meta.description,
+      body: `<h1>${escapeHtml(meta.title.split('|')[0].trim())}</h1><p>${escapeHtml(meta.description)}</p><ul>${categoryLinks}</ul>`,
+    });
+    CATEGORY_SLUGS.forEach((slug, index) => {
       const name = CATEGORY_NAMES[slug];
-      const cityName = city.charAt(0).toUpperCase() + city.slice(1);
+      const inCategory = inCity.filter((p) => Number(p.category_id) === index + 1);
       routes.push({
         path: `/products/${slug}/${city}`,
         title: `${name} on Rent in ${cityName} | PakkaRent`,
         description: `Browse ${name} products available on rent in ${cityName}. Flexible rental plans on PakkaRent.`,
-        body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1>`,
+        body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1>${productLinks(inCategory)}<p><a href="/${city}">All rentals in ${cityName}</a></p>`,
       });
-    }
+    });
   }
 
   for (const slug of BLOG_SLUGS) {

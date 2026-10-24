@@ -52,9 +52,11 @@ function injectPageMeta(template, { title, description, canonical, body, jsonLd 
 
   html = html.replace('</head>', `${ldBlock}\n</head>`);
 
+  // Real body content inside #root: crawlers see it without running JS, and
+  // React's createRoot().render() replaces it once the app mounts.
   html = html.replace(
-    '<noscript>',
-    `<noscript><main id="prerender-content" style="max-width:720px;margin:2rem auto;padding:0 1rem;font-family:sans-serif">${body}</main>`
+    /<div id="root"><\/div>/,
+    `<div id="root"><main id="prerender-content" style="max-width:960px;margin:2rem auto;padding:0 1rem;font-family:Inter,system-ui,sans-serif;line-height:1.6;color:#1f1a14">${body}</main></div>`
   );
 
   return html;

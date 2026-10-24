@@ -1,6 +1,6 @@
-import { Navigate } from 'react-router-dom';
+import NotFound from './NotFound';
 
-/** Redirect old /store/* category URLs to the matching catalog page or home. */
+/** Old /store/* pages no longer exist — show the 404 page (server also returns HTTP 404). */
 export default function LegacyStoreRoute() {
-  return <Navigate to="/" replace />;
+  return <NotFound />;
 }
