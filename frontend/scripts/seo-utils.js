@@ -475,4 +475,7 @@ module.exports = {
   fetchAllProducts,
   collectPrerenderRoutes,
   productMeta,
+  priceUnitWord,
+  productImageUrls,
+  productDetailItems,
 };

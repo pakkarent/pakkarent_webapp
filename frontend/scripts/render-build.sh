@@ -24,12 +24,16 @@ node scripts/generate-redirects.js
 echo "▶ Prerendering SEO HTML pages..."
 node scripts/prerender-pages.js
 
+echo "▶ Generating Merchant Center product feed..."
+node scripts/generate-merchant-feed.js
+
 echo "▶ Verifying build output..."
 test -f build/sitemap.xml
 test -f build/sitemap-pages.xml
 test -f build/sitemap-chennai.xml
 test -f build/sitemap-bangalore.xml
 test -f build/sitemap-hyderabad.xml
+test -f build/merchant-feed.xml
 test -f build/index.html
 test -f build/manifest.json
 test -f build/og-image.png
