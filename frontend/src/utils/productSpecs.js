@@ -3,6 +3,8 @@
  * Hides internal/pricing keys; keeps pricing_type in DB for app logic only.
  */
 
+import { alignCityCopy } from './productSeo';
+
 const HIDDEN_KEYS = new Set([
   'pricing_type',
   'price_per_event',
@@ -83,12 +85,13 @@ export function getDisplaySpecs(product) {
   }
   if (!specs || typeof specs !== 'object' || Array.isArray(specs)) return [];
 
+  const cityLabel = product?.city === 'all' ? 'India' : product?.city;
   const rows = [];
 
   // Prefer legacy-style detail bullets when present
   if (Array.isArray(specs.details) && specs.details.length) {
     for (const line of specs.details) {
-      const text = sanitizeDisplayText(line);
+      const text = alignCityCopy(sanitizeDisplayText(line), cityLabel);
       if (text) rows.push({ label: null, value: text });
     }
     const occasions = specs.occasions;
@@ -102,15 +105,23 @@ export function getDisplaySpecs(product) {
     return rows;
   }
 
+  // specs.details sometimes stored as a single comma-joined string
+  if (typeof specs.details === 'string' && specs.details.trim()) {
+    const text = alignCityCopy(sanitizeDisplayText(specs.details.replace(/,/g, '. ')), cityLabel);
+    if (text) rows.push({ label: null, value: text });
+  }
+
   const features = specs.features;
   if (Array.isArray(features) && features.length) {
-    const cleaned = features.map(sanitizeDisplayText).filter(Boolean);
+    const cleaned = features.map((f) => alignCityCopy(sanitizeDisplayText(f), cityLabel)).filter(Boolean);
     if (cleaned.length) rows.push({ label: 'Highlights', value: cleaned.join(' · ') });
   }
 
   const occasions = specs.occasions;
   if (Array.isArray(occasions) && occasions.length) {
     rows.push({ label: 'Occasions', value: occasions.join(', ') });
+  } else if (typeof occasions === 'string' && occasions.trim()) {
+    rows.push({ label: 'Occasions', value: occasions });
   }
 
   const includes = specs.includes;
@@ -121,7 +132,7 @@ export function getDisplaySpecs(product) {
   for (const [key, val] of Object.entries(specs)) {
     if (HIDDEN_KEYS.has(key)) continue;
     if (['details', 'features', 'occasions', 'includes'].includes(key)) continue;
-    const formatted = sanitizeDisplayText(formatValue(val));
+    const formatted = alignCityCopy(sanitizeDisplayText(formatValue(val)), cityLabel);
     if (!formatted) continue;
     rows.push({
       label: KEY_LABELS[key] || titleCase(key),
