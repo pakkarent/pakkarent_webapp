@@ -60,7 +60,7 @@ const CITY_META = {
   },
 };
 
-const BLOG_SLUGS = [
+const FALLBACK_BLOG_SLUGS = [
   'naming-ceremony-cradle-rental-guide-chennai',
   'silver-vs-golden-cradle-which-to-rent',
   'haldi-ceremony-decoration-rental-ideas',
@@ -77,6 +77,82 @@ const BLOG_SLUGS = [
   'backdrop-rental-bangalore-ideas',
   'wedding-event-rental-checklist-hyderabad',
 ];
+
+/**
+ * Load BLOG_POSTS from src/content/blogPosts.js (ES modules) at build time by
+ * transpiling src files to CommonJS with Babel, so prerendered blog HTML has the
+ * real title, description and article body.
+ */
+function loadBlogPosts() {
+  const babel = require('@babel/core');
+  const srcDir = path.join(__dirname, '..', 'src');
+  const defaultLoader = require.extensions['.js'];
+  require.extensions['.js'] = function loadSrcModule(mod, filename) {
+    if (!filename.startsWith(srcDir)) return defaultLoader(mod, filename);
+    const { code } = babel.transformSync(fs.readFileSync(filename, 'utf8'), {
+      filename,
+      babelrc: false,
+      configFile: false,
+      plugins: ['@babel/plugin-transform-modules-commonjs'],
+    });
+    return mod._compile(code, filename);
+  };
+  try {
+    return require(path.join(srcDir, 'content', 'blogPosts.js')).BLOG_POSTS || [];
+  } finally {
+    require.extensions['.js'] = defaultLoader;
+  }
+}
+
+let BLOG_POSTS = [];
+try {
+  BLOG_POSTS = loadBlogPosts();
+} catch (err) {
+  console.warn(`Blog: could not load src/content/blogPosts.js (${err.message}) — using slug list`);
+}
+
+const BLOG_SLUGS = BLOG_POSTS.length ? BLOG_POSTS.map((p) => p.slug) : FALLBACK_BLOG_SLUGS;
+
+function renderBlogParts(parts) {
+  return (parts || []).map((part) => (part.type === 'link'
+    ? `<a href="${escapeAttr(part.to)}">${escapeHtml(part.label)}</a>`
+    : escapeHtml(part.value))).join('');
+}
+
+/** Server-rendered article HTML from blogPosts.js blocks (h3 / ul / p). */
+function renderBlogBlocks(blocks) {
+  return (blocks || []).map((block) => {
+    if (block.type === 'h3') return `<h2>${escapeHtml(block.text)}</h2>`;
+    if (block.type === 'ul') {
+      const items = block.items.map((item) => `<li>${typeof item === 'string' ? escapeHtml(item) : renderBlogParts(item.parts)}</li>`);
+      return `<ul>${items.join('')}</ul>`;
+    }
+    if (block.type === 'p') return `<p>${renderBlogParts(block.parts)}</p>`;
+    return '';
+  }).join('');
+}
+
+function blogPostBody(post) {
+  const related = (post.relatedSlugs || [])
+    .map((slug) => BLOG_POSTS.find((p) => p.slug === slug))
+    .filter(Boolean);
+  const catalog = (post.catalogLinks || [])
+    .map((l) => `<li><a href="${escapeAttr(l.to)}">${escapeHtml(l.label)}</a></li>`)
+    .join('');
+  return [
+    `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/blog">Blog</a> › ${escapeHtml(post.title)}</nav>`,
+    '<article>',
+    `<h1>${escapeHtml(post.title)}</h1>`,
+    `<p><time datetime="${escapeAttr(post.publishedAt)}">${escapeHtml(post.publishedAt)}</time> · ${Number(post.readMinutes) || 5} min read</p>`,
+    `<p>${escapeHtml(post.excerpt)}</p>`,
+    renderBlogBlocks(post.blocks),
+    '</article>',
+    catalog ? `<h2>Browse rentals</h2><ul>${catalog}</ul>` : '',
+    related.length
+      ? `<h2>Related guides</h2><ul>${related.map((p) => `<li><a href="/blog/${escapeAttr(p.slug)}">${escapeHtml(p.title)}</a></li>`).join('')}</ul>`
+      : '',
+  ].join('');
+}
 
 function cityUrlSegment(city) {
   if (!city || city === 'all') return 'india';
@@ -313,8 +389,18 @@ async function fetchAllProducts() {
 function collectPrerenderRoutes(products) {
   const routes = [];
 
+  const blogIndex = BLOG_POSTS.length
+    ? `<ul>${BLOG_POSTS.map((p) => `<li><a href="/blog/${escapeAttr(p.slug)}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)}</li>`).join('')}</ul>`
+    : '';
+
   for (const page of STATIC_ROUTES) {
-    routes.push({ path: page.path, title: page.title, description: page.description, body: `<h1>${escapeHtml(page.title.split('|')[0].trim())}</h1>` });
+    const heading = `<h1>${escapeHtml(page.title.split('|')[0].trim())}</h1>`;
+    routes.push({
+      path: page.path,
+      title: page.title,
+      description: page.description,
+      body: page.path === '/blog' ? `${heading}${blogIndex}` : heading,
+    });
   }
 
   const productLinks = (list) => (list.length
@@ -346,7 +432,16 @@ function collectPrerenderRoutes(products) {
     });
   }
 
-  for (const slug of BLOG_SLUGS) {
+  for (const post of BLOG_POSTS) {
+    routes.push({
+      path: `/blog/${post.slug}`,
+      title: `${post.title} | PakkaRent`,
+      description: post.seoDescription || post.excerpt,
+      body: blogPostBody(post),
+    });
+  }
+
+  for (const slug of BLOG_POSTS.length ? [] : BLOG_SLUGS) {
     const title = slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
     routes.push({
       path: `/blog/${slug}`,
@@ -371,6 +466,7 @@ module.exports = {
   CITY_SEGMENTS,
   CATEGORY_SLUGS,
   BLOG_SLUGS,
+  BLOG_POSTS,
   cityUrlSegment,
   productPath,
   legacySlugCityProductPath,

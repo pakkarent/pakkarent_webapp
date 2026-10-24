@@ -20,6 +20,7 @@ const {
   CITY_SEGMENTS,
   CATEGORY_SLUGS,
   BLOG_SLUGS,
+  BLOG_POSTS,
   cityUrlSegment,
   productPath,
   fetchAllProducts,
@@ -60,6 +61,12 @@ const CITY_BLOG_SLUGS = {
     'wedding-event-rental-checklist-hyderabad',
   ],
 };
+
+// Posts tagged with `city` in blogPosts.js go into that city's sitemap too.
+for (const post of BLOG_POSTS) {
+  const list = CITY_BLOG_SLUGS[post.city];
+  if (list && !list.includes(post.slug)) list.push(post.slug);
+}
 
 function escapeXml(str) {
   return String(str)

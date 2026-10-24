@@ -1,6 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+function renderParts(parts) {
+  return parts.map((part, j) => {
+    if (part.type === 'link') {
+      return (
+        <Link key={j} to={part.to} className="blog-inline-link">
+          {part.label}
+        </Link>
+      );
+    }
+    return <React.Fragment key={j}>{part.value}</React.Fragment>;
+  });
+}
+
 export function BlogContent({ blocks }) {
   if (!blocks?.length) return null;
 
@@ -11,29 +24,17 @@ export function BlogContent({ blocks }) {
           return <h3 key={i}>{block.text}</h3>;
         }
         if (block.type === 'ul') {
+          // Items are plain strings, or { parts: [...] } for lists with links.
           return (
             <ul key={i}>
               {block.items.map((item, j) => (
-                <li key={j}>{item}</li>
+                <li key={j}>{typeof item === 'string' ? item : renderParts(item.parts)}</li>
               ))}
             </ul>
           );
         }
         if (block.type === 'p') {
-          return (
-            <p key={i}>
-              {block.parts.map((part, j) => {
-                if (part.type === 'link') {
-                  return (
-                    <Link key={j} to={part.to} className="blog-inline-link">
-                      {part.label}
-                    </Link>
-                  );
-                }
-                return <React.Fragment key={j}>{part.value}</React.Fragment>;
-              })}
-            </p>
-          );
+          return <p key={i}>{renderParts(block.parts)}</p>;
         }
         return null;
       })}

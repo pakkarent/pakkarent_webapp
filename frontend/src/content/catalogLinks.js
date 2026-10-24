@@ -23,3 +23,24 @@ export const CATALOG_LINKS = {
   faq: '/faq',
   contact: '/contact',
 };
+
+/** Product page URL for blog backlinks: /rent/{city}/{slug}. */
+export const rentLink = (city, slug) => `/rent/${String(city).toLowerCase()}/${slug}`;
+
+/** Category URLs for one city — used by location-specific blog posts. */
+export function cityCatalogLinks(city) {
+  const event = getCategoryPath(3, city);
+  return {
+    city: `/${String(city).toLowerCase()}`,
+    event,
+    cradle: `${event}?subcategory_id=10`,
+    swings: `${event}?subcategory_id=13`,
+    decor: `${event}?subcategory_id=9`,
+    props: `${event}?subcategory_id=12`,
+    backdrop: getCategoryPath(4, city),
+    birthday: getCategoryPath(5, city),
+    babyProps: getCategoryPath(6, city),
+    kidsToys: getCategoryPath(7, city),
+    games: getCategoryPath(8, city),
+  };
+}
