@@ -13,7 +13,7 @@ export default function BlogPost() {
   const related = useMemo(() => (post ? getRelatedPosts(post.slug, 3) : []), [post, slug]);
 
   useSEO({
-    title: post?.title || 'Article not found',
+    title: post?.seoTitle || post?.title || 'Article not found',
     description: post?.seoDescription || post?.excerpt,
     keywords: post?.keywords,
     canonical: post ? `/blog/${post.slug}` : '/blog',

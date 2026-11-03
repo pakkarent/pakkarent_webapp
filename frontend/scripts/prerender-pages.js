@@ -13,8 +13,12 @@ const {
   escapeHtml,
 } = require('./seo-utils');
 
-function injectPageMeta(template, { title, description, canonical, body, jsonLd }) {
+function injectPageMeta(template, { title, description, canonical, body, jsonLd, noindex }) {
   let html = template;
+
+  if (noindex) {
+    html = html.replace(/<meta name="robots" content="[^"]*"/, '<meta name="robots" content="noindex, follow"');
+  }
 
   html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(title)}</title>`);
   html = html.replace(
@@ -98,6 +102,7 @@ async function main() {
       canonical,
       body: route.body || '',
       jsonLd: route.jsonLd,
+      noindex: route.noindex,
     });
     writeRouteHtml(buildDir, route.path, html);
     written += 1;

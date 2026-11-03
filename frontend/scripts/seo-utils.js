@@ -31,7 +31,7 @@ const CATEGORY_NAMES = {
 };
 
 const STATIC_ROUTES = [
-  { path: '/', title: 'PakkaRent — Rent Appliances, Furniture & Event Items in Chennai, Bangalore, Hyderabad', description: 'PakkaRent makes it easy to rent home appliances, furniture, baby gear, camping kits and event rentals across Chennai, Bangalore and Hyderabad.' },
+  { path: '/', title: 'Rent Appliances, Event Items & Baby Gear | PakkaRent', description: 'PakkaRent makes it easy to rent home appliances, furniture, baby gear, camping kits and event rentals across Chennai, Bangalore and Hyderabad.' },
   { path: '/products', title: 'All Rentals | PakkaRent', description: 'Browse all rental products — appliances, event items, baby gear, camping kits and more in Chennai, Bangalore and Hyderabad.' },
   { path: '/blog', title: 'Rental Guides & Tips | PakkaRent Blog', description: 'Expert guides on event rentals, baby props, appliances and camping gear in Chennai, Bangalore and Hyderabad.' },
   { path: '/festive/haldi', title: 'Haldi Rentals | PakkaRent', description: 'Browse haldi rentals including lotus urli, Rolu Rokali, mangala snanam sets and haldi backdrops on PakkaRent.' },
@@ -43,6 +43,8 @@ const STATIC_ROUTES = [
   { path: '/contact', title: 'Contact Us | PakkaRent', description: 'Contact PakkaRent — call +91 94038 90901 or WhatsApp for rentals in Chennai, Bangalore and Hyderabad.' },
   { path: '/faq', title: 'FAQs | PakkaRent', description: 'PakkaRent FAQs — booking, payments, delivery, cancellation and returns.' },
   { path: '/delivery-info', title: 'Delivery Info | PakkaRent', description: 'PakkaRent delivery information — transport charges and installation across South India.' },
+  { path: '/terms', title: 'Terms of Service | PakkaRent', description: 'PakkaRent terms of service — booking, cancellation, refunds and product policies.' },
+  { path: '/privacy', title: 'Privacy Policy | PakkaRent', description: 'PakkaRent privacy policy — how we collect, use and protect your personal data.' },
 ];
 
 const CITY_META = {
@@ -51,12 +53,12 @@ const CITY_META = {
     description: 'PakkaRent Chennai — rent washing machines, AC, cradles, backdrops, baby strollers and camping gear with doorstep delivery.',
   },
   bangalore: {
-    title: 'Rent Appliances, Event Items & Baby Gear in Bangalore | PakkaRent',
-    description: 'PakkaRent Bangalore — rent home appliances, baby strollers, event backdrops and games with flexible rental plans.',
+    title: 'Rent Cradles, Event Items & Baby Gear in Bangalore | PakkaRent',
+    description: 'PakkaRent Bangalore — rent cradles, baby strollers, car seats, event backdrops and games with delivery across Bangalore.',
   },
   hyderabad: {
-    title: 'Rent Appliances, Event Items & Baby Gear in Hyderabad | PakkaRent',
-    description: 'PakkaRent Hyderabad — rent appliances, baby gear, backdrops and party props with delivery across the city.',
+    title: 'Rent Cradles, Event Items & Baby Gear in Hyderabad | PakkaRent',
+    description: 'PakkaRent Hyderabad — rent cradles, baby gear, backdrops and party props with delivery across the city.',
   },
 };
 
@@ -79,11 +81,11 @@ const FALLBACK_BLOG_SLUGS = [
 ];
 
 /**
- * Load BLOG_POSTS from src/content/blogPosts.js (ES modules) at build time by
- * transpiling src files to CommonJS with Babel, so prerendered blog HTML has the
- * real title, description and article body.
+ * Load content modules from src/ (ES modules) at build time by transpiling src
+ * files to CommonJS with Babel, so prerendered HTML has the real blog articles,
+ * info pages and festive pages.
  */
-function loadBlogPosts() {
+function loadSrcContent(relativePath) {
   const babel = require('@babel/core');
   const srcDir = path.join(__dirname, '..', 'src');
   const defaultLoader = require.extensions['.js'];
@@ -98,7 +100,7 @@ function loadBlogPosts() {
     return mod._compile(code, filename);
   };
   try {
-    return require(path.join(srcDir, 'content', 'blogPosts.js')).BLOG_POSTS || [];
+    return require(path.join(srcDir, relativePath));
   } finally {
     require.extensions['.js'] = defaultLoader;
   }
@@ -106,9 +108,18 @@ function loadBlogPosts() {
 
 let BLOG_POSTS = [];
 try {
-  BLOG_POSTS = loadBlogPosts();
+  BLOG_POSTS = loadSrcContent('content/blogPosts.js').BLOG_POSTS || [];
 } catch (err) {
   console.warn(`Blog: could not load src/content/blogPosts.js (${err.message}) — using slug list`);
+}
+
+let SITE_PAGES = {};
+let FESTIVE_PAGES = {};
+try {
+  SITE_PAGES = loadSrcContent('content/sitePages.js').SITE_PAGES || {};
+  FESTIVE_PAGES = loadSrcContent('content/festivePages.js').FESTIVE_PAGES || {};
+} catch (err) {
+  console.warn(`Pages: could not load page content (${err.message}) — prerendering headings only`);
 }
 
 const BLOG_SLUGS = BLOG_POSTS.length ? BLOG_POSTS.map((p) => p.slug) : FALLBACK_BLOG_SLUGS;
@@ -130,6 +141,49 @@ function renderBlogBlocks(blocks) {
     if (block.type === 'p') return `<p>${renderBlogParts(block.parts)}</p>`;
     return '';
   }).join('');
+}
+
+const INFO_PAGE_KEYS = {
+  '/about': 'about',
+  '/how-it-works': 'how-it-works',
+  '/contact': 'contact',
+  '/faq': 'faq',
+  '/delivery-info': 'delivery',
+  '/terms': 'terms',
+  '/privacy': 'privacy',
+};
+
+/** Server-rendered body for About, FAQ, Contact etc. from sitePages.js. */
+function infoPageBody(page) {
+  const sections = (page.sections || []).map((section) => [
+    section.heading ? `<h2>${escapeHtml(section.heading)}</h2>` : '',
+    section.body ? `<p>${escapeHtml(section.body)}</p>` : '',
+    section.list ? `<ul>${section.list.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : '',
+    section.links ? `<p>${section.links.map((l) => `<a href="${escapeAttr(l.href)}">${escapeHtml(l.label)}</a>`).join(' · ')}</p>` : '',
+  ].join('')).join('');
+  const faqs = (page.faqs || []).map((f) => `<h2>${escapeHtml(f.q)}</h2><p>${escapeHtml(f.a)}</p>`).join('');
+  return `${page.subtitle ? `<p>${escapeHtml(page.subtitle)}</p>` : ''}${sections}${faqs}`;
+}
+
+/** Server-rendered body for /festive/* from festivePages.js; lists products still in the catalog. */
+function festivePageBody(page, products) {
+  const listItems = (items) => (items?.length ? `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>` : '');
+  const sections = (page.sections || []).map((section) => {
+    const links = (section.slugs || [])
+      .map((slug) => products.find((p) => p.slug === slug))
+      .filter(Boolean)
+      .map((p) => `<li><a href="${productPath(p)}">${escapeHtml(p.name)}</a></li>`)
+      .join('');
+    return `<h2>${escapeHtml(section.title)}</h2><p>${escapeHtml(section.blurb || '')}</p>${links ? `<ul>${links}</ul>` : ''}`;
+  }).join('');
+  return `<p>${escapeHtml(page.heroSub || '')}</p>${listItems(page.highlights)}${page.comboIdeas?.length ? `<h2>Combo ideas</h2>${listItems(page.comboIdeas)}` : ''}${sections}`;
+}
+
+/** Category slugs with at least one product in the city (all of them if products didn't load). */
+function cityCategorySlugs(products, city) {
+  if (!products.length) return CATEGORY_SLUGS;
+  const stocked = products.filter((p) => p.city === 'all' || cityUrlSegment(p.city) === city);
+  return CATEGORY_SLUGS.filter((_, index) => stocked.some((p) => Number(p.category_id) === index + 1));
 }
 
 function blogPostBody(post) {
@@ -398,6 +452,18 @@ async function fetchAllProductsFromApi() {
     page += 1;
     await sleep(400);
   }
+  // The list endpoint omits descriptions; product pages need the real copy.
+  for (const product of products) {
+    if (!product.slug) continue;
+    try {
+      const data = await fetchJsonWithRetry(
+        `${API_URL}/api/products/slug/${encodeURIComponent(product.slug)}/${cityUrlSegment(product.city)}`
+      );
+      product.description = data.product?.description || product.description;
+    } catch (err) {
+      console.warn(`Products: no description for ${product.slug} (${err.message})`);
+    }
+  }
   return products;
 }
 
@@ -423,13 +489,28 @@ function collectPrerenderRoutes(products) {
     ? `<ul>${BLOG_POSTS.map((p) => `<li><a href="/blog/${escapeAttr(p.slug)}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)}</li>`).join('')}</ul>`
     : '';
 
+  const catalogIndex = CITY_SEGMENTS.map((city) => {
+    const cityName = city.charAt(0).toUpperCase() + city.slice(1);
+    const links = cityCategorySlugs(products, city)
+      .map((slug) => `<li><a href="/products/${slug}/${city}">${escapeHtml(CATEGORY_NAMES[slug])} in ${cityName}</a></li>`)
+      .join('');
+    return `<h2><a href="/${city}">Rentals in ${cityName}</a></h2><ul>${links}</ul>`;
+  }).join('');
+
   for (const page of STATIC_ROUTES) {
     const heading = `<h1>${escapeHtml(page.title.split('|')[0].trim())}</h1>`;
+    const infoPage = SITE_PAGES[INFO_PAGE_KEYS[page.path]];
+    const festivePage = FESTIVE_PAGES[page.path.replace('/festive/', '')];
+    let content = '';
+    if (page.path === '/blog') content = blogIndex;
+    else if (page.path === '/' || page.path === '/products') content = catalogIndex;
+    else if (infoPage) content = infoPageBody(infoPage);
+    else if (festivePage) content = festivePageBody(festivePage, products);
     routes.push({
       path: page.path,
       title: page.title,
       description: page.description,
-      body: page.path === '/blog' ? `${heading}${blogIndex}` : heading,
+      body: `${heading}${page.path === '/' ? `<p>${escapeHtml(page.description)}</p>` : ''}${content}`,
     });
   }
 
@@ -441,14 +522,15 @@ function collectPrerenderRoutes(products) {
     const meta = CITY_META[city];
     const cityName = city.charAt(0).toUpperCase() + city.slice(1);
     const inCity = products.filter((p) => p.slug && cityUrlSegment(p.city) === city);
-    const categoryLinks = CATEGORY_SLUGS
+    const stockedSlugs = cityCategorySlugs(products, city);
+    const categoryLinks = stockedSlugs
       .map((slug) => `<li><a href="/products/${slug}/${city}">${escapeHtml(CATEGORY_NAMES[slug])} in ${cityName}</a></li>`)
       .join('');
     routes.push({
       path: `/${city}`,
       title: meta.title,
       description: meta.description,
-      body: `<h1>${escapeHtml(meta.title.split('|')[0].trim())}</h1><p>${escapeHtml(meta.description)}</p><ul>${categoryLinks}</ul>`,
+      body: `<h1>${escapeHtml(meta.title.split('|')[0].trim())}</h1><p>${escapeHtml(meta.description)}</p><ul>${categoryLinks}</ul><h2>Rentals available in ${cityName}</h2>${productLinks(inCity)}`,
     });
     CATEGORY_SLUGS.forEach((slug, index) => {
       const name = CATEGORY_NAMES[slug];
@@ -457,7 +539,8 @@ function collectPrerenderRoutes(products) {
         path: `/products/${slug}/${city}`,
         title: `${name} on Rent in ${cityName} | PakkaRent`,
         description: `Browse ${name} products available on rent in ${cityName}. Flexible rental plans on PakkaRent.`,
-        body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1>${productLinks(inCategory)}<p><a href="/${city}">All rentals in ${cityName}</a></p>`,
+        noindex: !stockedSlugs.includes(slug),
+        body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1><p>Rent ${escapeHtml(name.replace(/ Rental$| on Rent$/, '').toLowerCase())} in ${escapeHtml(cityName)} from PakkaRent with doorstep delivery and pickup. Book on WhatsApp or call <a href="tel:+919403890901">+91 94038 90901</a>.</p>${productLinks(inCategory)}<p>More in ${escapeHtml(cityName)}: ${stockedSlugs.filter((s) => s !== slug).map((s) => `<a href="/products/${s}/${city}">${escapeHtml(CATEGORY_NAMES[s])}</a>`).join(' · ')}</p><p><a href="/${city}">All rentals in ${cityName}</a></p>`,
       });
     });
   }
@@ -465,7 +548,7 @@ function collectPrerenderRoutes(products) {
   for (const post of BLOG_POSTS) {
     routes.push({
       path: `/blog/${post.slug}`,
-      title: `${post.title} | PakkaRent`,
+      title: `${post.seoTitle || post.title} | PakkaRent`,
       description: post.seoDescription || post.excerpt,
       body: blogPostBody(post),
     });
@@ -495,6 +578,7 @@ module.exports = {
   API_URL,
   CITY_SEGMENTS,
   CATEGORY_SLUGS,
+  cityCategorySlugs,
   BLOG_SLUGS,
   BLOG_POSTS,
   cityUrlSegment,

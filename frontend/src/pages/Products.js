@@ -112,6 +112,7 @@ export default function Products() {
     description: seoDesc,
     keywords: `${activeCategoryName ? activeCategoryName + ' on rent, ' : ''}rentals ${effectiveCity}, monthly rental ${effectiveCity}, appliances on rent, furniture on rent, baby gear rental, event rentals, PakkaRent`,
     canonical: canonicalPath,
+    noindex: Boolean(routeCategoryId) && !subcategory_id && !search && !loading && products.length === 0,
   });
 
   const breadcrumbLd = useMemo(() => {

@@ -18,7 +18,7 @@ const path = require('path');
 const {
   SITE_URL,
   CITY_SEGMENTS,
-  CATEGORY_SLUGS,
+  cityCategorySlugs,
   BLOG_SLUGS,
   BLOG_POSTS,
   cityUrlSegment,
@@ -113,7 +113,8 @@ function buildCityEntries(city, products) {
   const entries = [];
   entries.push(urlEntry(`/${city}`, { changefreq: 'weekly', priority: '0.9' }));
 
-  for (const slug of CATEGORY_SLUGS) {
+  // Empty categories stay out: Google treats a listing with no products as a soft 404.
+  for (const slug of cityCategorySlugs(products, city)) {
     entries.push(urlEntry(`/products/${slug}/${city}`, { changefreq: 'weekly', priority: '0.8' }));
   }
 

@@ -20,39 +20,44 @@ export const CITY_LANDING = {
   },
   bangalore: {
     city: 'Bangalore',
-    title: 'Rent Appliances, Event Items & Baby Gear in Bangalore',
+    title: 'Rent Cradles, Event Items & Baby Gear in Bangalore',
     seoDescription:
-      'PakkaRent Bangalore — rent home appliances, baby strollers, event backdrops, games and camping gear with flexible rental plans and delivery across Bangalore.',
+      'PakkaRent Bangalore — rent cradles, baby strollers, car seats, event backdrops and games with delivery across Bangalore.',
     keywords:
-      'rent appliances Bangalore, baby stroller rent Bangalore, event rental Bangalore, washing machine on rent Bangalore, furniture rental Bangalore, PakkaRent',
+      'cradle rental Bangalore, baby stroller rent Bangalore, car seat rent Bangalore, event rental Bangalore, backdrop rental Bangalore, PakkaRent',
     heroHeading: 'Rent smarter in Bangalore',
     heroSub:
-      'From home appliances to baby gear, event décor and team-building games — browse Bangalore rentals with doorstep delivery.',
+      'From cradles and baby gear to event décor and games — browse Bangalore rentals with doorstep delivery.',
     highlights: [
-      'Full catalogue available for Bangalore delivery',
-      'Baby props, appliances & event rentals in one place',
-      'Flexible monthly and event-based rental plans',
+      'Naming ceremony cradles, swings & backdrops for Bangalore functions',
+      'Baby strollers, car seats & high chairs for short stays',
+      'Flexible day, week and event-based rental plans',
     ],
   },
   hyderabad: {
     city: 'Hyderabad',
-    title: 'Rent Appliances, Event Items & Baby Gear in Hyderabad',
+    title: 'Rent Cradles, Event Items & Baby Gear in Hyderabad',
     seoDescription:
-      'PakkaRent Hyderabad — rent appliances, baby gear, backdrops, birthday props and games with delivery across Hyderabad. Book online or WhatsApp us.',
+      'PakkaRent Hyderabad — rent cradles, baby gear, backdrops, birthday props and games with delivery across Hyderabad. Book online or WhatsApp us.',
     keywords:
-      'rent appliances Hyderabad, event rental Hyderabad, baby props Hyderabad, backdrop rental Hyderabad, washing machine on rent Hyderabad, PakkaRent',
+      'cradle rental Hyderabad, event rental Hyderabad, baby props Hyderabad, backdrop rental Hyderabad, baby stroller rent Hyderabad, PakkaRent',
     heroHeading: 'Rent smarter in Hyderabad',
     heroSub:
-      'Appliances, baby gear, event backdrops and party rentals — available for delivery across Hyderabad.',
+      'Cradles, baby gear, event backdrops and party rentals — available for delivery across Hyderabad.',
     highlights: [
-      'Hyderabad delivery hub for the full PakkaRent catalogue',
+      'Barasala cradles, swings & haldi décor for Hyderabad functions',
       'Event, backdrop & birthday rentals for functions',
       'Transparent pricing with WhatsApp booking support',
     ],
   },
 };
 
-export const CITY_CATEGORY_IDS = [1, 2, 3, 4, 5, 6, 7, 8];
+/** Categories with products in each city; add an ID here when a city gets its first product in it. */
+export const CITY_CATEGORY_IDS = {
+  Chennai: [1, 2, 3, 4, 5, 6, 7, 8],
+  Bangalore: [3, 4, 5, 6, 8],
+  Hyderabad: [1, 3, 4, 5, 6, 8],
+};
 
 export function getCityLocation(citySegment) {
   return PAKKARENT_LOCATIONS.find((l) => l.id === citySegment) || null;
@@ -69,7 +74,7 @@ export function getCityCategoryLinks(city) {
     7: 'Kids Toys',
     8: 'Games Rental',
   };
-  return CITY_CATEGORY_IDS.map((id) => ({
+  return (CITY_CATEGORY_IDS[city] || []).map((id) => ({
     id,
     name: names[id],
     path: getCategoryPath(id, city),

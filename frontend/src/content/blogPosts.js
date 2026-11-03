@@ -19,10 +19,11 @@ export const BLOG_POSTS = [
     slug: 'cradle-for-rent-chennai-price-guide',
     city: 'chennai',
     title: 'Cradle for Rent in Chennai — 2026 Price Guide for Naming Ceremonies',
+    seoTitle: 'Cradle for Rent in Chennai — 2026 Price Guide',
     excerpt:
       'Compare every cradle you can rent in Chennai — silver, teak, golden and compact — with current per-event prices, sizes and booking tips for your naming ceremony.',
     seoDescription:
-      'Cradle for rent in Chennai: compare silver, teak, golden and compact cradles with 2026 per-event prices. Delivery across Chennai for naming ceremonies — book on PakkaRent.',
+      'Cradle for rent in Chennai: compare silver, teak, golden and compact cradles with 2026 per-event prices and delivery for naming ceremonies.',
     keywords:
       'cradle for rent Chennai, cradle on rent Chennai, naming ceremony cradle Chennai, silver cradle rent Chennai, teak cradle rental Chennai, cradle for rent near me',
     topic: 'event',
@@ -105,6 +106,7 @@ export const BLOG_POSTS = [
     slug: 'baby-stroller-on-rent-chennai',
     city: 'chennai',
     title: 'Baby Stroller on Rent in Chennai — Prams, Car Seats & Cribs for Short Stays',
+    seoTitle: 'Baby Stroller on Rent in Chennai — Short-Stay Guide',
     excerpt:
       'Visiting Chennai with a baby or hosting grandchildren for the holidays? Rent a stroller, car seat, crib or high chair with doorstep delivery instead of flying with bulky gear.',
     seoDescription:
@@ -170,6 +172,7 @@ export const BLOG_POSTS = [
     slug: 'bouncy-castle-trampoline-games-rental-chennai',
     city: 'chennai',
     title: 'Bouncy Castle, Trampoline & Party Games on Rent in Chennai',
+    seoTitle: 'Bouncy Castle & Trampoline on Rent in Chennai',
     excerpt:
       'Turn a Chennai birthday party or apartment get-together into a hit with bouncy castles, trampolines, ball pits and group games — prices and space requirements explained.',
     seoDescription:
@@ -232,10 +235,11 @@ export const BLOG_POSTS = [
     slug: 'cradle-rental-bangalore-naming-ceremony',
     city: 'bangalore',
     title: 'Cradle Rental in Bangalore — Naming Ceremony Cradles from Whitefield to JP Nagar',
+    seoTitle: 'Cradle Rental in Bangalore for Naming Ceremonies',
     excerpt:
       'Silver, teak, golden and royal chain cradles on rent in Bangalore for Namakarana ceremonies — prices, sizes and tips for apartment and hall functions.',
     seoDescription:
-      'Cradle for rent in Bangalore for naming ceremonies (Namakarana). Silver peacock, teak, golden and royal chain cradles with delivery across Bangalore — PakkaRent.',
+      'Cradle for rent in Bangalore for naming ceremonies (Namakarana). Silver peacock, teak, golden and royal chain cradles with delivery across the city.',
     keywords:
       'cradle for rent Bangalore, cradle on rent Bangalore, naming ceremony cradle Bangalore, Namakarana cradle rental, silver cradle rent Bangalore, cradle rental Whitefield',
     topic: 'event',
@@ -298,6 +302,7 @@ export const BLOG_POSTS = [
     slug: 'baby-stroller-car-seat-rent-bangalore',
     city: 'bangalore',
     title: 'Baby Stroller & Car Seat on Rent in Bangalore — Guide for Visiting Families',
+    seoTitle: 'Baby Stroller & Car Seat on Rent in Bangalore',
     excerpt:
       'Flying into Bangalore with a little one? Rent a stroller, car seat and high chair delivered to your home or hotel — what to book and how to plan around airport travel.',
     seoDescription:
@@ -351,6 +356,7 @@ export const BLOG_POSTS = [
     slug: 'barasala-cradle-rental-hyderabad',
     city: 'hyderabad',
     title: 'Barasala Cradle Rental in Hyderabad — Silver, Teak & Golden Cradles',
+    seoTitle: 'Barasala Cradle Rental in Hyderabad',
     excerpt:
       'Planning a Barasala (naming ceremony) in Hyderabad? Compare the cradles you can rent, the oonjal and décor that complete the setup, and how to book delivery.',
     seoDescription:
@@ -414,10 +420,11 @@ export const BLOG_POSTS = [
     slug: 'pellikuthuru-haldi-decor-rental-hyderabad',
     city: 'hyderabad',
     title: 'Pellikuthuru & Haldi Décor on Rent in Hyderabad — Urli, Rolu Rokali & Backdrops',
+    seoTitle: 'Pellikuthuru & Haldi Décor Rental in Hyderabad',
     excerpt:
       'Everything you need for a Pellikuthuru, Mangala Snanam or haldi function in Hyderabad — lotus urli, gangalam set, rolu rokali, backdrops and seating — on rent.',
     seoDescription:
-      'Pellikuthuru and haldi decoration rental in Hyderabad — lotus urli, gangalam mangala snanam set, silver rolu rokali, backdrops and swings on rent from PakkaRent.',
+      'Pellikuthuru and haldi decoration rental in Hyderabad — lotus urli, gangalam mangala snanam set, silver rolu rokali, backdrops and swings on rent.',
     keywords:
       'Pellikuthuru decoration rental Hyderabad, haldi decor rent Hyderabad, mangala snanam set rental Hyderabad, rolu rokali rent Hyderabad, lotus urli rent Hyderabad',
     topic: 'event',
@@ -463,10 +470,11 @@ export const BLOG_POSTS = [
   {
     slug: 'naming-ceremony-cradle-rental-guide-chennai',
     title: 'Naming Ceremony Cradle Rental Guide — Chennai, Bangalore & Hyderabad',
+    seoTitle: 'Naming Ceremony Cradle Rental Guide',
     excerpt:
       'Everything you need to know about renting a silver, golden or teak cradle for your baby naming ceremony — types, pricing, transport and booking tips.',
     seoDescription:
-      'Complete guide to naming ceremony cradle rental in Chennai, Bangalore and Hyderabad. Compare silver, golden and teak cradles, pricing, transport and how to book with PakkaRent.',
+      'Guide to naming ceremony cradle rental in Chennai, Bangalore and Hyderabad. Compare silver, golden and teak cradles, pricing, transport and booking.',
     keywords:
       'naming ceremony cradle rental Chennai, silver cradle rent, baby cradle on rent, naamakaran cradle, cradle rental Bangalore Hyderabad',
     topic: 'event',
@@ -523,6 +531,7 @@ export const BLOG_POSTS = [
   {
     slug: 'silver-vs-golden-cradle-which-to-rent',
     title: 'Silver vs Golden Cradle — Which Should You Rent for Your Event?',
+    seoTitle: 'Silver vs Golden Cradle — Which Should You Rent?',
     excerpt:
       'Compare silver, golden and teak cradles by style, price and occasion so you pick the right centrepiece for your naming ceremony or baby shower.',
     seoDescription:
@@ -566,6 +575,7 @@ export const BLOG_POSTS = [
   {
     slug: 'haldi-ceremony-decoration-rental-ideas',
     title: 'Haldi Ceremony Decoration on a Budget — Urli, Backdrop & Props to Rent',
+    seoTitle: 'Haldi Decoration on a Budget — Items to Rent',
     excerpt:
       'Plan a beautiful haldi or mangala snanam setup without buying décor. Rent lotus urli, gangalam sets, grass backdrops and props from PakkaRent.',
     seoDescription:
@@ -608,6 +618,7 @@ export const BLOG_POSTS = [
   {
     slug: 'oonjal-jhula-swing-rental-guide',
     title: 'Oonjal & Jhula Swing Rental Guide for Weddings and Baby Showers',
+    seoTitle: 'Oonjal & Jhula Swing Rental Guide',
     excerpt:
       'Rent a golden or teak oonjal swing for your wedding, baby shower or engagement. Sizes, pricing and pairing tips for South Indian functions.',
     seoDescription:
@@ -647,6 +658,7 @@ export const BLOG_POSTS = [
   {
     slug: 'event-backdrop-rental-guide',
     title: 'Event Backdrop Rental Guide — Types, Sizes and Setup Tips',
+    seoTitle: 'Event Backdrop Rental Guide — Types & Setup Tips',
     excerpt:
       'Choose the right backdrop for your naming ceremony, birthday or wedding reception. Floral walls, grass panels, ring setups and stands explained.',
     seoDescription:
@@ -692,6 +704,7 @@ export const BLOG_POSTS = [
   {
     slug: 'birthday-party-rental-ideas-budget',
     title: 'Birthday Party Rental Ideas on a Budget — Cake Stands, Backdrops & Kids Cars',
+    seoTitle: 'Birthday Party Rental Ideas on a Budget',
     excerpt:
       'Plan a memorable kids birthday without buying décor. Rent cake stands, backdrops, baby cars and party props in Chennai from PakkaRent.',
     seoDescription:
@@ -734,6 +747,7 @@ export const BLOG_POSTS = [
   {
     slug: 'camping-gear-rental-checklist-chennai',
     title: 'Camping Gear Rental Checklist — Weekend Trips Near Chennai',
+    seoTitle: 'Camping Gear Rental Checklist for Chennai Trips',
     excerpt:
       'Everything to rent for a camping weekend — tent, sleeping bag, barbeque, cooler and life jacket. A practical checklist for Tamil Nadu outdoor trips.',
     seoDescription:
@@ -774,6 +788,7 @@ export const BLOG_POSTS = [
   {
     slug: 'rent-vs-buy-home-appliances-chennai',
     title: 'Rent vs Buy Home Appliances in Chennai — When Rental Saves More',
+    seoTitle: 'Rent vs Buy Home Appliances in Chennai',
     excerpt:
       'Compare monthly rent for washing machine, fridge, AC and TV against purchase cost. See when appliance rental makes financial sense in Chennai.',
     seoDescription:
@@ -821,6 +836,7 @@ export const BLOG_POSTS = [
   {
     slug: 'baby-props-rental-travel-guide',
     title: 'Baby Props Rental for Travel — Stroller, Car Seat, Crib & High Chair',
+    seoTitle: 'Baby Props Rental for Travel: Stroller & Car Seat',
     excerpt:
       'Travelling with a baby to Chennai? Rent a stroller, car seat, crib and high chair instead of carrying bulky gear.',
     seoDescription:
@@ -857,6 +873,7 @@ export const BLOG_POSTS = [
   {
     slug: 'corporate-event-games-rental-team-building',
     title: 'Corporate Event Games Rental — Team Building Ideas for Companies',
+    seoTitle: 'Corporate Event Games Rental for Team Building',
     excerpt:
       'Organise tug of war, moonwalk bouncy castle and outdoor games for corporate offsites and annual days. Rent team-building games in Chennai.',
     seoDescription:
@@ -895,6 +912,7 @@ export const BLOG_POSTS = [
   {
     slug: 'washing-machine-on-rent-bangalore-guide',
     title: 'Washing Machine on Rent in Bangalore — Plans, Brands & Delivery',
+    seoTitle: 'Washing Machine on Rent in Bangalore',
     excerpt:
       'Moving to Bangalore? Compare fully automatic washing machine rental plans, monthly pricing and doorstep delivery options before you book.',
     seoDescription:
@@ -935,6 +953,7 @@ export const BLOG_POSTS = [
   {
     slug: 'baby-stroller-rent-hyderabad-guide',
     title: 'Baby Stroller on Rent in Hyderabad — Travel & Short-Term Guide',
+    seoTitle: 'Baby Stroller on Rent in Hyderabad — Short-Term Guide',
     excerpt:
       'Visiting family in Hyderabad or need a stroller for a few weeks? How to rent a safe, comfortable baby stroller with doorstep delivery.',
     seoDescription:
@@ -1010,6 +1029,7 @@ export const BLOG_POSTS = [
   {
     slug: 'backdrop-rental-bangalore-ideas',
     title: 'Backdrop Rental Ideas in Bangalore — Birthdays, Haldi & Corporate Events',
+    seoTitle: 'Backdrop Rental Ideas in Bangalore',
     excerpt:
       'From floral walls to ring backdrops — trending backdrop rental ideas in Bangalore for birthdays, haldi ceremonies and office events.',
     seoDescription:
@@ -1049,6 +1069,7 @@ export const BLOG_POSTS = [
   {
     slug: 'wedding-event-rental-checklist-hyderabad',
     title: 'Wedding & Event Rental Checklist for Hyderabad Functions',
+    seoTitle: 'Wedding & Event Rental Checklist: Hyderabad',
     excerpt:
       'Planning a wedding or reception in Hyderabad? A complete checklist of cradles, oonjal, chairs, urli and décor items to rent.',
     seoDescription:
