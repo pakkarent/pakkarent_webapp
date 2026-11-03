@@ -3,7 +3,8 @@
  * Production static server.
  *
  * Priority:
- *  0) Legacy site redirects (/index.html?city=x, /Bangalore/index.html …) in one 301 hop
+ *  0) Legacy site redirects (/index.html?city=x, /Bangalore/index.html,
+ *     /Bangalore/products/baby/stroller.html …) in one 301 hop
  *  1) Redirects (serve.json) — old /rent/{slug}/{city} → /rent/{city}/{slug}
  *  2) Prerendered HTML under build/<path>/index.html (correct title/canonical for SEO)
  *  3) SPA fallback to index.html for known app routes missing a prerender file.
@@ -17,6 +18,7 @@ const fs = require('fs');
 const { promisify } = require('util');
 const handler = require('serve-handler');
 const errorTemplate = require('serve-handler/src/error');
+const { legacyPathTarget } = require('./legacy-urls');
 
 const BUILD_DIR = path.join(__dirname, 'build');
 const PORT = Number(process.env.PORT) || 3000;
@@ -49,7 +51,8 @@ function legacyRedirectTarget(req) {
     return null;
   }
   const { pathname, searchParams } = url;
-  const queryCity = String(searchParams.get('city') || '').toLowerCase();
+  const rawCity = String(searchParams.get('city') || '').toLowerCase();
+  const queryCity = rawCity === 'bengaluru' ? 'bangalore' : rawCity;
 
   if (/^\/index(\.html)?$/i.test(pathname) || (pathname === '/' && searchParams.has('city'))) {
     return CITIES.includes(queryCity) ? `/${queryCity}` : '/';
@@ -198,6 +201,16 @@ async function defaultSendError(absolutePath, response, acceptsJSON, current, ha
 
 const config = loadConfig();
 
+function loadLegacyCatalog() {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(BUILD_DIR, 'legacy-catalog.json'), 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+const legacyCatalog = loadLegacyCatalog();
+
 /** Exact-path serve.json redirects, applied before cleanUrls strips ".html" (avoids a 2-hop chain). */
 const exactRedirects = new Map(
   (config.redirects || [])
@@ -207,6 +220,7 @@ const exactRedirects = new Map(
 
 const server = http.createServer((request, response) => {
   const legacyTarget = legacyRedirectTarget(request)
+    || legacyPathTarget(requestPathname(request), legacyCatalog)
     || exactRedirects.get(requestPathname(request));
   if (legacyTarget) {
     sendRedirect(response, legacyTarget);

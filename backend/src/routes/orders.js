@@ -37,6 +37,21 @@ function linePriceMonthly(p, tenureMonths) {
   return Number(p.monthly_price);
 }
 
+/** Mirrors getDayWeekTiers in the frontend: short-stay rate, then weekly rate per started week. */
+function linePriceForDays(p, days) {
+  const specs = p.specs && typeof p.specs === 'object' ? p.specs : {};
+  const amount = (value) => {
+    const m = String(value || '').match(/\d[\d,]*/);
+    return m ? Number(m[0].replace(/,/g, '')) : null;
+  };
+  const week = amount(specs.price_1_week);
+  const twoDay = amount(specs.price_1_2_days);
+  const oneDay = amount(specs.price_1_day);
+  if (!week || (!twoDay && !oneDay)) return Number(p.monthly_price);
+  if (days <= (twoDay ? 2 : 1)) return twoDay || oneDay;
+  return Math.ceil(days / 7) * week;
+}
+
 function dateToYMD(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -102,7 +117,7 @@ async function prepareOrderLines(client, items, { tenure_months, start_date, end
   for (const { product_id, quantity, p } of rows) {
     const price = isMonthlyProductRow(p)
       ? linePriceMonthly(p, orderTenureMonths)
-      : Number(p.monthly_price);
+      : linePriceForDays(p, rentalDaysInclusive(orderStart, orderEnd));
     total_amount += price * quantity;
     total_deposit += Number(p.security_deposit || 0) * quantity;
     lines.push({ product_id, quantity, unit_price: price });

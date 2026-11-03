@@ -20,6 +20,33 @@ export function getPricingType(product) {
   return 'per_event';
 }
 
+function tierAmount(value) {
+  const m = String(value || '').match(/\d[\d,]*/);
+  return m ? Number(m[0].replace(/,/g, '')) : null;
+}
+
+/**
+ * Short-stay and weekly rates stored in specs (baby gear), or null for flat-rate products.
+ * monthly_price holds the weekly rate on some of these rows, so it must not be shown as a day rate.
+ */
+export function getDayWeekTiers(product) {
+  if (Number(product?.offer_discount_percent) > 0) return null;
+  const specs = safeJsonObject(product?.specs);
+  const weekPrice = tierAmount(specs.price_1_week);
+  const twoDay = tierAmount(specs.price_1_2_days);
+  const oneDay = tierAmount(specs.price_1_day);
+  if (!weekPrice || (!twoDay && !oneDay)) return null;
+  return twoDay
+    ? { shortDays: 2, shortLabel: '1–2 days', shortPrice: twoDay, weekPrice }
+    : { shortDays: 1, shortLabel: '1 day', shortPrice: oneDay, weekPrice };
+}
+
+/** Short-stay rate up to its day limit, then the weekly rate per started week. */
+export function tierPriceForDays(tiers, days) {
+  if (days <= tiers.shortDays) return tiers.shortPrice;
+  return Math.ceil(days / 7) * tiers.weekPrice;
+}
+
 export function isMonthlyRentalProduct(product) {
   if (isMonthlyCategory(product?.category_id)) return true;
   return getPricingType(product) === 'per_month';
@@ -46,6 +73,8 @@ export function basePriceLabel(pricingType) {
 }
 
 export function priceUnitSuffix(product) {
+  const tiers = getDayWeekTiers(product);
+  if (tiers) return `/${tiers.shortLabel}`;
   const pricingType = getPricingType(product);
   if (pricingType === 'per_month') return '/mo';
   if (pricingType === 'per_event') return '/event';
@@ -53,6 +82,7 @@ export function priceUnitSuffix(product) {
 }
 
 export function priceUnitLabel(product) {
+  if (getDayWeekTiers(product)) return 'for selected dates';
   const pricingType = getPricingType(product);
   if (pricingType === 'per_month') return 'per month';
   if (pricingType === 'per_event') return 'per event';
@@ -60,6 +90,7 @@ export function priceUnitLabel(product) {
 }
 
 export function pricePeriodHeading(product) {
+  if (getDayWeekTiers(product)) return 'Short-term rent';
   const pricingType = getPricingType(product);
   if (pricingType === 'per_month') return 'Monthly rent';
   if (pricingType === 'per_event') return 'Event rent';
@@ -67,6 +98,7 @@ export function pricePeriodHeading(product) {
 }
 
 export function rateLabel(product, tenureMonths = 1) {
+  if (getDayWeekTiers(product)) return 'Rate (selected dates):';
   const pricingType = getPricingType(product);
   if (pricingType === 'per_month') return `Rate (${tenureMonths} mo plan):`;
   if (pricingType === 'per_event') return 'Rate (per event):';

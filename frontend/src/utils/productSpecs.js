@@ -12,6 +12,8 @@ const HIDDEN_KEYS = new Set([
   'price_per_letter',
   'price_range',
   'price_1_day',
+  'price_1_2_days',
+  'price_1_week',
   'price_2_3_days',
   'price_10_chairs',
   'price_20_chairs',

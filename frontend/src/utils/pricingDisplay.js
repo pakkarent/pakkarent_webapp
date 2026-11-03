@@ -1,4 +1,4 @@
-import { isMonthlyRentalProduct } from './productPricing';
+import { getDayWeekTiers, isMonthlyRentalProduct, tierPriceForDays } from './productPricing';
 
 /**
  * Server sends base prices plus optional offer_* fields when a % discount applies.
@@ -31,7 +31,15 @@ export function effectivePriceForTenure(product, tenure) {
 
 /** Unit rate for day/event rentals (monthly_price column stores per-day or per-event rate). */
 export function unitDayPrice(product) {
+  const tiers = getDayWeekTiers(product);
+  if (tiers) return tiers.shortPrice;
   return Number(product.monthly_price) || 0;
+}
+
+/** Rate for the chosen dates: only products with day/week tiers vary by rental length. */
+export function rentalPriceForDays(product, days) {
+  const tiers = getDayWeekTiers(product);
+  return tiers ? tierPriceForDays(tiers, days) : unitDayPrice(product);
 }
 
 /** Unit rate for event/day rentals with offer applied when available. */

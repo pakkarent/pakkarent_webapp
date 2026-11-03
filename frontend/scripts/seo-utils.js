@@ -203,6 +203,36 @@ function priceUnitWord(product) {
   return 'day';
 }
 
+/** Mirrors getDayWeekTiers in src/utils/productPricing.js. */
+function dayWeekTiers(product) {
+  const specs = product?.specs && typeof product.specs === 'object' ? product.specs : {};
+  if (Number(product?.offer_discount_percent) > 0) return null;
+  const amount = (value) => {
+    const m = String(value || '').match(/\d[\d,]*/);
+    return m ? Number(m[0].replace(/,/g, '')) : null;
+  };
+  const week = amount(specs.price_1_week);
+  const twoDay = amount(specs.price_1_2_days);
+  const oneDay = amount(specs.price_1_day);
+  if (!week || (!twoDay && !oneDay)) return null;
+  return twoDay
+    ? { shortLabel: '1–2 days', shortPrice: twoDay, weekPrice: week }
+    : { shortLabel: '1 day', shortPrice: oneDay, weekPrice: week };
+}
+
+/** Lowest price a customer can actually pay (the rate Google and the feed should show). */
+function startingPrice(product) {
+  const tiers = dayWeekTiers(product);
+  return tiers ? tiers.shortPrice : Number(product.monthly_price);
+}
+
+/** e.g. "₹900 for 1–2 days or ₹1,500 per week", or "₹800 per day". */
+function priceSummary(product) {
+  const tiers = dayWeekTiers(product);
+  if (tiers) return `₹${formatInr(tiers.shortPrice)} for ${tiers.shortLabel} or ₹${formatInr(tiers.weekPrice)} per week`;
+  return `₹${formatInr(product.monthly_price)} per ${priceUnitWord(product)}`;
+}
+
 function productImageUrls(product) {
   const images = Array.isArray(product?.images) ? product.images : [];
   const urls = images
@@ -241,7 +271,6 @@ function productBody(product, images) {
   const name = escapeHtml(product.name);
   const cityLabel = product.city === 'all' ? 'India' : product.city;
   const city = escapeHtml(cityLabel);
-  const unit = priceUnitWord(product);
   const category = escapeHtml(product.category_name || 'Rentals');
   const cityHref = product.city === 'all' ? '/products' : `/${cityUrlSegment(product.city)}`;
   const description = product.description
@@ -269,7 +298,7 @@ function productBody(product, images) {
     `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="${cityHref}">${city}</a> › <a href="${categoryPath(product)}">${category}</a> › ${name}</nav>`,
     `<h1>${name} on Rent in ${city}</h1>`,
     gallery ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">${gallery}</div>` : '',
-    `<p><strong>₹${formatInr(product.monthly_price)} per ${unit}</strong></p>`,
+    `<p><strong>${priceSummary(product)}</strong></p>`,
     tierList,
     deposit,
     description,
@@ -281,11 +310,12 @@ function productBody(product, images) {
 
 function productMeta(product) {
   const cityLabel = product.city === 'all' ? 'India' : product.city;
-  const unit = priceUnitWord(product);
   const images = productImageUrls(product);
+  const tiers = dayWeekTiers(product);
+  const fromPrice = tiers ? priceSummary(product) : `₹${product.monthly_price}/${priceUnitWord(product)}`;
   return {
     title: `${product.name} on Rent in ${cityLabel} | PakkaRent`,
-    description: `Rent ${product.name} in ${cityLabel} from ₹${product.monthly_price}/${unit}. Flexible rental on PakkaRent.`,
+    description: `Rent ${product.name} in ${cityLabel} from ${fromPrice}. Flexible rental on PakkaRent.`,
     path: productPath(product),
     body: productBody(product, images),
     jsonLd: {
@@ -301,7 +331,7 @@ function productMeta(product) {
         '@type': 'Offer',
         url: `${SITE_URL}${productPath(product)}`,
         priceCurrency: 'INR',
-        price: String(product.monthly_price),
+        price: String(startingPrice(product)),
         availability: 'https://schema.org/InStock',
       },
     },
@@ -404,7 +434,7 @@ function collectPrerenderRoutes(products) {
   }
 
   const productLinks = (list) => (list.length
-    ? `<ul>${list.map((p) => `<li><a href="${productPath(p)}">${escapeHtml(p.name)}</a> — ₹${formatInr(p.monthly_price)}/${priceUnitWord(p)}</li>`).join('')}</ul>`
+    ? `<ul>${list.map((p) => `<li><a href="${productPath(p)}">${escapeHtml(p.name)}</a> — ${priceSummary(p)}</li>`).join('')}</ul>`
     : '');
 
   for (const city of CITY_SEGMENTS) {
@@ -476,6 +506,9 @@ module.exports = {
   collectPrerenderRoutes,
   productMeta,
   priceUnitWord,
+  priceSummary,
+  startingPrice,
+  dayWeekTiers,
   productImageUrls,
   productDetailItems,
 };

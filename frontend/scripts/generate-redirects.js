@@ -4,10 +4,17 @@
  *  - /products/:id → /rent/{city}/{slug}
  *  - /rent/{slug}/{city} → /rent/{city}/{slug}  (URL migration)
  *  - bare-path copies of legacy .html rules
+ * Also writes build/legacy-catalog.json: what each city stocks, for legacy-urls.js.
  */
 const fs = require('fs');
 const path = require('path');
-const { fetchAllProducts, productPath, legacySlugCityProductPath } = require('./seo-utils');
+const {
+  CATEGORY_SLUGS,
+  cityUrlSegment,
+  fetchAllProducts,
+  productPath,
+  legacySlugCityProductPath,
+} = require('./seo-utils');
 
 const CITY_SEGMENTS = new Set(['chennai', 'bangalore', 'hyderabad', 'india']);
 
@@ -28,11 +35,27 @@ function rewriteRentDestination(dest) {
   return dest;
 }
 
+function writeLegacyCatalog(products) {
+  const catalog = {};
+  for (const city of ['chennai', 'bangalore', 'hyderabad']) {
+    const stocked = products.filter((p) => p.slug && (p.city === 'all' || cityUrlSegment(p.city) === city));
+    catalog[city] = {
+      slugs: [...new Set(stocked.map((p) => p.slug))],
+      categories: [...new Set(stocked.map((p) => CATEGORY_SLUGS[Number(p.category_id) - 1]).filter(Boolean))],
+      subcategories: [...new Set(stocked.map((p) => Number(p.subcategory_id)).filter(Boolean))],
+    };
+  }
+  const file = path.join(__dirname, '..', 'build', 'legacy-catalog.json');
+  fs.writeFileSync(file, `${JSON.stringify(catalog)}\n`, 'utf8');
+}
+
 async function main() {
   const products = await fetchAllProducts().catch((err) => {
     console.warn(`Redirects: product fetch failed (${err.message}) — keeping existing rules`);
     return [];
   });
+
+  if (products.length) writeLegacyCatalog(products);
 
   const productIdRedirects = products
     .filter((p) => p.id && p.slug && productPath(p)?.startsWith('/rent/'))

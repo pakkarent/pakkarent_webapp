@@ -9,6 +9,7 @@ import {
   offerPriceForTenure,
   effectivePriceForTenure,
   displayUnitPrice,
+  rentalPriceForDays,
 } from '../utils/pricingDisplay';
 import { resolveImageUrl, resolveThumbnailUrl, safeJsonArray, imageErrorFallback } from '../utils/media';
 import { formatCategoryLabel } from '../utils/categoryUtils';
@@ -23,7 +24,7 @@ import useSEO from '../hooks/useSEO';
 import JsonLd from '../components/common/JsonLd';
 import Breadcrumb from '../components/common/Breadcrumb';
 import { getProductPath, getProductUrl, getCategoryPath } from '../utils/productUrls';
-import { rateLabel, schemaPriceUnit } from '../utils/productPricing';
+import { getDayWeekTiers, rateLabel, schemaPriceUnit } from '../utils/productPricing';
 import { citySpecificDescription, citySpecificMetaDescription } from '../utils/productSeo';
 import './ProductDetail.css';
 
@@ -232,7 +233,10 @@ export default function ProductDetail({ citySegment: cityProp, slug: slugProp } 
   const displaySpecs = getDisplaySpecs(product);
   const monthlyProduct = isMonthlyRentalProduct(product);
 
-  const getPrice = () => displayUnitPrice(product, selectedTenure);
+  const dayWeekTiers = getDayWeekTiers(product);
+  const getPrice = () => (dayWeekTiers
+    ? rentalPriceForDays(product, rentalDaysInclusive(detailRentStart, detailRentEnd))
+    : displayUnitPrice(product, selectedTenure));
 
   const tenurePriceDisplay = (months) => {
     const orig = originalPriceForTenure(product, months);
@@ -399,6 +403,18 @@ export default function ProductDetail({ citySegment: cityProp, slug: slugProp } 
               )}
 
               <div className="price-info">
+                {dayWeekTiers && (
+                  <>
+                    <div className="price-row">
+                      <span>{dayWeekTiers.shortLabel}:</span>
+                      <span className="price-value">₹{dayWeekTiers.shortPrice}</span>
+                    </div>
+                    <div className="price-row">
+                      <span>Per week:</span>
+                      <span className="price-value">₹{dayWeekTiers.weekPrice}</span>
+                    </div>
+                  </>
+                )}
                 <div className="price-row">
                   <span>
                     {rateLabel(product, selectedTenure)}

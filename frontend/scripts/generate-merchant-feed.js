@@ -14,6 +14,9 @@ const {
   cityUrlSegment,
   productPath,
   priceUnitWord,
+  priceSummary,
+  startingPrice,
+  dayWeekTiers,
   productImageUrls,
   productDetailItems,
 } = require('./seo-utils');
@@ -45,10 +48,9 @@ function feedId(product) {
 
 function feedDescription(product) {
   const city = cityLabel(product);
-  const unit = priceUnitWord(product);
   const details = productDetailItems(product);
   const parts = [
-    `Rent ${product.name} in ${city} from PakkaRent. Price is per ${unit}.`,
+    `Rent ${product.name} in ${city} from PakkaRent. Price: ${priceSummary(product).replace(/₹/g, 'Rs. ')}.`,
     details.length ? `${details.join('. ').replace(/\.\./g, '.')}.` : '',
     Number(product.security_deposit) > 0
       ? `Refundable security deposit: Rs. ${Number(product.security_deposit).toFixed(0)}.`
@@ -60,7 +62,7 @@ function feedDescription(product) {
 
 function feedItem(product) {
   const images = productImageUrls(product).filter((src) => !src.endsWith('/og-image.png'));
-  const regular = price(product.monthly_price);
+  const regular = price(startingPrice(product));
   if (!product.slug || !regular || !images.length) return null;
 
   const sale = Number(product.offer_discount_percent) > 0 ? price(product.offer_monthly_price) : null;
@@ -82,7 +84,7 @@ function feedItem(product) {
     ['g:identifier_exists', 'no'],
     productType ? ['g:product_type', productType] : null,
     ['g:custom_label_0', cityLabel(product)],
-    ['g:custom_label_1', `per ${priceUnitWord(product)}`],
+    ['g:custom_label_1', dayWeekTiers(product) ? 'per day or week' : `per ${priceUnitWord(product)}`],
   ].filter(Boolean);
 
   return `    <item>\n${fields.map(([tag, value]) => `      <${tag}>${xml(value)}</${tag}>`).join('\n')}\n    </item>`;
