@@ -1,4 +1,4 @@
-import { getPricingType } from './productPricing';
+import { getDayWeekTiers, getPricingType } from './productPricing';
 
 const CITY_NAMES = ['Chennai', 'Bangalore', 'Hyderabad'];
 
@@ -36,8 +36,11 @@ export function citySpecificDescription(product) {
 
 export function citySpecificMetaDescription(product) {
   const cityLabel = product?.city === 'all' ? 'India' : product?.city;
-  const price = product?.monthly_price;
+  const tiers = getDayWeekTiers(product);
   const unit = getPricingType(product) === 'per_month' ? 'month' : getPricingType(product) === 'per_event' ? 'event' : 'day';
+  const priceText = tiers
+    ? `₹${tiers.shortPrice} for ${tiers.shortLabel} or ₹${tiers.weekPrice} per week`
+    : `₹${product?.monthly_price}/${unit}`;
   const snippet = citySpecificDescription(product).slice(0, 100);
-  return `Rent ${product?.name} in ${cityLabel} from ₹${price}/${unit}. ${snippet} Flexible rental on PakkaRent.`;
+  return `Rent ${product?.name} in ${cityLabel} from ${priceText}. ${snippet} Flexible rental on PakkaRent.`;
 }

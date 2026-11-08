@@ -26,6 +26,7 @@ import Breadcrumb from '../components/common/Breadcrumb';
 import { getProductPath, getProductUrl, getCategoryPath } from '../utils/productUrls';
 import { getDayWeekTiers, rateLabel, schemaPriceUnit } from '../utils/productPricing';
 import { citySpecificDescription, citySpecificMetaDescription } from '../utils/productSeo';
+import { productSearchCopy, productSeoTitle } from '../content/searchTerms';
 import './ProductDetail.css';
 
 const PLACEHOLDER_IMG = 'https://via.placeholder.com/400x400?text=PakkaRent';
@@ -83,7 +84,7 @@ export default function ProductDetail({ citySegment: cityProp, slug: slugProp } 
   const slug = slugProp || params.slug;
   const citySegment = cityProp || params.city;
   const navigate = useNavigate();
-  const { confirmCityForCatalog } = useCity();
+  const { confirmCityForCatalog, syncCityFromRoute } = useCity();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -103,7 +104,9 @@ export default function ProductDetail({ citySegment: cityProp, slug: slugProp } 
           const res = await productAPI.getBySlug(slug, citySegment);
           setProduct(res.data.product);
           setSelectedImage(0);
-          confirmCityForCatalog();
+          // Show the product's city in the header, not whichever city the visitor last picked.
+          if (res.data.product?.city && res.data.product.city !== 'all') syncCityFromRoute(res.data.product.city);
+          else confirmCityForCatalog();
           break;
         } catch (err) {
           const status = err.response?.status;
@@ -118,7 +121,7 @@ export default function ProductDetail({ citySegment: cityProp, slug: slugProp } 
       setLoading(false);
     };
     if (slug && citySegment) fetch();
-  }, [slug, citySegment, confirmCityForCatalog]);
+  }, [slug, citySegment, confirmCityForCatalog, syncCityFromRoute]);
 
   useEffect(() => {
     if (!product) return;
@@ -136,9 +139,7 @@ export default function ProductDetail({ citySegment: cityProp, slug: slugProp } 
   const productPath = product ? getProductPath(product) : `/rent/${citySegment}/${slug}`;
 
   useSEO({
-    title: product
-      ? `${product.name} on Rent in ${product.city === 'all' ? 'India' : product.city}`
-      : 'Product not found',
+    title: product ? productSeoTitle(product) : 'Product not found',
     description: product
       ? citySpecificMetaDescription(product)
       : 'This product is not available on PakkaRent.',
@@ -343,6 +344,9 @@ export default function ProductDetail({ citySegment: cityProp, slug: slugProp } 
             </div>
             <h1 className="product-name">{product.name}</h1>
             <p className="product-description">{citySpecificDescription(product)}</p>
+            {productSearchCopy(product) && (
+              <p className="product-description">{productSearchCopy(product)}</p>
+            )}
 
             <div className="pricing-section">
               {monthlyProduct ? (

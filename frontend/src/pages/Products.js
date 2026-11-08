@@ -10,6 +10,7 @@ import { cityFromUrlSegment, isCityUrlSegment } from '../utils/cityUrls';
 import useSEO from '../hooks/useSEO';
 import { getCategoryPath, getCategoryUrl, getProductUrl } from '../utils/productUrls';
 import JsonLd from '../components/common/JsonLd';
+import { categoryIntro, categorySeoTitle } from '../content/searchTerms';
 import './Products.css';
 
 export default function Products() {
@@ -80,6 +81,9 @@ export default function Products() {
 
   const seoTitle = (() => {
     if (search) return `Search results for "${search}" in ${effectiveCity}`;
+    if (category_id && !subcategory_id && categorySeoTitle(category_id, effectiveCity)) {
+      return categorySeoTitle(category_id, effectiveCity);
+    }
     if (activeCategoryName) return `${activeCategoryName} on Rent in ${effectiveCity}`;
     if (featured) return `Featured Rentals in ${effectiveCity}`;
     return `All Rentals in ${effectiveCity}`;
@@ -87,8 +91,11 @@ export default function Products() {
 
   const seoDesc = (() => {
     const base = `${total || 'Hundreds of'} rental products`;
+    if (category_id && !subcategory_id && categoryIntro(category_id, effectiveCity)) {
+      return categoryIntro(category_id, effectiveCity);
+    }
     if (activeCategoryName) {
-      return `${base} in ${activeCategoryName} available on rent in ${effectiveCity}. Flexible monthly tenures, 24x7 support — only on PakkaRent.`;
+      return `${activeCategoryName} on rent in ${effectiveCity} — ${total || 'browse'} items with doorstep delivery and pickup from PakkaRent.`;
     }
     if (search) {
       return `Find rentals matching "${search}" in ${effectiveCity} on PakkaRent. Compare prices, plans and book in minutes.`;
@@ -268,6 +275,9 @@ export default function Products() {
         ]} />
         <div className="products-header">
           <h1>{activeCategoryName ? `${activeCategoryName} on Rent` : 'Products'}</h1>
+          {category_id && !subcategory_id && categoryIntro(category_id, effectiveCity) && (
+            <p>{categoryIntro(category_id, effectiveCity)}</p>
+          )}
           <p>{total} items found in {effectiveCity}</p>
         </div>
 

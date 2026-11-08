@@ -115,6 +115,12 @@ try {
 
 let SITE_PAGES = {};
 let FESTIVE_PAGES = {};
+let SEARCH_TERMS = null;
+try {
+  SEARCH_TERMS = loadSrcContent('content/searchTerms.js');
+} catch (err) {
+  console.warn(`Search terms: could not load (${err.message}) — using plain titles`);
+}
 try {
   SITE_PAGES = loadSrcContent('content/sitePages.js').SITE_PAGES || {};
   FESTIVE_PAGES = loadSrcContent('content/festivePages.js').FESTIVE_PAGES || {};
@@ -356,6 +362,7 @@ function productBody(product, images) {
     tierList,
     deposit,
     description,
+    SEARCH_TERMS?.productSearchCopy(product) ? `<p>${escapeHtml(SEARCH_TERMS.productSearchCopy(product))}</p>` : '',
     details.length ? `<h2>What's included</h2><ul>${details.map((d) => `<li>${escapeHtml(d)}</li>`).join('')}</ul>` : '',
     `<p>Book on WhatsApp or call <a href="tel:+919403890901">+91 94038 90901</a>. Delivery across ${city}.</p>`,
     `<p><a href="${categoryPath(product)}">More ${category} in ${city}</a> · <a href="/products">All rentals</a></p>`,
@@ -368,7 +375,7 @@ function productMeta(product) {
   const tiers = dayWeekTiers(product);
   const fromPrice = tiers ? priceSummary(product) : `₹${product.monthly_price}/${priceUnitWord(product)}`;
   return {
-    title: `${product.name} on Rent in ${cityLabel} | PakkaRent`,
+    title: `${SEARCH_TERMS ? SEARCH_TERMS.productSeoTitle(product) : `${product.name} on Rent in ${cityLabel}`} | PakkaRent`,
     description: `Rent ${product.name} in ${cityLabel} from ${fromPrice}. Flexible rental on PakkaRent.`,
     path: productPath(product),
     body: productBody(product, images),
@@ -537,10 +544,10 @@ function collectPrerenderRoutes(products) {
       const inCategory = inCity.filter((p) => Number(p.category_id) === index + 1);
       routes.push({
         path: `/products/${slug}/${city}`,
-        title: `${name} on Rent in ${cityName} | PakkaRent`,
-        description: `Browse ${name} products available on rent in ${cityName}. Flexible rental plans on PakkaRent.`,
+        title: `${SEARCH_TERMS?.categorySeoTitle(index + 1, cityName) || `${name} on Rent in ${cityName}`} | PakkaRent`,
+        description: SEARCH_TERMS?.categoryIntro(index + 1, cityName) || `Browse ${name} products available on rent in ${cityName}. Flexible rental plans on PakkaRent.`,
         noindex: !stockedSlugs.includes(slug),
-        body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1><p>Rent ${escapeHtml(name.replace(/ Rental$| on Rent$/, '').toLowerCase())} in ${escapeHtml(cityName)} from PakkaRent with doorstep delivery and pickup. Book on WhatsApp or call <a href="tel:+919403890901">+91 94038 90901</a>.</p>${productLinks(inCategory)}<p>More in ${escapeHtml(cityName)}: ${stockedSlugs.filter((s) => s !== slug).map((s) => `<a href="/products/${s}/${city}">${escapeHtml(CATEGORY_NAMES[s])}</a>`).join(' · ')}</p><p><a href="/${city}">All rentals in ${cityName}</a></p>`,
+        body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1><p>${escapeHtml(SEARCH_TERMS?.categoryIntro(index + 1, cityName) || `Rent ${name.replace(/ Rental$| on Rent$/, '').toLowerCase()} in ${cityName} from PakkaRent with doorstep delivery and pickup.`)} Book on WhatsApp or call <a href="tel:+919403890901">+91 94038 90901</a>.</p>${productLinks(inCategory)}<p>More in ${escapeHtml(cityName)}: ${stockedSlugs.filter((s) => s !== slug).map((s) => `<a href="/products/${s}/${city}">${escapeHtml(CATEGORY_NAMES[s])}</a>`).join(' · ')}</p><p><a href="/${city}">All rentals in ${cityName}</a></p>`,
       });
     });
   }
