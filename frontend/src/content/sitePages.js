@@ -190,7 +190,7 @@ export const SITE_PAGES = {
         heading: 'Cancellation policy',
         list: [
           'To cancel, kindly get in touch with our staff.',
-          '15+ days before the booked date: 100% advance refund.',
+          'Standard Deduction: ₹500 will be deducted from the advance amount towards cancellation charges.',
           '7–14 days before the booked date: 50% advance refund.',
           'Less than 7 days before the event date: no advance refund.',
         ],
