@@ -23,8 +23,9 @@ const FOLDER_CATEGORY = {
   games: 'games-rental',
 };
 
-/** Event subcategory IDs (stable seed IDs). */
+/** Event subcategory IDs (stable seed IDs) and their listing-page slugs. */
 const SUBCATEGORY = { cradle: 10, swing: 13, props: 12 };
+const SUBCATEGORY_SLUGS = { 10: 'cradle', 13: 'swings-oonjal', 11: 'chairs-furniture', 9: 'decor-urli', 12: 'props-stands' };
 
 /** Old file name → product slug. Files shared across folders behave the same in each. */
 const FILE_SLUG = {
@@ -103,13 +104,20 @@ function subcategoryFor(folder, file) {
   return null;
 }
 
-function listingTarget(city, folder, file, catalog) {
+/** Returned for old product pages whose category the city no longer stocks (server sends 410). */
+const GONE = 'GONE';
+
+function listingTarget(city, folder, file, catalog, isProductPage) {
   const entry = catalog?.[city];
   const category = FOLDER_CATEGORY[folder];
-  if (!entry || !entry.categories.includes(category)) return `/${city}`;
+  if (!entry) return `/${city}`;
+  if (!entry.categories.includes(category)) {
+    // Sending a product page to the city homepage is reported as a soft 404.
+    return isProductPage ? GONE : `/${city}`;
+  }
   const base = `/products/${category}/${city}`;
   const sub = subcategoryFor(folder, file);
-  return sub && entry.subcategories.includes(sub) ? `${base}?subcategory_id=${sub}` : base;
+  return sub && entry.subcategories.includes(sub) ? `${base}/${SUBCATEGORY_SLUGS[sub]}` : base;
 }
 
 /** Returns the new path for an old-site pathname, or null if it isn't one. */
@@ -126,7 +134,7 @@ function legacyPathTarget(pathname, catalog) {
 
     const slug = section === 'products' ? FILE_SLUG[file] : null;
     if (slug && catalog?.[city]?.slugs.includes(slug)) return `/rent/${city}/${slug}`;
-    return listingTarget(city, folder, file, catalog);
+    return listingTarget(city, folder, file, catalog, section === 'products' && Boolean(file));
   }
 
   const other = clean.match(/^(?:\/(chennai|bangalore|hyderabad))?\/(gallery|cradlegallery|photography)(?:\/.*)?$/);
@@ -136,4 +144,4 @@ function legacyPathTarget(pathname, catalog) {
   return null;
 }
 
-module.exports = { legacyPathTarget };
+module.exports = { legacyPathTarget, GONE };

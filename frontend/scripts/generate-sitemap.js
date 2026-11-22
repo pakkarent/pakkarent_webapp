@@ -19,6 +19,8 @@ const {
   SITE_URL,
   CITY_SEGMENTS,
   cityCategorySlugs,
+  citySubcategoryIds,
+  subcategoryPath,
   BLOG_SLUGS,
   BLOG_POSTS,
   cityUrlSegment,
@@ -116,6 +118,12 @@ function buildCityEntries(city, products) {
   // Empty categories stay out: Google treats a listing with no products as a soft 404.
   for (const slug of cityCategorySlugs(products, city)) {
     entries.push(urlEntry(`/products/${slug}/${city}`, { changefreq: 'weekly', priority: '0.8' }));
+  }
+
+  // Subcategory pages (e.g. /products/event-rental/bangalore/cradle) — the main landing
+  // pages for "cradle for rent {city}" searches.
+  for (const subId of citySubcategoryIds(products, city)) {
+    entries.push(urlEntry(subcategoryPath(subId, city), { changefreq: 'weekly', priority: '0.85' }));
   }
 
   for (const slug of CITY_BLOG_SLUGS[city] || []) {

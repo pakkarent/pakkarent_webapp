@@ -179,6 +179,10 @@ Cart is client-side (Context). Checkout sends WhatsApp inquiry (`frontend/src/ut
 ### SEO
 Per-route via `frontend/src/hooks/useSEO.js`. Blog posts include JSON-LD (`BlogPosting`, breadcrumbs).
 
+- **Event subcategory pages** have their own URLs: `/products/event-rental/{city}/{cradle|swings-oonjal|chairs-furniture|decor-urli|props-stands}`. Slugs live in `src/utils/categorySlugs.js`, `scripts/seo-utils.js`, `server.js` and `legacy-urls.js` — keep all four in sync. Old `?subcategory_id=` URLs 301 to them.
+- **Renamed or removed products**: add the old `/rent/{city}/{slug}` to `RETIRED_PRODUCTS` in `frontend/server.js` so it 301s instead of 404ing.
+- **Layout shift**: `#main-content` keeps `min-height: 100vh` so the footer never shows (and then jumps) while a page loads.
+
 ---
 
 ## Admin panel

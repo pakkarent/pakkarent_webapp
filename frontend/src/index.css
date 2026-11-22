@@ -105,8 +105,12 @@ input, select, textarea { font-family: inherit; }
 .loading { display: flex; align-items: center; justify-content: center; min-height: 200px; font-size: 16px; color: var(--gray); }
 .error-msg { color: var(--red); font-size: 13px; margin-top: 4px; }
 
+/* Keep the footer below the first screen while a page and its data load. At 60vh the
+   footer showed on mobile, then jumped away when content arrived — a ~0.13 layout
+   shift on every page (Search Console: "CLS issue: more than 0.1 (mobile)"). */
 #main-content {
-  min-height: 60vh;
+  min-height: 100vh;
+  min-height: 100svh;
 }
 
 @media (max-width: 768px) {

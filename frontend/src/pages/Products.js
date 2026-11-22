@@ -5,16 +5,16 @@ import { useCity } from '../context/CityContext';
 import ProductCard from '../components/common/ProductCard';
 import Breadcrumb from '../components/common/Breadcrumb';
 import { getParentCategories } from '../utils/categoryUtils';
-import { categoryIdFromSlug, isCategorySlug } from '../utils/categorySlugs';
+import { categoryIdFromSlug, isCategorySlug, subcategoryIdFromSlug } from '../utils/categorySlugs';
 import { cityFromUrlSegment, isCityUrlSegment } from '../utils/cityUrls';
 import useSEO from '../hooks/useSEO';
-import { getCategoryPath, getCategoryUrl, getProductUrl } from '../utils/productUrls';
+import { getProductUrl, getSubcategoryPath } from '../utils/productUrls';
 import JsonLd from '../components/common/JsonLd';
-import { categoryIntro, categorySeoTitle } from '../content/searchTerms';
+import { categoryIntro, categorySeoTitle, subcategoryIntro, subcategorySeoTitle } from '../content/searchTerms';
 import './Products.css';
 
 export default function Products() {
-  const { a: categorySlug, b: citySegment } = useParams();
+  const { a: categorySlug, b: citySegment, c: subcategorySlug } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
@@ -33,7 +33,11 @@ export default function Products() {
 
   const queryCategoryId = searchParams.get('category_id') || '';
   const category_id = routeCategoryId ? String(routeCategoryId) : queryCategoryId;
-  const subcategory_id = searchParams.get('subcategory_id') || '';
+  const routeSubcategoryId = routeCategoryId && subcategorySlug
+    ? subcategoryIdFromSlug(subcategorySlug)
+    : null;
+  const querySubcategoryId = searchParams.get('subcategory_id') || '';
+  const subcategory_id = routeSubcategoryId ? String(routeSubcategoryId) : querySubcategoryId;
   const search = searchParams.get('search');
   const featured = searchParams.get('featured');
   const effectiveCity = routeCity || city;
@@ -48,9 +52,7 @@ export default function Products() {
       navigate('/products');
       return;
     }
-    const path = getCategoryPath(catId, effectiveCity);
-    const qs = subId ? `?subcategory_id=${subId}` : '';
-    navigate(`${path}${qs}`);
+    navigate(getSubcategoryPath(catId, subId, effectiveCity));
   };
 
   useEffect(() => {
@@ -61,10 +63,15 @@ export default function Products() {
   useEffect(() => {
     if (routeCategoryId || search || featured) return;
     if (!queryCategoryId) return;
-    const slugPath = getCategoryPath(queryCategoryId, effectiveCity);
-    const qs = subcategory_id ? `?subcategory_id=${subcategory_id}` : '';
-    navigate(`${slugPath}${qs}`, { replace: true });
+    navigate(getSubcategoryPath(queryCategoryId, subcategory_id, effectiveCity), { replace: true });
   }, [queryCategoryId, subcategory_id, search, featured, routeCategoryId, effectiveCity, navigate]);
+
+  // Old /products/{category}/{city}?subcategory_id=10 links → /products/{category}/{city}/cradle
+  useEffect(() => {
+    if (!routeCategoryId || !routeCity || routeSubcategoryId || !querySubcategoryId) return;
+    const target = getSubcategoryPath(routeCategoryId, querySubcategoryId, routeCity);
+    if (!target.includes('?')) navigate(target, { replace: true });
+  }, [routeCategoryId, routeCity, routeSubcategoryId, querySubcategoryId, navigate]);
 
   const parentCategories = getParentCategories(categories);
 
@@ -84,6 +91,9 @@ export default function Products() {
     if (category_id && !subcategory_id && categorySeoTitle(category_id, effectiveCity)) {
       return categorySeoTitle(category_id, effectiveCity);
     }
+    if (subcategory_id && subcategorySeoTitle(subcategory_id, effectiveCity)) {
+      return subcategorySeoTitle(subcategory_id, effectiveCity);
+    }
     if (activeCategoryName) return `${activeCategoryName} on Rent in ${effectiveCity}`;
     if (featured) return `Featured Rentals in ${effectiveCity}`;
     return `All Rentals in ${effectiveCity}`;
@@ -93,6 +103,9 @@ export default function Products() {
     const base = `${total || 'Hundreds of'} rental products`;
     if (category_id && !subcategory_id && categoryIntro(category_id, effectiveCity)) {
       return categoryIntro(category_id, effectiveCity);
+    }
+    if (subcategory_id && subcategoryIntro(subcategory_id, effectiveCity)) {
+      return subcategoryIntro(subcategory_id, effectiveCity);
     }
     if (activeCategoryName) {
       return `${activeCategoryName} on rent in ${effectiveCity} — ${total || 'browse'} items with doorstep delivery and pickup from PakkaRent.`;
@@ -105,8 +118,7 @@ export default function Products() {
 
   const canonicalPath = (() => {
     if (routeCategoryId && routeCity && !search && !featured) {
-      const base = getCategoryPath(routeCategoryId, routeCity);
-      return subcategory_id ? `${base}?subcategory_id=${subcategory_id}` : base;
+      return getSubcategoryPath(routeCategoryId, subcategory_id, routeCity);
     }
     if (typeof window !== 'undefined') {
       return window.location.pathname + window.location.search;
@@ -119,7 +131,7 @@ export default function Products() {
     description: seoDesc,
     keywords: `${activeCategoryName ? activeCategoryName + ' on rent, ' : ''}rentals ${effectiveCity}, monthly rental ${effectiveCity}, appliances on rent, furniture on rent, baby gear rental, event rentals, PakkaRent`,
     canonical: canonicalPath,
-    noindex: Boolean(routeCategoryId) && !subcategory_id && !search && !loading && products.length === 0,
+    noindex: Boolean(routeCategoryId) && !search && !loading && products.length === 0,
   });
 
   const breadcrumbLd = useMemo(() => {
@@ -131,8 +143,7 @@ export default function Products() {
     if (activeCategoryName && category_id) {
       items.push({
         name: activeCategoryName,
-        url: getCategoryUrl(Number(category_id), effectiveCity, origin)
-          + (subcategory_id ? `?subcategory_id=${subcategory_id}` : ''),
+        url: `${origin}${getSubcategoryPath(Number(category_id), subcategory_id, effectiveCity)}`,
       });
     }
     return {
@@ -274,9 +285,16 @@ export default function Products() {
           ...(activeCategoryName ? [{ label: activeCategoryName }] : []),
         ]} />
         <div className="products-header">
-          <h1>{activeCategoryName ? `${activeCategoryName} on Rent` : 'Products'}</h1>
+          <h1>
+            {subcategory_id && subcategorySeoTitle(subcategory_id, effectiveCity)
+              ? subcategorySeoTitle(subcategory_id, effectiveCity)
+              : (activeCategoryName ? `${activeCategoryName} on Rent` : 'Products')}
+          </h1>
           {category_id && !subcategory_id && categoryIntro(category_id, effectiveCity) && (
             <p>{categoryIntro(category_id, effectiveCity)}</p>
+          )}
+          {subcategory_id && subcategoryIntro(subcategory_id, effectiveCity) && (
+            <p>{subcategoryIntro(subcategory_id, effectiveCity)}</p>
           )}
           <p>{total} items found in {effectiveCity}</p>
         </div>

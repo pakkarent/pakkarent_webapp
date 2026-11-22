@@ -1,4 +1,4 @@
-import { categorySlugFromId } from './categorySlugs';
+import { categorySlugFromId, subcategorySlugFromId } from './categorySlugs';
 import { cityUrlSegment } from './cityUrls';
 
 /**
@@ -25,6 +25,18 @@ export function getCategoryPath(categoryId, city) {
   const slug = categorySlugFromId(categoryId);
   if (!slug || !city) return `/products?category_id=${categoryId}`;
   return `/products/${slug}/${cityUrlSegment(city)}`;
+}
+
+/**
+ * Subcategory listing path: /products/event-rental/bangalore/cradle.
+ * Falls back to the ?subcategory_id= form for subcategories without a slug.
+ */
+export function getSubcategoryPath(categoryId, subcategoryId, city) {
+  const base = getCategoryPath(categoryId, city);
+  if (!subcategoryId) return base;
+  const subSlug = subcategorySlugFromId(subcategoryId);
+  if (subSlug && !base.includes('?')) return `${base}/${subSlug}`;
+  return `${base}${base.includes('?') ? '&' : '?'}subcategory_id=${subcategoryId}`;
 }
 
 /** Absolute product URL for schema / sharing. */

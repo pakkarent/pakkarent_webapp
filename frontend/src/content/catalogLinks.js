@@ -1,4 +1,4 @@
-import { getCategoryPath } from '../utils/productUrls';
+import { getCategoryPath, getSubcategoryPath } from '../utils/productUrls';
 
 const DEFAULT_CITY = 'Chennai';
 
@@ -6,11 +6,11 @@ const DEFAULT_CITY = 'Chennai';
 export const CATALOG_LINKS = {
   all: '/products',
   event: getCategoryPath(3, DEFAULT_CITY),
-  cradle: `${getCategoryPath(3, DEFAULT_CITY)}?subcategory_id=10`,
-  swings: `${getCategoryPath(3, DEFAULT_CITY)}?subcategory_id=13`,
-  chairs: `${getCategoryPath(3, DEFAULT_CITY)}?subcategory_id=11`,
-  decor: `${getCategoryPath(3, DEFAULT_CITY)}?subcategory_id=9`,
-  props: `${getCategoryPath(3, DEFAULT_CITY)}?subcategory_id=12`,
+  cradle: getSubcategoryPath(3, 10, DEFAULT_CITY),
+  swings: getSubcategoryPath(3, 13, DEFAULT_CITY),
+  chairs: getSubcategoryPath(3, 11, DEFAULT_CITY),
+  decor: getSubcategoryPath(3, 9, DEFAULT_CITY),
+  props: getSubcategoryPath(3, 12, DEFAULT_CITY),
   backdrop: getCategoryPath(4, DEFAULT_CITY),
   birthday: getCategoryPath(5, DEFAULT_CITY),
   babyProps: getCategoryPath(6, DEFAULT_CITY),
@@ -33,10 +33,10 @@ export function cityCatalogLinks(city) {
   return {
     city: `/${String(city).toLowerCase()}`,
     event,
-    cradle: `${event}?subcategory_id=10`,
-    swings: `${event}?subcategory_id=13`,
-    decor: `${event}?subcategory_id=9`,
-    props: `${event}?subcategory_id=12`,
+    cradle: getSubcategoryPath(3, 10, city),
+    swings: getSubcategoryPath(3, 13, city),
+    decor: getSubcategoryPath(3, 9, city),
+    props: getSubcategoryPath(3, 12, city),
     backdrop: getCategoryPath(4, city),
     birthday: getCategoryPath(5, city),
     babyProps: getCategoryPath(6, city),

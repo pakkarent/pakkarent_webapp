@@ -30,6 +30,29 @@ const CATEGORY_NAMES = {
   'games-rental': 'Games Rental',
 };
 
+/**
+ * Event subcategories with their own listing page: /products/event-rental/{city}/{slug}.
+ * Keep in sync with SUBCATEGORY_SLUGS in src/utils/categorySlugs.js.
+ */
+const SUBCATEGORY_SLUGS = { 10: 'cradle', 13: 'swings-oonjal', 11: 'chairs-furniture', 9: 'decor-urli', 12: 'props-stands' };
+const SUBCATEGORY_NAMES = { 10: 'Cradles', 13: 'Swings & Oonjal', 11: 'Chairs & Furniture', 9: 'Decor & Urli', 12: 'Props & Stands' };
+const EVENT_CATEGORY_ID = 3;
+
+function subcategoryPath(subcategoryId, city) {
+  const slug = SUBCATEGORY_SLUGS[Number(subcategoryId)];
+  return slug ? `/products/${CATEGORY_SLUGS[EVENT_CATEGORY_ID - 1]}/${city}/${slug}` : null;
+}
+
+/** Subcategory IDs with at least one product in the city (city-specific products only). */
+function citySubcategoryIds(products, city) {
+  const ids = new Set(
+    products
+      .filter((p) => p.slug && cityUrlSegment(p.city) === city && Number(p.category_id) === EVENT_CATEGORY_ID)
+      .map((p) => Number(p.subcategory_id))
+  );
+  return Object.keys(SUBCATEGORY_SLUGS).map(Number).filter((id) => ids.has(id));
+}
+
 const STATIC_ROUTES = [
   { path: '/', title: 'Rent Appliances, Event Items & Baby Gear | PakkaRent', description: 'PakkaRent makes it easy to rent home appliances, furniture, baby gear, camping kits and event rentals across Chennai, Bangalore and Hyderabad.' },
   { path: '/products', title: 'All Rentals | PakkaRent', description: 'Browse all rental products — appliances, event items, baby gear, camping kits and more in Chennai, Bangalore and Hyderabad.' },
@@ -539,17 +562,56 @@ function collectPrerenderRoutes(products) {
       description: meta.description,
       body: `<h1>${escapeHtml(meta.title.split('|')[0].trim())}</h1><p>${escapeHtml(meta.description)}</p><ul>${categoryLinks}</ul><h2>Rentals available in ${cityName}</h2>${productLinks(inCity)}`,
     });
+    const subIds = citySubcategoryIds(products, city);
+    const subLinks = (exceptId) => subIds
+      .filter((id) => id !== exceptId)
+      .map((id) => `<a href="${subcategoryPath(id, city)}">${escapeHtml(SUBCATEGORY_NAMES[id])} in ${cityName}</a>`)
+      .join(' · ');
     CATEGORY_SLUGS.forEach((slug, index) => {
       const name = CATEGORY_NAMES[slug];
       const inCategory = inCity.filter((p) => Number(p.category_id) === index + 1);
+      const subNav = index + 1 === EVENT_CATEGORY_ID && subIds.length ? `<p>Browse: ${subLinks(null)}</p>` : '';
       routes.push({
         path: `/products/${slug}/${city}`,
         title: `${SEARCH_TERMS?.categorySeoTitle(index + 1, cityName) || `${name} on Rent in ${cityName}`} | PakkaRent`,
         description: SEARCH_TERMS?.categoryIntro(index + 1, cityName) || `Browse ${name} products available on rent in ${cityName}. Flexible rental plans on PakkaRent.`,
         noindex: !stockedSlugs.includes(slug),
-        body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1><p>${escapeHtml(SEARCH_TERMS?.categoryIntro(index + 1, cityName) || `Rent ${name.replace(/ Rental$| on Rent$/, '').toLowerCase()} in ${cityName} from PakkaRent with doorstep delivery and pickup.`)} Book on WhatsApp or call <a href="tel:+919403890901">+91 94038 90901</a>.</p>${productLinks(inCategory)}<p>More in ${escapeHtml(cityName)}: ${stockedSlugs.filter((s) => s !== slug).map((s) => `<a href="/products/${s}/${city}">${escapeHtml(CATEGORY_NAMES[s])}</a>`).join(' · ')}</p><p><a href="/${city}">All rentals in ${cityName}</a></p>`,
+        body: `<h1>${escapeHtml(name)} on Rent in ${escapeHtml(cityName)}</h1><p>${escapeHtml(SEARCH_TERMS?.categoryIntro(index + 1, cityName) || `Rent ${name.replace(/ Rental$| on Rent$/, '').toLowerCase()} in ${cityName} from PakkaRent with doorstep delivery and pickup.`)} Book on WhatsApp or call <a href="tel:+919403890901">+91 94038 90901</a>.</p>${subNav}${productLinks(inCategory)}<p>More in ${escapeHtml(cityName)}: ${stockedSlugs.filter((s) => s !== slug).map((s) => `<a href="/products/${s}/${city}">${escapeHtml(CATEGORY_NAMES[s])}</a>`).join(' · ')}</p><p><a href="/${city}">All rentals in ${cityName}</a></p>`,
       });
     });
+
+    for (const subId of subIds) {
+      const inSub = inCity.filter((p) => Number(p.subcategory_id) === subId);
+      const title = SEARCH_TERMS?.subcategorySeoTitle(subId, cityName) || `${SUBCATEGORY_NAMES[subId]} on Rent in ${cityName}`;
+      const intro = SEARCH_TERMS?.subcategoryIntro(subId, cityName)
+        || `Rent ${SUBCATEGORY_NAMES[subId].toLowerCase()} in ${cityName} from PakkaRent, per event with delivery and pickup.`;
+      const eventPath = `/products/${CATEGORY_SLUGS[EVENT_CATEGORY_ID - 1]}/${city}`;
+      const others = subLinks(subId);
+      routes.push({
+        path: subcategoryPath(subId, city),
+        title: `${title} | PakkaRent`,
+        description: intro.length > 158 ? `${intro.slice(0, 155).replace(/\s+\S*$/, '')}…` : intro,
+        body: [
+          `<nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${city}">${cityName}</a> › <a href="${eventPath}">Event Rental</a> › ${escapeHtml(SUBCATEGORY_NAMES[subId])}</nav>`,
+          `<h1>${escapeHtml(title)}</h1>`,
+          `<p>${escapeHtml(intro)} Book on WhatsApp or call <a href="tel:+919403890901">+91 94038 90901</a>.</p>`,
+          `<h2>${escapeHtml(SUBCATEGORY_NAMES[subId])} available in ${cityName}</h2>`,
+          productLinks(inSub),
+          others ? `<p>Also in ${cityName}: ${others}</p>` : '',
+          `<p><a href="${eventPath}">All event rentals in ${cityName}</a> · <a href="/${city}">All rentals in ${cityName}</a></p>`,
+        ].join(''),
+        jsonLd: {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+            { '@type': 'ListItem', position: 2, name: cityName, item: `${SITE_URL}/${city}` },
+            { '@type': 'ListItem', position: 3, name: 'Event Rental', item: `${SITE_URL}${eventPath}` },
+            { '@type': 'ListItem', position: 4, name: SUBCATEGORY_NAMES[subId], item: `${SITE_URL}${subcategoryPath(subId, city)}` },
+          ],
+        },
+      });
+    }
   }
 
   for (const post of BLOG_POSTS) {
@@ -586,6 +648,9 @@ module.exports = {
   CITY_SEGMENTS,
   CATEGORY_SLUGS,
   cityCategorySlugs,
+  citySubcategoryIds,
+  subcategoryPath,
+  SUBCATEGORY_SLUGS,
   BLOG_SLUGS,
   BLOG_POSTS,
   cityUrlSegment,

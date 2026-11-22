@@ -31,6 +31,27 @@ const CATEGORY_INTROS = {
   8: 'Rent tug of war rope, bouncy castles, trampolines and team games for school, office and birthday events',
 };
 
+/**
+ * Subcategory listing pages (/products/event-rental/{city}/{slug}). These target the
+ * queries that bring the most impressions: "cradle for rent", "cradle for rent near me",
+ * "oonjal", "welcome board stand", "backdrop stand for rent", "chair rental".
+ */
+const SUBCATEGORY_TITLES = {
+  10: 'Baby Cradle on Rent',
+  13: 'Oonjal & Jhula Swing on Rent',
+  11: 'Chairs, Tables & Sofa on Rent',
+  9: 'Urli, Rolu Rokali & Haldi Items on Rent',
+  12: 'Welcome Board & Backdrop Stand on Rent',
+};
+
+const SUBCATEGORY_INTROS = {
+  10: 'Rent a baby cradle for the naming ceremony, cradle ceremony or photo shoot — silver, German silver, golden and teak wood cradles, rented per event with delivery, setup and pickup',
+  13: 'Rent a teak wood oonjal or golden jhula swing for seemantham, valaikappu, baby showers and weddings, rented per event with delivery and pickup',
+  11: 'Rent armless chairs, 6-feet function tables, royal teak chairs and golden sofas for home functions, rented per event with delivery',
+  9: 'Rent lotus urli, silver rolu rokali, gangalam and mangala snanam sets for haldi and wedding rituals, rented per event',
+  12: 'Rent welcome board stands, round backdrop stands, chalk board stands, red carpets and LED lights for weddings, birthdays and haldi, rented per event',
+};
+
 /** Local words for a cradle, swing and naming ceremony in each city. */
 const LOCAL_TERMS = {
   Chennai: { cradle: 'thottil', swing: 'oonjal', naming: 'naming ceremony (namakaranam)' },
@@ -41,6 +62,24 @@ const LOCAL_TERMS = {
 export function categorySeoTitle(categoryId, city) {
   const base = CATEGORY_TITLES[Number(categoryId)];
   return base ? `${base} in ${city}` : null;
+}
+
+export function subcategorySeoTitle(subcategoryId, city) {
+  const base = SUBCATEGORY_TITLES[Number(subcategoryId)];
+  if (!base) return null;
+  const full = `${base} in ${city}`;
+  // Keep under ~53 chars so " | PakkaRent" still fits in the search result.
+  return full.length <= 53 ? full : `${base.replace(/ on Rent$/, '')} Rent in ${city}`;
+}
+
+export function subcategoryIntro(subcategoryId, city) {
+  const intro = SUBCATEGORY_INTROS[Number(subcategoryId)];
+  if (!intro) return '';
+  const local = LOCAL_TERMS[city];
+  const extra = Number(subcategoryId) === 10 && local
+    ? ` Also called ${local.cradle} — for the ${local.naming}.`
+    : '';
+  return `${intro} in ${city}.${extra}`;
 }
 
 export function categoryIntro(categoryId, city) {

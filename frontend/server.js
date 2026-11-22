@@ -18,7 +18,7 @@ const fs = require('fs');
 const { promisify } = require('util');
 const handler = require('serve-handler');
 const errorTemplate = require('serve-handler/src/error');
-const { legacyPathTarget } = require('./legacy-urls');
+const { legacyPathTarget, GONE } = require('./legacy-urls');
 
 const BUILD_DIR = path.join(__dirname, 'build');
 const PORT = Number(process.env.PORT) || 3000;
@@ -26,7 +26,44 @@ const API_URL = (process.env.REACT_APP_API_URL || process.env.API_URL || 'https:
 const lstat = promisify(fs.lstat);
 
 const CITIES = ['chennai', 'bangalore', 'hyderabad'];
+
+/** Event subcategory pages — keep in sync with SUBCATEGORY_SLUGS in scripts/seo-utils.js. */
+const SUBCATEGORY_SLUGS = { 10: 'cradle', 13: 'swings-oonjal', 11: 'chairs-furniture', 9: 'decor-urli', 12: 'props-stands' };
 const RENT_CITY_SEGMENTS = new Set([...CITIES, 'india']);
+
+/**
+ * Products that were renamed or dropped, from Search Console's 404 / soft-404 reports.
+ * Keyed by /rent/{city}/{old-slug}; the /rent/{old-slug}/{city} form is matched too.
+ * Point each at the same product under its new slug, or at the closest listing.
+ */
+const RETIRED_PRODUCTS = {
+  '/rent/chennai/armless-chairs': '/rent/chennai/armless-chairs-10-nos',
+  '/rent/chennai/steel-tables-rental-6-feet': '/rent/chennai/function-tables-rental-6-feet',
+  '/rent/chennai/baby-car-for-birthday': '/rent/chennai/kids-car-rental',
+  '/rent/chennai/baby-jeep-rental': '/rent/chennai/kids-jeep-rental',
+  '/rent/chennai/bouncy-castle-rental-for-event': '/rent/chennai/grand-bouncy-castle-rental-for-event',
+  '/rent/chennai/teak-jhula-swing': '/products/event-rental/chennai/swings-oonjal',
+  '/rent/chennai/crown-cradle-ring-decoration': '/products/event-rental/chennai/cradle',
+  '/rent/hyderabad/compact-cradle': '/products/event-rental/hyderabad/cradle',
+  '/rent/chennai/flower-wall-backdrop': '/products/backdrop-rental/chennai',
+  '/rent/chennai/birthday-flowerwall-backdrop': '/products/backdrop-rental/chennai',
+  '/rent/chennai/baby-blue-backdrop': '/products/backdrop-rental/chennai',
+  '/rent/chennai/theme-decoration-setup': '/products/backdrop-rental/chennai',
+  '/rent/chennai/moon-walk-game': '/products/games-rental/chennai',
+};
+
+/** Old top-level folders with no single equivalent page. */
+const RETIRED_PATHS = {
+  '/decoration': '/products/backdrop-rental/chennai',
+};
+
+function retiredTarget(pathname) {
+  const clean = pathname.toLowerCase().replace(/\/+$/, '');
+  if (RETIRED_PATHS[clean]) return RETIRED_PATHS[clean];
+  const m = clean.match(/^\/rent\/([^/]+)\/([^/]+)$/);
+  if (!m) return null;
+  return RETIRED_PRODUCTS[clean] || RETIRED_PRODUCTS[`/rent/${m[2]}/${m[1]}`] || null;
+}
 
 /** Paths that should load the React app when no prerendered file exists. */
 const SPA_FALLBACK = [
@@ -56,6 +93,17 @@ function legacyRedirectTarget(req) {
 
   if (/^\/index(\.html)?$/i.test(pathname) || (pathname === '/' && searchParams.has('city'))) {
     return CITIES.includes(queryCity) ? `/${queryCity}` : '/';
+  }
+
+  // /products/event-rental/bangalore?subcategory_id=10 → /products/event-rental/bangalore/cradle
+  const sub = pathname.match(/^\/products\/event-rental\/(chennai|bangalore|hyderabad)\/?$/);
+  const subId = Number(searchParams.get('subcategory_id'));
+  if (sub && SUBCATEGORY_SLUGS[subId]) {
+    // Only to a subcategory page the city actually stocks; otherwise the event listing.
+    const stocked = !legacyCatalog || legacyCatalog[sub[1]]?.subcategories.includes(subId);
+    return stocked
+      ? `/products/event-rental/${sub[1]}/${SUBCATEGORY_SLUGS[subId]}`
+      : `/products/event-rental/${sub[1]}`;
   }
 
   const m = pathname.match(/^\/(chennai|bangalore|hyderabad)(\/index(\.html)?)?\/?$/i);
@@ -218,10 +266,29 @@ const exactRedirects = new Map(
     .map((r) => [r.source, r.destination])
 );
 
+function sendGone(res) {
+  // 410 tells Google the old page is gone for good; it drops out of the index faster
+  // than a 404 and is never reported as a soft 404.
+  res.statusCode = 410;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.end('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1"><title>No longer available | PakkaRent</title></head>'
+    + '<body style="font-family:system-ui,sans-serif;max-width:640px;margin:3rem auto;padding:0 1rem">'
+    + '<h1>This item is no longer available</h1><p>Browse what we rent today in '
+    + '<a href="/chennai">Chennai</a>, <a href="/bangalore">Bangalore</a> or <a href="/hyderabad">Hyderabad</a>.</p></body></html>');
+}
+
 const server = http.createServer((request, response) => {
+  const pathname = requestPathname(request);
   const legacyTarget = legacyRedirectTarget(request)
-    || legacyPathTarget(requestPathname(request), legacyCatalog)
-    || exactRedirects.get(requestPathname(request));
+    || retiredTarget(pathname)
+    || legacyPathTarget(pathname, legacyCatalog)
+    || exactRedirects.get(pathname);
+  if (legacyTarget === GONE) {
+    sendGone(response);
+    return;
+  }
   if (legacyTarget) {
     sendRedirect(response, legacyTarget);
     return;
@@ -245,6 +312,11 @@ const server = http.createServer((request, response) => {
               console.error('SPA fallback failed:', err.message);
             }
           }
+        } else if (/^\/products\/[^/]+\/(chennai|bangalore|hyderabad)\/[^/]+\/?$/.test(pathname)) {
+          // Subcategory pages are all prerendered; one with no file is unknown or not
+          // stocked in that city, so send it to the category page instead of a soft 404.
+          sendRedirect(res, pathname.replace(/\/[^/]+\/?$/, ''));
+          return;
         } else if (shouldSpaFallback(pathname)) {
           try {
             await serveIndexHtml(res, handlers, current);

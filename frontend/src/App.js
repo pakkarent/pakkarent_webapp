@@ -76,6 +76,7 @@ function AppContent() {
         <Route path="/hyderabad" element={<CityLanding />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:a/:b" element={<ProductsSlugRouter />} />
+        <Route path="/products/:a/:b/:c" element={<ProductsSlugRouter />} />
         <Route path="/rent/:city/:slug" element={<RentProductRoute />} />
         <Route path="/store/*" element={<LegacyStoreRoute />} />
         <Route path="/:prefix/products/:category/:filename" element={<LegacyProductRoute />} />

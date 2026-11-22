@@ -27,3 +27,28 @@ export function categorySlugFromId(id) {
 export function isCategorySlug(value) {
   return CATEGORY_SLUG_LIST.includes(String(value || '').toLowerCase());
 }
+
+/**
+ * Event subcategories get their own indexable listing page:
+ * /products/event-rental/{city}/{slug}, e.g. /products/event-rental/bangalore/cradle.
+ * Keep in sync with SUBCATEGORY_SLUGS in scripts/seo-utils.js.
+ */
+export const SUBCATEGORY_SLUGS = {
+  10: 'cradle',
+  13: 'swings-oonjal',
+  11: 'chairs-furniture',
+  9: 'decor-urli',
+  12: 'props-stands',
+};
+
+const SUB_SLUG_TO_ID = Object.fromEntries(
+  Object.entries(SUBCATEGORY_SLUGS).map(([id, slug]) => [slug, Number(id)])
+);
+
+export function subcategoryIdFromSlug(slug) {
+  return SUB_SLUG_TO_ID[String(slug || '').toLowerCase()] ?? null;
+}
+
+export function subcategorySlugFromId(id) {
+  return SUBCATEGORY_SLUGS[Number(id)] ?? null;
+}
