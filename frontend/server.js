@@ -67,7 +67,11 @@ function retiredTarget(pathname) {
 
 /** Paths that should load the React app when no prerendered file exists. */
 const SPA_FALLBACK = [
-  /^\/products(\/|$)/,
+  // Category and subcategory pages are all prerendered; anything else under /products/
+  // (e.g. /products/back) gets a real 404, except /products/{id} for products added
+  // after the last deploy.
+  /^\/products\/?$/,
+  /^\/products\/\d+\/?$/,
   /^\/blog(\/|$)/,
   /^\/festive(\/|$)/,
   /^\/(chennai|bangalore|hyderabad)\/?$/,
